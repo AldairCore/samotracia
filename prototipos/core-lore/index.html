@@ -475,8 +475,8 @@ function drawDense(T){
         for(let i=0;i<m;i++){const aa=rad(360*j/n+slot*(i+1)/(m+1)*.999+slot*0+rot+(slot*(0.5)-slot*0.5));ctx.save();ctx.translate(MCX,MCY);ctx.rotate(rad(360*j/n+rot)+rad(slot)*(i+1)/(m+1));ctx.translate(rg.r0+L*.06,0);ctx.globalAlpha=dimR?.12:1;
           const lw=Math.min(gap/m*.72,L*.6),ll=L*(i%2?.82:.98),ang=rad(360*j/n+rot)+rad(slot)*(i+1)/(m+1);dPetal('leaf',ll,lw);fillc(leafFill(rg.gi,leafGlow(ang,T,rg,j),VIV()?mix(G[rg.gi].color,'#050307',.55):mix(G[rg.gi].color,'#140c18',.35)));stroke(1.8,OUT);ctx.beginPath();ctx.moveTo(ll*.12,0);ctx.lineTo(ll*.86,0);stroke(1.2,OUT);ctx.restore();}
         continue;}
-      dPetal('leaf',L*.98,w*.72);fillc(leafFill(rg.gi,leafGlow(a,T,rg,j),VIV()?mix(G[rg.gi].color,'#050307',.55):mix(G[rg.gi].color,'#140c18',.35)));stroke(1.8,OUT);
-      ctx.beginPath();ctx.moveTo(L*.12,0);ctx.lineTo(L*.86,0);stroke(1.2,OUT);ctx.restore();}
+      dPetal('leaf',L*1.2,w*.62);fillc(leafFill(rg.gi,leafGlow(a,T,rg,j),VIV()?mix(G[rg.gi].color,'#050307',.55):mix(G[rg.gi].color,'#140c18',.35)));stroke(1.8,OUT);
+      ctx.beginPath();ctx.moveTo(L*.12,0);ctx.lineTo(L*1.08,0);stroke(1.2,OUT);ctx.restore();}
     dpetals.forEach(p=>{if(p.ring!==rg)return;const a=rad(p.a0+rot);p.hx=MCX+Math.cos(a)*mid;p.hy=MCY+Math.sin(a)*mid;p._g={rg,rot,L,w,mid,inner,n};
       const hovOther=hover&&dpetals.includes(hover)&&hover!==p&&false;
       denseSong(p,1,dimOf(p.g)?.15:(hover&&dpetals.includes(hover)&&hover!==p?.62:1),false);
