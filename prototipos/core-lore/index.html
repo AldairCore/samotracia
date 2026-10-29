@@ -447,6 +447,8 @@ function dotLeaf(L,hw,c0,c1,c2,hov,dr){
   const M=Math.max(4,Math.round(L*.6/(dr*2.8)));for(let i=0;i<M;i++){const t=.22+.6*i/(M-1),rr=dr*(.7+.9*Math.sin(Math.PI*(i/(M-1))));ctx.beginPath();ctx.arc(L*t,0,rr,0,Math.PI*2);fillc(c2);}
   ctx.beginPath();ctx.arc(L*.03,0,dr*.9,0,Math.PI*2);fillc(c0);ctx.beginPath();ctx.arc(L*.97,0,dr*.9,0,Math.PI*2);fillc(c0);
 }
+function layered(shape,L,w,gcol,t,hov){const cols=VIV()?[[1,gcol],[.78,'#050307'],[.72,CC(t)],[.42,CI(t)]]:[[1,gcol],[.7,CC(t)],[.42,CI(t)]];
+  cols.forEach(([k,col],li)=>{ctx.save();ctx.translate(li?L*(1-k)*.2:0,0);ctx.scale(k,k);dPetal(shape,L,w);fillc(col);ctx.lineWidth=(hov&&!li?3.4:2.2)/k;ctx.strokeStyle=hov&&!li?tok('--ink'):OUT;ctx.stroke();ctx.restore();});}
 const gViv=gi=>VIV()?hsl2hex(hex2hsl(G[gi].color)[0],.9,.6):G[gi].color;
 function drawDense(T){
   const MCX=500,MCY=500,R=Math.max(...drings.map(r=>r.r1))+40,rays=40,rr=-T*1.2;
@@ -458,12 +460,13 @@ function drawDense(T){
     // hojas de fondo entre pétalos
     const inner=rg.n<30;
     for(let j=0;j<n;j++){const a=rad(360*(j+.5)/n+rot);ctx.save();ctx.translate(MCX,MCY);ctx.rotate(a);ctx.translate(rg.r0+L*.1,0);ctx.globalAlpha=dimR?.12:1;
-      if(inner){const hw2=Math.min(2*Math.PI*(rg.r0+L*.55)/n*.5-6,L*.32);dotLeaf(L*.9,hw2,mix(gViv(rg.gi),'#050307',.35),mix(gViv(rg.gi),'#050307',.55),mix(gViv(rg.gi),'#050307',.35),false,2);ctx.restore();continue;}
+      if(inner){dPetal('leaf',L*.7,Math.min(w*.4,L*.34));fillc(VIV()?mix(G[rg.gi].color,'#050307',.8):mix(G[rg.gi].color,'#140c18',.5));stroke(1.6,OUT);ctx.restore();continue;}
       dPetal('leaf',L*.98,w*.72);fillc(VIV()?mix(G[rg.gi].color,'#050307',.55):mix(G[rg.gi].color,'#140c18',.35));stroke(1.8,OUT);
       ctx.beginPath();ctx.moveTo(L*.12,0);ctx.lineTo(L*.86,0);stroke(1.2,OUT);ctx.restore();}
     dpetals.forEach(p=>{if(p.ring!==rg)return;const dim=dimOf(p.g),hov=hover===p,s=hov?1.12:1,a=rad(p.a0+rot);p.hx=MCX+Math.cos(a)*mid;p.hy=MCY+Math.sin(a)*mid;
       ctx.save();ctx.translate(MCX,MCY);ctx.rotate(a);ctx.translate(rg.r0,0);ctx.globalAlpha=dim?.15:1;
-      if(inner){const hw=Math.min(w*.5,L*.48)*s;dotLeaf(L*s,hw,gViv(p.g),CC(p.t),CI(p.t),hov,2.7);ctx.restore();
+      if(inner){ctx.restore();const slot=rad(360/n),w5=Math.min(2*Math.PI*mid/(n*5)*1.15,L*.5);
+        [[-2,.74],[2,.74],[-1,.88],[1,.88],[0,1.04]].forEach(([o,k])=>{ctx.save();ctx.translate(MCX,MCY);ctx.rotate(a+o*slot/5);ctx.translate(rg.r0,0);ctx.globalAlpha=dim?.15:1;ctx.scale(s,s);layered(o===0?rg.shape:'drop',L*k,w5*(o===0?1.15:1),G[p.g].color,p.t,hov);ctx.restore();});
         const ad=rad(p.a0+180/n+rot);ctx.globalAlpha=dim?.15:1;ctx.beginPath();ctx.arc(MCX+Math.cos(ad)*(rg.r0+5),MCY+Math.sin(ad)*(rg.r0+5),2.6,0,Math.PI*2);fillc('#f4d35e');return;}
       (VIV()?[[1,G[p.g].color],[.78,'#050307'],[.72,CC(p.t)],[.42,CI(p.t)]]:[[1,G[p.g].color],[.7,CC(p.t)],[.42,CI(p.t)]]).forEach(([k,col],li)=>{ctx.save();ctx.translate(li?L*(1-k)*.2:0,0);ctx.scale(k*s,k*s);dPetal(rg.shape,L,w);fillc(col);ctx.lineWidth=(hov&&!li?3.4:2.2)/(k*s);ctx.strokeStyle=hov&&!li?tok('--ink'):OUT;ctx.stroke();
         if(rg.shape==='leaf'&&li===0){ctx.beginPath();ctx.moveTo(L*.05,0);ctx.lineTo(L*.95,0);for(let v=1;v<5;v++){const x=L*v/5;ctx.moveTo(x,0);ctx.lineTo(x+L*.08,-w*.22);ctx.moveTo(x,0);ctx.lineTo(x+L*.08,w*.22);}ctx.lineWidth=1.3/(k*s);ctx.stroke();}ctx.restore();});
