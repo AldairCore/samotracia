@@ -19,8 +19,8 @@ Estado verificado el 29 oct 2026. Las APIs cambian; revisa la documentación ofi
 Desde febrero de 2026 Spotify cambió el modo desarrollo de su API:
 
 - El dueño de la app necesita **Spotify Premium** activo; si se vence, la app deja de funcionar.
-- Apps nuevas: **1 Client ID por desarrollador** y **5 usuarios por app**. Suficiente para ti y tu pareja.
-- Las canciones de una playlist solo se devuelven para playlists **que el usuario es dueño o colaborador**. Core.Lore es tuya, así que funciona.
+- Apps nuevas: **1 Client ID por desarrollador** y **5 usuarios por app**. Alcanza para las dos voces; ella debe estar registrada como usuaria de la app.
+- Las canciones de una playlist solo se devuelven para playlists **que el usuario es dueño o colaborador**. Por eso cada quien importa sus propias playlists con su cuenta.
 - Se quitaron las consultas por lotes (`GET /tracks`, `/artists`, etc.): hay que pedir cada elemento por ID.
 - `GET /playlists/{id}/tracks` se renombró a `/items`.
 - Se quitaron campos como `popularity` y `followers`.
@@ -45,6 +45,6 @@ Las portadas y pósters no son nuestros. La app los **muestra en vivo desde la U
 | GitHub | Repositorio, issues para las fases, Projects como tablero |
 | VS Code | Editor; extensiones en `.vscode/extensions.json` |
 | Claude Code | Asistente dentro del repo; lee `CLAUDE.md` |
-| Docker Desktop | PostgreSQL local (Fase 2) |
+| Docker Desktop | PostgreSQL local (Fase 3) |
 | Spotify for Developers | Registrar la app y obtener el Client ID |
-| TMDB | Cuenta y API key (Fase 2) |
+| TMDB | Cuenta y API key (Fase 3) |

@@ -3,7 +3,12 @@
 Contexto para Claude Code en este repositorio.
 
 ## Qué es
-Proyecto personal de Aldair: figuras ilustradas (pavo real, árbol, dalia, galaxia) que representan colecciones de gustos (música, películas, series, comidas, viajes). Primero datos propios, después modo pareja. Plan completo en `docs/01-plan-del-proyecto.md`.
+Proyecto de Aldair y su novia: figuras ilustradas (pavo real, árbol, dalia, galaxia, eclipse) que representan colecciones de gustos (música, películas, series, comidas, lugares) en tres lentes: **Él · Ella · Nosotros**. El tema central es la **dualidad**, complementaria u opuesta. Plan en `docs/01-plan-del-proyecto.md`; concepto en `docs/05-dualidad.md`.
+
+## Conceptos clave
+- No hay perfiles ni cuentas: un espacio compartido con dos voces (`A`, `B`). Los elementos nacidos juntos son `AB`; los que ambos tienen por separado son `MATCH`.
+- Toda figura debe funcionar en las tres lentes y en los dos modos de dualidad.
+- En textos de la interfaz se habla de "contraste", nunca de "diferencia" o "incompatibilidad".
 
 ## Idioma
 - Documentación, textos de la interfaz y mensajes de commit: **español**.
@@ -12,7 +17,7 @@ Proyecto personal de Aldair: figuras ilustradas (pavo real, árbol, dalia, galax
 ## Stack
 - Front: Vue 3 (Composition API, `<script setup>`), TypeScript, Vite, Pinia, Vitest.
 - Figuras: `packages/figures`, TypeScript puro sobre Canvas 2D, sin dependencia de Vue. Todas reciben `FigureData` (ver `docs/02-arquitectura-y-stack.md`).
-- Back (Fase 2): Spring Boot 3, Java 21, JPA/Hibernate, PostgreSQL, Flyway.
+- Back (Fase 3): Spring Boot 3, Java 21, JPA/Hibernate, PostgreSQL, Flyway.
 
 ## Reglas
 - Portadas y pósters se muestran en vivo desde la URL de la fuente, con enlace al original. Nunca se guardan copias de imágenes en el repo ni en la base de datos; solo URL y colores extraídos.

@@ -5,9 +5,9 @@
 | Herramienta | Versión sugerida | Para |
 |---|---|---|
 | Git | reciente | control de versiones |
-| Node.js | 22 LTS | frontend (Fase 1) |
-| Java (JDK) | 21 | backend (Fase 2) |
-| Docker Desktop | reciente | PostgreSQL local (Fase 2) |
+| Node.js | 22 LTS | frontend (Fase 2) |
+| Java (JDK) | 21 | backend (Fase 3) |
+| Docker Desktop | reciente | PostgreSQL local (Fase 3) |
 | VS Code | reciente | editor |
 
 ## 2. Abrir el proyecto
@@ -41,10 +41,10 @@ Crea el repositorio vacío en GitHub y pásale a Claude el nombre `<tu-usuario>/
 ## 4. Organizar el trabajo en GitHub
 
 - **Issues:** uno por cada punto de las fases en `docs/01-plan-del-proyecto.md`.
-- **Milestones:** `Fase 1 — Mi música`, `Fase 2 — Backend`, `Fase 3 — Pareja`.
+- **Milestones:** `Fase 1 — Prototipo dual`, `Fase 2 — App de música`, `Fase 3 — Backend y colecciones`, `Fase 4 — El álbum`.
 - **Projects:** un tablero con columnas *Por hacer / En curso / Hecho*.
 
-## 5. Crear la app web (inicio de la Fase 1)
+## 5. Crear la app web (inicio de la Fase 2)
 
 ```bash
 cd apps
@@ -58,4 +58,4 @@ npm run dev
 ## 6. Llaves y secretos
 
 - Copia `.env.example` a `.env` y llena tus valores. `.env` está en `.gitignore` y **nunca** se sube.
-- Spotify: registra la app en https://developer.spotify.com/dashboard con la URL de redirección `http://127.0.0.1:5173/callback`.
+- Spotify: registra la app en https://developer.spotify.com/dashboard con la URL de redirección `http://127.0.0.1:5173/callback`, y agrega la cuenta de Spotify de tu novia en **User Management** para que también pueda importar sus playlists.
