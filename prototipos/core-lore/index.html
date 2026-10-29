@@ -450,6 +450,17 @@ function dotLeaf(L,hw,c0,c1,c2,hov,dr){
 function layered(shape,L,w,gcol,t,hov){const cols=VIV()?[[1,gcol],[.78,'#050307'],[.72,CC(t)],[.42,CI(t)]]:[[1,gcol],[.7,CC(t)],[.42,CI(t)]];
   cols.forEach(([k,col],li)=>{ctx.save();ctx.translate(li?L*(1-k)*.2:0,0);ctx.scale(k,k);dPetal(shape,L,w);fillc(col);ctx.lineWidth=(hov&&!li?3.4:2.2)/k;ctx.strokeStyle=hov&&!li?tok('--ink'):OUT;ctx.stroke();ctx.restore();});}
 const gViv=gi=>VIV()?hsl2hex(hex2hsl(G[gi].color)[0],.9,.6):G[gi].color;
+
+function denseSong(p,s,alpha,hov){const MCX=500,MCY=500,{rg,rot,L,w,mid,inner,n}=p._g,a=rad(p.a0+rot),gcol=G[p.g].color;
+  if(inner){const slot=rad(360/n),w5=Math.min(2*Math.PI*mid/(n*5)*1.05,L*.46),bh=L*.16;
+    // base común: los cinco pétalos nacen del mismo cáliz
+    ctx.globalAlpha=alpha;ctx.save();ctx.translate(MCX,MCY);ctx.beginPath();ctx.arc(0,0,rg.r0+bh*s,a-slot*.42*s,a+slot*.42*s);ctx.arc(0,0,rg.r0-1,a+slot*.42*s,a-slot*.42*s,true);ctx.closePath();fillc(gcol);ctx.lineWidth=hov?3.4:2.2;ctx.strokeStyle=hov?tok('--ink'):OUT;ctx.stroke();ctx.restore();
+    [[-2,.72],[2,.72],[-1,.86],[1,.86],[0,1.04]].forEach(([o,k])=>{ctx.save();ctx.translate(MCX,MCY);ctx.rotate(a+o*slot*.17*s);ctx.translate(rg.r0+bh*.4,0);ctx.globalAlpha=alpha;ctx.scale(s,s);layered(o===0?rg.shape:'drop',L*k*.94,w5*(o===0?1.15:1),gcol,p.t,hov);ctx.restore();});
+    ctx.globalAlpha=1;return;}
+  ctx.save();ctx.translate(MCX,MCY);ctx.rotate(a);ctx.translate(rg.r0,0);ctx.globalAlpha=alpha;
+  (VIV()?[[1,gcol],[.78,'#050307'],[.72,CC(p.t)],[.42,CI(p.t)]]:[[1,gcol],[.7,CC(p.t)],[.42,CI(p.t)]]).forEach(([k,col],li)=>{ctx.save();ctx.translate(li?L*(1-k)*.2:0,0);ctx.scale(k*s,k*s);dPetal(rg.shape,L,w);fillc(col);ctx.lineWidth=(hov&&!li?3.4:2.2)/(k*s);ctx.strokeStyle=hov&&!li?tok('--ink'):OUT;ctx.stroke();
+    if(rg.shape==='leaf'&&li===0){ctx.beginPath();ctx.moveTo(L*.05,0);ctx.lineTo(L*.95,0);for(let v=1;v<5;v++){const x=L*v/5;ctx.moveTo(x,0);ctx.lineTo(x+L*.08,-w*.22);ctx.moveTo(x,0);ctx.lineTo(x+L*.08,w*.22);}ctx.lineWidth=1.3/(k*s);ctx.stroke();}ctx.restore();});
+  ctx.restore();ctx.globalAlpha=1;}
 function drawDense(T){
   const MCX=500,MCY=500,R=Math.max(...drings.map(r=>r.r1))+40,rays=40,rr=-T*1.2;
   for(let k=0;k<rays;k++){ctx.fillStyle=VIV()?(k%2?'#07050a':'#120c18'):(k%2?'#1f1628':'#2a1d35');ctx.beginPath();ctx.moveTo(MCX,MCY);ctx.arc(MCX,MCY,R,rad(rr+k*360/rays),rad(rr+(k+1)*360/rays));ctx.closePath();ctx.fill();}
@@ -463,15 +474,11 @@ function drawDense(T){
       if(inner){dPetal('leaf',L*.7,Math.min(w*.4,L*.34));fillc(VIV()?mix(G[rg.gi].color,'#050307',.8):mix(G[rg.gi].color,'#140c18',.5));stroke(1.6,OUT);ctx.restore();continue;}
       dPetal('leaf',L*.98,w*.72);fillc(VIV()?mix(G[rg.gi].color,'#050307',.55):mix(G[rg.gi].color,'#140c18',.35));stroke(1.8,OUT);
       ctx.beginPath();ctx.moveTo(L*.12,0);ctx.lineTo(L*.86,0);stroke(1.2,OUT);ctx.restore();}
-    dpetals.forEach(p=>{if(p.ring!==rg)return;const dim=dimOf(p.g),hov=hover===p,s=hov?1.12:1,a=rad(p.a0+rot);p.hx=MCX+Math.cos(a)*mid;p.hy=MCY+Math.sin(a)*mid;
-      ctx.save();ctx.translate(MCX,MCY);ctx.rotate(a);ctx.translate(rg.r0,0);ctx.globalAlpha=dim?.15:1;
-      if(inner){ctx.restore();const slot=rad(360/n),w5=Math.min(2*Math.PI*mid/(n*5)*1.15,L*.5);
-        [[-2,.74],[2,.74],[-1,.88],[1,.88],[0,1.04]].forEach(([o,k])=>{ctx.save();ctx.translate(MCX,MCY);ctx.rotate(a+o*slot/5);ctx.translate(rg.r0,0);ctx.globalAlpha=dim?.15:1;ctx.scale(s,s);layered(o===0?rg.shape:'drop',L*k,w5*(o===0?1.15:1),G[p.g].color,p.t,hov);ctx.restore();});
-        const ad=rad(p.a0+180/n+rot);ctx.globalAlpha=dim?.15:1;ctx.beginPath();ctx.arc(MCX+Math.cos(ad)*(rg.r0+5),MCY+Math.sin(ad)*(rg.r0+5),2.6,0,Math.PI*2);fillc('#f4d35e');return;}
-      (VIV()?[[1,G[p.g].color],[.78,'#050307'],[.72,CC(p.t)],[.42,CI(p.t)]]:[[1,G[p.g].color],[.7,CC(p.t)],[.42,CI(p.t)]]).forEach(([k,col],li)=>{ctx.save();ctx.translate(li?L*(1-k)*.2:0,0);ctx.scale(k*s,k*s);dPetal(rg.shape,L,w);fillc(col);ctx.lineWidth=(hov&&!li?3.4:2.2)/(k*s);ctx.strokeStyle=hov&&!li?tok('--ink'):OUT;ctx.stroke();
-        if(rg.shape==='leaf'&&li===0){ctx.beginPath();ctx.moveTo(L*.05,0);ctx.lineTo(L*.95,0);for(let v=1;v<5;v++){const x=L*v/5;ctx.moveTo(x,0);ctx.lineTo(x+L*.08,-w*.22);ctx.moveTo(x,0);ctx.lineTo(x+L*.08,w*.22);}ctx.lineWidth=1.3/(k*s);ctx.stroke();}ctx.restore();});
-      ctx.restore();
-      const ad=rad(p.a0+180/n+rot);ctx.globalAlpha=dim?.15:1;ctx.beginPath();ctx.arc(MCX+Math.cos(ad)*(rg.r0+7),MCY+Math.sin(ad)*(rg.r0+7),3.6,0,Math.PI*2);fillc('#f4d35e');stroke(1.2,OUT);});});
+    dpetals.forEach(p=>{if(p.ring!==rg)return;const a=rad(p.a0+rot);p.hx=MCX+Math.cos(a)*mid;p.hy=MCY+Math.sin(a)*mid;p._g={rg,rot,L,w,mid,inner,n};
+      const hovOther=hover&&dpetals.includes(hover)&&hover!==p;
+      denseSong(p,1,dimOf(p.g)?.15:(hovOther?.3:1),false);
+      const ad=rad(p.a0+180/n+rot);ctx.globalAlpha=dimOf(p.g)?.15:(hovOther?.3:1);ctx.beginPath();ctx.arc(MCX+Math.cos(ad)*(rg.r0+(inner?5:7)),MCY+Math.sin(ad)*(rg.r0+(inner?5:7)),inner?2.6:3.6,0,Math.PI*2);fillc('#f4d35e');if(!inner)stroke(1.2,OUT);});});
+  if(hover&&dpetals.includes(hover)&&hover._g)denseSong(hover,1.14,1,true);
   ctx.globalAlpha=1;
   const cr=drings[0].r0-2,crot=-T*3;ctx.beginPath();ctx.arc(MCX,MCY,cr+3,0,Math.PI*2);fillc(OUT);
   for(let k=0;k<12;k++){ctx.save();ctx.translate(MCX,MCY);ctx.rotate(rad(crot+k*30));ctx.translate(cr*.3,0);dotLeaf(cr*.66,cr*.17,'#2de2e6','#ffffff','#f4d35e',false,2.2);ctx.restore();}

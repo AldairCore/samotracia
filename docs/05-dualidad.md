@@ -64,7 +64,8 @@ Además de música, películas, series, comidas y viajes, hay colecciones donde 
 
 1. Estilo plano: contornos oscuros y gruesos, colores saturados y sólidos, capas como en un mandala; sin brillos ni degradados.
 1. Los colores de carátulas y géneros son **punto de partida, no regla**. Por defecto se usan "colores vivos": se conserva el tono de la carátula y se sube saturación y luz; si la carátula es gris o negra, toma un tono cercano al de su género. El interior de cada pieza usa el **color complementario** (dualidad). Siempre hay un interruptor para ver los colores originales, y la ficha de cada elemento muestra los colores reales. En modo vivo, el **negro** es parte del diseño: contornos gruesos, fondos casi negros y un anillo negro entre el borde y el centro de cada pieza para que el color resalte.
-1. **Piezas pequeñas que forman grandes:** cuando un elemento ocupa mucho espacio (pocos elementos en un anillo), se dibuja como un grupo de piezas pequeñas del mismo estilo en lugar de una sola pieza gruesa. En el mandala, cada canción de los anillos internos es un grupo de cinco pétalos.
+1. **Piezas pequeñas que forman grandes:** cuando un elemento ocupa mucho espacio (pocos elementos en un anillo), se dibuja como un grupo de piezas pequeñas del mismo estilo en lugar de una sola pieza gruesa. En el mandala, cada canción de los anillos internos es un grupo de cinco pétalos que nacen de una misma base, para que se lea como una sola pieza.
+1. **Hover que aísla:** al pasar el cursor por un elemento, el resto de la figura se oscurece y el elemento se dibuja encima, más grande y con contorno claro.
 1. **Puntillismo** (inspirado en el arte de puntos mexicano) como acento: el centro del mandala está hecho de puntos turquesa, blancos y dorados.
 2. Cada voz tiene **su color base** y lo conserva en todas las figuras. Lo nuestro usa un tercer color que mezcla los dos.
 3. Toda figura debe funcionar en las tres lentes.
