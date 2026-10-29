@@ -452,19 +452,7 @@ function layered(shape,L,w,gcol,t,hov){const cols=VIV()?[[1,gcol],[.78,'#050307'
 const gViv=gi=>VIV()?hsl2hex(hex2hsl(G[gi].color)[0],.9,.6):G[gi].color;
 
 function denseSong(p,s,alpha,hov){const MCX=500,MCY=500,{rg,rot,L,w,mid,inner,n}=p._g,a=rad(p.a0+rot),gcol=G[p.g].color;
-  if(inner){const slot=rad(360/n),wb=Math.min(2*Math.PI*mid/n*.78,L*1.15),Lb=L*1.02;
-    ctx.save();ctx.translate(MCX,MCY);ctx.rotate(a);ctx.translate(rg.r0,0);ctx.globalAlpha=alpha;ctx.scale(s,s);
-    // silueta hueca: borde del color del género, interior negro
-    dPetal(rg.shape,Lb,wb);fillc(gcol);ctx.lineWidth=hov?3.4:2.2;ctx.strokeStyle=hov?tok('--ink'):OUT;ctx.stroke();
-    ctx.save();ctx.translate(Lb*.07,0);ctx.scale(.84,.84);dPetal(rg.shape,Lb,wb);fillc('#050307');ctx.restore();
-    // adornos internos alineados sobre la nervadura
-    const drop=(x,len,wd,c)=>{ctx.save();ctx.translate(x,0);dPetal('drop',len,wd);fillc(c);ctx.lineWidth=1.6;ctx.strokeStyle=OUT;ctx.stroke();ctx.restore();};
-    const dot=(x,y,r,c)=>{ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);fillc(c);ctx.lineWidth=1.2;ctx.strokeStyle=OUT;ctx.stroke();};
-    drop(Lb*.18,Lb*.3,wb*.32,CC(p.t));
-    dot(Lb*.58,0,Math.min(wb*.15,Lb*.1),CI(p.t));dot(Lb*.58,0,Math.min(wb*.06,Lb*.04),CC(p.t));
-    drop(Lb*.7,Lb*.2,wb*.2,CC(p.t));
-    const sd=Math.min(wb*.07,4.2);[[.44,.26],[.62,.24],[.78,.15]].forEach(([t,k])=>{[-1,1].forEach(sg=>dot(Lb*t,sg*wb*k,sd,gcol));});
-    ctx.restore();ctx.globalAlpha=1;return;}
+
   ctx.save();ctx.translate(MCX,MCY);ctx.rotate(a);ctx.translate(rg.r0,0);ctx.globalAlpha=alpha;
   (VIV()?[[1,gcol],[.78,'#050307'],[.72,CC(p.t)],[.42,CI(p.t)]]:[[1,gcol],[.7,CC(p.t)],[.42,CI(p.t)]]).forEach(([k,col],li)=>{ctx.save();ctx.translate(li?L*(1-k)*.2:0,0);ctx.scale(k*s,k*s);dPetal(rg.shape,L,w);fillc(col);ctx.lineWidth=(hov&&!li?3.4:2.2)/(k*s);ctx.strokeStyle=hov&&!li?tok('--ink'):OUT;ctx.stroke();
     if(rg.shape==='leaf'&&li===0){ctx.beginPath();ctx.moveTo(L*.05,0);ctx.lineTo(L*.95,0);for(let v=1;v<5;v++){const x=L*v/5;ctx.moveTo(x,0);ctx.lineTo(x+L*.08,-w*.22);ctx.moveTo(x,0);ctx.lineTo(x+L*.08,w*.22);}ctx.lineWidth=1.3/(k*s);ctx.stroke();}ctx.restore();});
@@ -475,11 +463,14 @@ function drawDense(T){
   ctx.beginPath();ctx.arc(MCX,MCY,R,0,Math.PI*2);stroke(4,OUT);
   [...drings].reverse().forEach(rg=>{const dim=dimOf(rg.gi);ctx.globalAlpha=dim?.25:1;ctx.beginPath();ctx.arc(MCX,MCY,rg.r1+4,0,Math.PI*2);fillc(OUT);
     ctx.beginPath();ctx.arc(MCX,MCY,rg.r1,0,Math.PI*2);ctx.arc(MCX,MCY,rg.r0+2,0,Math.PI*2,true);fillc(mix(G[rg.gi].color,'#050307',VIV()?.86:.62));ctx.globalAlpha=1;});
-  [...drings].reverse().forEach(rg=>{const rot=rg.dir*T*2.2,n=rg.n,L=(rg.r1-rg.r0)*1.28,mid=rg.r0+L*.5,w=Math.min(2*Math.PI*mid/n*1.02,L*2.3),dimR=dimOf(rg.gi);
+  [...drings].reverse().forEach(rg=>{const rot=rg.dir*T*2.2,n=rg.n,L=(rg.r1-rg.r0)*1.28,mid=rg.r0+L*.5,inner0=rg.n<30,w=inner0?Math.min(2*Math.PI*mid/n*.5,L*.95):Math.min(2*Math.PI*mid/n*1.02,L*2.3),dimR=dimOf(rg.gi);
     // hojas de fondo entre pétalos
     const inner=rg.n<30;
     for(let j=0;j<n;j++){const a=rad(360*(j+.5)/n+rot);ctx.save();ctx.translate(MCX,MCY);ctx.rotate(a);ctx.translate(rg.r0+L*.1,0);ctx.globalAlpha=dimR?.12:1;
-      if(inner){dPetal('leaf',L*.7,Math.min(w*.4,L*.34));fillc(VIV()?mix(G[rg.gi].color,'#050307',.8):mix(G[rg.gi].color,'#140c18',.5));stroke(1.6,OUT);ctx.restore();continue;}
+      if(inner){ctx.restore();const slot=360/n,gap=2*Math.PI*mid/n-w*1.25,m=Math.max(1,Math.round(gap/(L*.55)));
+        for(let i=0;i<m;i++){const aa=rad(360*j/n+slot*(i+1)/(m+1)*.999+slot*0+rot+(slot*(0.5)-slot*0.5));ctx.save();ctx.translate(MCX,MCY);ctx.rotate(rad(360*j/n+rot)+rad(slot)*(i+1)/(m+1));ctx.translate(rg.r0+L*.06,0);ctx.globalAlpha=dimR?.12:1;
+          const lw=Math.min(gap/m*.72,L*.6),ll=L*(i%2?.82:.98);dPetal('leaf',ll,lw);fillc(VIV()?mix(G[rg.gi].color,'#050307',.55):mix(G[rg.gi].color,'#140c18',.35));stroke(1.8,OUT);ctx.beginPath();ctx.moveTo(ll*.12,0);ctx.lineTo(ll*.86,0);stroke(1.2,OUT);ctx.restore();}
+        continue;}
       dPetal('leaf',L*.98,w*.72);fillc(VIV()?mix(G[rg.gi].color,'#050307',.55):mix(G[rg.gi].color,'#140c18',.35));stroke(1.8,OUT);
       ctx.beginPath();ctx.moveTo(L*.12,0);ctx.lineTo(L*.86,0);stroke(1.2,OUT);ctx.restore();}
     dpetals.forEach(p=>{if(p.ring!==rg)return;const a=rad(p.a0+rot);p.hx=MCX+Math.cos(a)*mid;p.hy=MCY+Math.sin(a)*mid;p._g={rg,rot,L,w,mid,inner,n};
