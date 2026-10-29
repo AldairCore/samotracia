@@ -40,9 +40,8 @@ Las dos colecciones se enfrentan como reflejo: él de un lado, ella del otro. Se
 | **Piedra del Sol** | Un solo calendario: cartuchos de los dos mezclados, coincidencias con doble marco | Mitad izquierda de él, mitad derecha de ella; el ollin central es lo nuestro |
 | **Rosetón** | Un vitral donde lo compartido forma la rosa central | Dos rosetones enfrentados, como las fachadas norte y sur de una catedral |
 | **Atrapasueños** | Una sola red tejida por los dos; las plumas de cada quien cuelgan juntas | Dos aros que se tocan; los hilos que los cruzan son las coincidencias |
-| **Papel picado** | Un mismo hilo con banderas alternadas de cada quien | Dos hilos frente a frente, uno arriba y otro abajo |
 | **Caleidoscopio** | Los gajos se alternan entre las dos voces y el espejo los une | Un gajo de él reflejado como gajo de ella: mismas formas, otros colores |
-| **Sigilo** | Una estrella de nueve puntas compartida; lo nuestro en el sol central | Dos estrellas superpuestas en rojo y en otro color, girando en sentidos contrarios |
+
 
 ## 5. Lo que se mide
 

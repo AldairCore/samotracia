@@ -4,7 +4,7 @@
 
 ## 1. Visión
 
-Un álbum de **figuras ilustradas** (mandala, Piedra del Sol, rosetón, atrapasueños, papel picado, caleidoscopio, sigilo…) que retrata los gustos de **Aldair, de su novia y de los dos juntos**: música, películas, series, comidas, lugares. Cada elemento de la figura (un motivo, un vidrio, una cuenta, un recorte) es algo real: una canción, una película, un platillo, un viaje.
+Un álbum de **figuras ilustradas** (mandala, Piedra del Sol, rosetón, atrapasueños, caleidoscopio…) que retrata los gustos de **Aldair, de su novia y de los dos juntos**: música, películas, series, comidas, lugares. Cada elemento de la figura (un motivo, un vidrio, una cuenta, un recorte) es algo real: una canción, una película, un platillo, un viaje.
 
 El proyecto gira alrededor de la **dualidad**: cómo dos personas se complementan y en qué se contrastan. Todo existe en tres lentes: **Él · Ella · Harmonía**. El detalle del concepto está en [`05-dualidad.md`](05-dualidad.md).
 
@@ -15,8 +15,8 @@ No hay perfiles ni cuentas: es un solo espacio compartido con dos voces.
 | Pieza | Estado | Dónde |
 |---|---|---|
 | Prototipo **Core.Lore** (playlist de Aldair, 141 canciones) | Listo | `prototipos/core-lore/index.html` |
-| Figuras probadas: mandala, Piedra del Sol, rosetón, atrapasueños, papel picado, caleidoscopio, sigilo | Listas, solo para una voz, en estilo plano con contornos | mismo archivo |
-| Figuras descartadas: pavo real, árbol, dalia, galaxia, vinilo | Se sustituyeron por las de arriba | historial de git |
+| Figuras probadas: mandala, Piedra del Sol, rosetón, atrapasueños, caleidoscopio | Listas, solo para una voz, en estilo plano con contornos | mismo archivo |
+| Figuras descartadas: pavo real, árbol, dalia, galaxia, vinilo, papel picado, sigilo | Se sustituyeron por las de arriba | historial de git |
 | Clasificación por géneros y subgéneros | Manual, por bloque de artista | prototipo |
 | Colores de carátula por canción | Extraídos de miniaturas (48×48 px) | datos del prototipo |
 | Figuras duales (dos voces en una figura) | Pendiente | Fase 1 |
@@ -28,10 +28,10 @@ Cada figura recibe siempre la misma estructura: **grupos → subgrupos → eleme
 
 | Colección | Elemento | Agrupación | Figura sugerida | Imagen |
 |---|---|---|---|---|
-| Música | canción | género → subgénero → artista | Mandala o sigilo | carátula |
+| Música | canción | género → subgénero → artista | Mandala | carátula |
 | Películas | película | género → década o director | Rosetón | póster |
 | Series | serie / temporada | género → serie → temporada | Caleidoscopio | póster |
-| Comidas | platillo o lugar | tipo de cocina → lugar | Papel picado | foto propia |
+| Comidas | platillo o lugar | tipo de cocina → lugar | Mandala por anillos | foto propia |
 | Lugares | viaje / lugar | país → ciudad → lugar | Piedra del Sol o atrapasueños | foto propia |
 | Formas de querer | gesto | tipo de gesto | Por definir | ninguna |
 
@@ -45,7 +45,7 @@ Cada fase deja algo usable y tiene un criterio claro de salida.
 
 ### Fase 1 — Prototipo dual
 - Una playlist de ella, clasificada igual que Core.Lore.
-- Primer prototipo de la lente **Harmonía**: mandala de anillos alternados (complementaria) y sigilo con dos estrellas (opuesta).
+- Primer prototipo de la lente **Harmonía**: mandala de anillos alternados (complementaria) y dos medios mandalas en espejo (opuesta).
 - Cálculo de coincidencias por canción y por artista, y números de afinidad, complemento y contraste.
 - **Salida:** ver las dos playlists en las tres lentes y decidir qué figuras duales funcionan.
 

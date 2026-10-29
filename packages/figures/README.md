@@ -1,8 +1,8 @@
 # packages/figures
 
-Figuras en TypeScript sobre Canvas 2D, independientes de Vue: `mandala`, `sun` (Piedra del Sol), `rose` (rosetón), `dream` (atrapasueños), `picado` (papel picado), `kal` (caleidoscopio), `sigil` (sigilo).
+Figuras en TypeScript sobre Canvas 2D, independientes de Vue: `dense` (mandala), `mandala` (mandala por anillos), `sun` (Piedra del Sol), `rose` (rosetón), `dream` (atrapasueños), `kal` (caleidoscopio).
 
-Punto de partida: el código de dibujo dentro de `prototipos/core-lore/index.html` (busca `drawMandalaStyled`, `drawSun`, `drawRose`, `drawDream`, `drawPicado`, `drawKal`, `drawSigil`; la función `sectorAlloc` reparte elementos por sectores y anillos). La primera tarea es separarlo en un módulo por figura que reciba `FigureData`.
+Punto de partida: el código de dibujo dentro de `prototipos/core-lore/index.html` (busca `drawDense`, `drawMandalaStyled`, `drawSun`, `drawRose`, `drawDream`, `drawKal`; la función `sectorAlloc` reparte elementos por sectores y anillos). La primera tarea es separarlo en un módulo por figura que reciba `FigureData`.
 
 ## Lenguaje del mandala
 
