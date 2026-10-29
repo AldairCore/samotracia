@@ -12,8 +12,8 @@
 
 ## 2. Abrir el proyecto
 
-1. Descomprime `album-de-diagramas.zip` donde guardes tus proyectos.
-2. En VS Code: **File → Open Folder…** y elige la carpeta `album-de-diagramas`.
+1. Descomprime `samotracia.zip` donde guardes tus proyectos.
+2. En VS Code: **File → Open Folder…** y elige la carpeta `samotracia`.
 3. VS Code te ofrecerá instalar las extensiones recomendadas (`.vscode/extensions.json`). Acepta.
 4. Abre `prototipos/core-lore/index.html` con la extensión **Live Server** (clic derecho → *Open with Live Server*) para ver el prototipo.
 
@@ -24,19 +24,19 @@ El repositorio ya trae un primer commit en la rama `main`.
 ### Opción A: desde VS Code
 1. Abre la vista **Source Control** (`Ctrl+Shift+G`).
 2. Clic en **Publish Branch**.
-3. Elige **Publish to GitHub private repository** y confirma el nombre `album-de-diagramas`.
+3. Elige **Publish to GitHub private repository** y confirma el nombre `samotracia`.
 
 ### Opción B: desde la terminal
-1. En github.com crea un repositorio **vacío y privado** llamado `album-de-diagramas` (sin README ni .gitignore).
+1. En github.com crea un repositorio **vacío y privado** llamado `samotracia` (sin README ni .gitignore).
 2. En la terminal de VS Code, dentro de la carpeta:
 
 ```bash
-git remote add origin https://github.com/<tu-usuario>/album-de-diagramas.git
+git remote add origin https://github.com/<tu-usuario>/samotracia.git
 git push -u origin main
 ```
 
 ### Opción C: que Claude lo suba
-Crea el repositorio vacío en GitHub y pásale a Claude el nombre `<tu-usuario>/album-de-diagramas`. Con acceso a GitHub conectado, Claude puede subir el contenido y abrir los issues de cada fase.
+Crea el repositorio vacío en GitHub y pásale a Claude el nombre `<tu-usuario>/samotracia`. Con acceso a GitHub conectado, Claude puede subir el contenido y abrir los issues de cada fase.
 
 ## 4. Organizar el trabajo en GitHub
 

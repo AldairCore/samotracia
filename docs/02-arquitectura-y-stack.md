@@ -29,7 +29,7 @@ Supabase da PostgreSQL + autenticación + almacenamiento de fotos + reglas por u
 ## 3. Estructura del repositorio (monorepo)
 
 ```
-album-de-diagramas/
+samotracia/
 ├── apps/
 │   ├── web/            # Vue 3 + TS (Fase 2)
 │   └── api/            # Spring Boot (Fase 3)
@@ -44,7 +44,7 @@ album-de-diagramas/
 
 ## 4. Modelo de datos (borrador)
 
-No hay usuarios con perfil. Hay un **espacio** compartido y dos **voces** (`A` = Aldair, `B` = ella). Cada colección pertenece a una voz o al espacio (`AB`). La lente **Nosotros** se calcula al vuelo cruzando las colecciones de las dos voces; los elementos nacidos juntos se guardan directamente con voz `AB`.
+No hay usuarios con perfil. Hay un **espacio** compartido y dos **voces** (`A` = Aldair, `B` = ella). Cada colección pertenece a una voz o al espacio (`AB`). La lente **Harmonía** se calcula al vuelo cruzando las colecciones de las dos voces; los elementos nacidos juntos se guardan directamente con voz `AB`.
 
 Toda figura consume la misma forma: **colección → grupos (árbol) → elementos**.
 
@@ -68,7 +68,7 @@ interface Item {
   voice: 'A' | 'B' | 'MATCH' | 'AB';          // él, ella, coincidencia, nuestro
 }
 
-// Lo que recibe una figura en la lente Nosotros
+// Lo que recibe una figura en la lente Harmonía
 interface DualFigureData {
   mode: 'complementary' | 'opposite';
   a: FigureData; b: FigureData;                // cada voz por separado
@@ -101,7 +101,7 @@ El espacio se abre con un enlace privado y un código que conocen los dos. Al im
 3. `GET /playlists/{id}/items` → canciones, artistas, álbumes e imágenes.
 4. Géneros: del artista si la API los entrega; si no, clasificación manual en la app (como se hizo en Core.Lore).
 5. Colores: se dibuja la miniatura en un `<canvas>` y se calculan los colores dominantes (igual que en el prototipo). Si la imagen no permite lectura por CORS, se mueve este paso al backend.
-6. Se arma `FigureData` por voz; para la lente Nosotros se cruzan las dos y se arma `DualFigureData`.
+6. Se arma `FigureData` por voz; para la lente Harmonía se cruzan las dos y se arma `DualFigureData`.
 7. Se dibuja la figura elegida en la lente y modo elegidos.
 
 ## 6. Hosting (cuando toque publicar)

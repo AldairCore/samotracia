@@ -1,4 +1,4 @@
-# Dualidad: el corazón del proyecto
+# Dualidad: el corazón de Samotracia
 
 > Todo en el proyecto existe en tres lentes: **lo mío**, **lo suyo** y **lo nuestro**. Cada figura debe poder contar cómo se parecen y cómo se diferencian.
 
@@ -17,14 +17,14 @@ No hay cuentas ni perfiles separados. Hay **un solo espacio compartido** con **d
 
 ## 2. Las tres lentes
 
-En cualquier colección hay un selector arriba: **Él · Ella · Nosotros**.
+En cualquier colección hay un selector arriba: **Él · Ella · Harmonía**.
 
 - **Él** y **Ella** muestran la figura de cada quien sola, igual que el prototipo Core.Lore.
-- **Nosotros** muestra las dos voces en la misma figura, con un modo de dualidad.
+- **Harmonía** muestra las dos voces en la misma figura, con un modo de dualidad. Se llama así por la diosa hija de la guerra y el amor: la armonía que nace de dos opuestos.
 
 ## 3. Dos tipos de dualidad
 
-La lente **Nosotros** tiene dos modos. Son dos preguntas distintas.
+La lente **Harmonía** tiene dos modos. Son dos preguntas distintas.
 
 ### Complementaria: ¿en qué nos encontramos?
 Lo compartido va al centro y brilla. Lo de cada quien rodea ese centro. Sirve para ver afinidad y lo que construyeron juntos.
@@ -44,7 +44,7 @@ Las dos colecciones se enfrentan como reflejo: él de un lado, ella del otro. Se
 
 ## 5. Lo que se mide
 
-Cada colección en lente **Nosotros** muestra unos pocos números que cuentan la historia:
+Cada colección en lente **Harmonía** muestra unos pocos números que cuentan la historia:
 
 - **Afinidad:** porcentaje de coincidencias sobre el total.
 - **Complemento:** géneros o categorías que uno aporta y el otro no tiene.
@@ -63,5 +63,5 @@ Además de música, películas, series, comidas y viajes, hay colecciones donde 
 
 1. Cada voz tiene **su color base** y lo conserva en todas las figuras. Lo nuestro usa un tercer color que mezcla los dos.
 2. Toda figura debe funcionar en las tres lentes.
-3. Ninguna lente es "la principal". El orden en pantalla es siempre Él · Ella · Nosotros, o el que ustedes elijan.
+3. Ninguna lente es "la principal". El orden en pantalla es siempre Él · Ella · Harmonía, o el que ustedes elijan.
 4. Lo opuesto nunca se presenta como algo malo: el texto de la interfaz habla de "contraste", no de "diferencia" o "incompatibilidad".

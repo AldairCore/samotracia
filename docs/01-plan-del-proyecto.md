@@ -1,12 +1,12 @@
 # Plan del proyecto
 
-> Versión 0.2 · 29 oct 2026 · Nombre del proyecto por definir (ver sección 7)
+> Versión 0.3 · 29 oct 2026 · Proyecto **Samotracia**
 
 ## 1. Visión
 
 Un álbum de **figuras ilustradas** (pavo real, árbol, dalia, galaxia, eclipse…) que retrata los gustos de **Aldair, de su novia y de los dos juntos**: música, películas, series, comidas, lugares. Cada elemento de la figura (pluma, hoja, pétalo, estrella) es algo real: una canción, una película, un platillo, un viaje.
 
-El proyecto gira alrededor de la **dualidad**: cómo dos personas se complementan y en qué se contrastan. Todo existe en tres lentes: **Él · Ella · Nosotros**. El detalle del concepto está en [`05-dualidad.md`](05-dualidad.md).
+El proyecto gira alrededor de la **dualidad**: cómo dos personas se complementan y en qué se contrastan. Todo existe en tres lentes: **Él · Ella · Harmonía**. El detalle del concepto está en [`05-dualidad.md`](05-dualidad.md).
 
 No hay perfiles ni cuentas: es un solo espacio compartido con dos voces.
 
@@ -44,14 +44,14 @@ Cada fase deja algo usable y tiene un criterio claro de salida.
 
 ### Fase 1 — Prototipo dual
 - Una playlist de ella, clasificada igual que Core.Lore.
-- Primer prototipo de la lente **Nosotros**: pavo real partido (opuesto) y galaxia binaria (complementaria).
+- Primer prototipo de la lente **Harmonía**: pavo real partido (opuesto) y galaxia binaria (complementaria).
 - Cálculo de coincidencias por canción y por artista, y números de afinidad, complemento y contraste.
 - **Salida:** ver las dos playlists en las tres lentes y decidir qué figuras duales funcionan.
 
 ### Fase 2 — App de música con dos voces
 - App web Vue 3 + TypeScript. Cada quien inicia sesión con **su** Spotify (OAuth PKCE) solo para importar **sus** playlists.
 - Portadas reales mostradas en vivo desde Spotify, con enlace a Spotify.
-- Selector de lente Él · Ella · Nosotros y los dos modos de dualidad.
+- Selector de lente Él · Ella · Harmonía y los dos modos de dualidad.
 - Datos guardados como JSON en el navegador o en un archivo exportable.
 - **Salida:** elegir una playlist de cada quien y ver las tres lentes con portadas en menos de un minuto.
 
@@ -69,7 +69,7 @@ Cada fase deja algo usable y tiene un criterio claro de salida.
 
 ## 5. Decisiones abiertas
 
-- [ ] Nombre del proyecto (sección 7).
+- [x] Nombre del proyecto: **Samotracia**; la vista conjunta se llama **Harmonía** (sección 7).
 - [ ] Color base de cada voz y color de lo nuestro.
 - [ ] Spring Boot propio o Supabase para la Fase 3 (ver `02-arquitectura-y-stack.md`).
 - [ ] Canvas 2D, o pasar a SVG/PixiJS para exportar mejor.
@@ -87,12 +87,12 @@ Cada fase deja algo usable y tiene un criterio claro de salida.
 
 ## 7. Nombre
 
-Opciones en discusión:
+**Samotracia** es el nombre del proyecto, y **Harmonía** es la lente donde se ven los dos juntos.
 
-| Nombre | Idea |
-|---|---|
-| **Ome** | "Dos" en náhuatl; Ometéotl es la deidad mexica de la dualidad, a la vez masculina y femenina |
-| **Contrapunto** | Dos melodías independientes que suenan juntas y forman armonía |
-| **Díada** | Una unidad formada por dos |
-| **Eclipse** | Dos cuerpos opuestos que, al alinearse, crean algo que ninguno hace solo |
-| **Binaria** | Dos estrellas que orbitan juntas |
+Según la tradición de Samotracia, en esa isla del Egeo el príncipe Cadmo conoció a Harmonía. Ella era la diosa de la armonía, hija de Ares (la guerra) y Afrodita (el amor): nació de dos opuestos. Su boda fue la primera de mortales a la que asistieron todos los dioses. Al final de su vida, cuando Cadmo fue convertido en serpiente, Harmonía pidió compartir su destino para no separarse.
+
+- **Samotracia** es la isla: el espacio que comparten los dos.
+- **Él** y **Ella** son las dos voces que llegan a la isla.
+- **Harmonía** es lo que nace cuando se encuentran.
+
+Otros nombres que se consideraron: Ome, Yanantin, Aun, Symbolon, Arrebol, Flor y Canto, Baucis, Alcíone.

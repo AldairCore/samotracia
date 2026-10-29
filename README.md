@@ -1,15 +1,15 @@
-# Proyecto de Aldair y su novia (nombre por definir)
+# Samotracia
 
 Figuras ilustradas (pavo real, árbol, dalia, galaxia, eclipse…) que retratan nuestros gustos: música, películas, series, comidas y lugares. Cada pluma, hoja, pétalo o estrella es un elemento real de la colección.
 
-Todo se ve en tres lentes, **Él · Ella · Nosotros**, alrededor de una idea: la **dualidad**, la que complementa y la que contrasta. Ver [el concepto](docs/05-dualidad.md).
+Todo se ve en tres lentes, **Él · Ella · Harmonía**, alrededor de una idea: la **dualidad**, la que complementa y la que contrasta. Ver [el concepto](docs/05-dualidad.md).
 
 ## Estado
 
 | Fase | Qué | Estado |
 |---|---|---|
 | 0 | Prototipo Core.Lore de una voz (4 figuras) | ✅ Hecho |
-| 1 | Prototipo dual: dos playlists, lente Nosotros | ⏳ Siguiente |
+| 1 | Prototipo dual: dos playlists, lente Harmonía | ⏳ Siguiente |
 | 2 | App de música con dos voces y portadas (Vue + Spotify) | Pendiente |
 | 3 | Backend y más colecciones (Spring Boot + PostgreSQL) | Pendiente |
 | 4 | El álbum completo y exportación | Pendiente |
