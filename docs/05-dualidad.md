@@ -63,6 +63,7 @@ Además de música, películas, series, comidas y viajes, hay colecciones donde 
 ## 7. Reglas de diseño
 
 1. Estilo plano: contornos oscuros y gruesos, colores saturados y sólidos, capas como en un mandala; sin brillos ni degradados.
+1. Los colores de carátulas y géneros son **punto de partida, no regla**. Por defecto se usan "colores vivos": se conserva el tono de la carátula y se sube saturación y luz; si la carátula es gris o negra, toma un tono cercano al de su género. El interior de cada pieza usa el **color complementario** (dualidad). Siempre hay un interruptor para ver los colores originales, y la ficha de cada elemento muestra los colores reales.
 2. Cada voz tiene **su color base** y lo conserva en todas las figuras. Lo nuestro usa un tercer color que mezcla los dos.
 3. Toda figura debe funcionar en las tres lentes.
 4. Ninguna lente es "la principal". El orden en pantalla es siempre Él · Ella · Harmonía, o el que ustedes elijan.

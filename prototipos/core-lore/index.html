@@ -118,6 +118,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .grove{background:radial-gradient(120% 90% at 50% 100%,var(--sky2),var(--panel) 70%);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
 .grove canvas{display:block;width:100%;height:auto;aspect-ratio:1000/860;max-width:100%;cursor:crosshair;touch-action:manipulation}
 .grove .readout{padding:10px 16px 14px;border-top:1px solid var(--line)}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
 .seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px;align-self:flex-start}
 .seg button{border:0;padding:6px 16px}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
@@ -171,7 +172,7 @@ footer{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:
       <h2>Core.Lore, ilustrada</h2>
       <p class="muted" id="viewnote"></p>
     </div>
-    <div class="seg" id="viewtoggle" role="group" aria-label="Figura"><button type="button" data-m="dense" aria-pressed="true">Mandala</button><button type="button" data-m="mandala" aria-pressed="false">Mandala por anillos</button><button type="button" data-m="sun" aria-pressed="false">Piedra del Sol</button><button type="button" data-m="rose" aria-pressed="false">Rosetón</button><button type="button" data-m="dream" aria-pressed="false">Atrapasueños</button><button type="button" data-m="kal" aria-pressed="false">Caleidoscopio</button></div>
+    <div class="toolbar"><div class="seg" id="viewtoggle" role="group" aria-label="Figura"><button type="button" data-m="dense" aria-pressed="true">Mandala</button><button type="button" data-m="mandala" aria-pressed="false">Mandala por anillos</button><button type="button" data-m="sun" aria-pressed="false">Piedra del Sol</button><button type="button" data-m="rose" aria-pressed="false">Rosetón</button><button type="button" data-m="dream" aria-pressed="false">Atrapasueños</button><button type="button" data-m="kal" aria-pressed="false">Caleidoscopio</button></div><div class="seg" id="colortoggle" role="group" aria-label="Colores"><button type="button" data-c="vivid" aria-pressed="true">Colores vivos</button><button type="button" data-c="original" aria-pressed="false">Colores originales</button></div></div>
     <div class="chips" id="treechips"></div>
     <div class="grove">
       <div class="leafcard" id="leafcard" hidden></div>
@@ -306,6 +307,25 @@ function size(){const r=cv.getBoundingClientRect(),dpr=Math.min(2,window.deviceP
 function seg(s,col,alpha){const N=12;ctx.strokeStyle=col;ctx.lineCap='round';for(let i=0;i<N;i++){const p=pt(s.o,s.c,s.e,i/N),q=pt(s.o,s.c,s.e,(i+1)/N);ctx.lineWidth=s.w0+(s.w1-s.w0)*(i/N);ctx.globalAlpha=alpha;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();}}
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+
+// ===== tratamiento de color =====
+// Los colores de carátula son el punto de partida, no la regla: en modo "vivo" se conserva el tono
+// y se sube saturación y luz; el interior usa el color complementario (dualidad).
+let COLORMODE='vivid';
+const hex2hsl=h=>{let [r,g,b]=[1,3,5].map(i=>parseInt(h.substr(i,2),16)/255);const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;let s=0,hh=0;
+  if(mx!==mn){const d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);hh=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;hh*=60;}return[hh,s,l];};
+const hsl2hex=(hh,s,l)=>{hh=((hh%360)+360)%360;const k=n=>(n+hh/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,9-k(n),1));return'#'+[0,8,4].map(n=>Math.round(f(n)*255).toString(16).padStart(2,'0')).join('');};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+D.tracks.forEach((t,i)=>{const gi=G.findIndex(g=>g.name===t.g);
+  const cand=t.p.map(c=>{const [hh,s,l]=hex2hsl(c);return{hh,s,l,score:s*(1-Math.abs(l-.5)*1.4)};}).sort((a,b)=>b.score-a.score)[0];
+  let hh=cand.hh,s=cand.s;const base=hex2hsl(t.c);
+  if(cand.score<.12){hh=hex2hsl(G[gi].color)[0]+((i*37)%50-25);s=.5;}
+  const S=clamp(.62+s*.35,.62,.92),L=clamp(.38+base[2]*.45,.44,.68);
+  t.v=hsl2hex(hh,S,L);t.v2=hsl2hex(hh+180,clamp(S-.05,.55,.9),clamp(1.12-L,.42,.7));});
+G.forEach(g=>g.subs.forEach(s=>s.artists.forEach(a=>a.tracks.forEach(x=>{const t=D.tracks[x.n-1];x.v=t.v;x.v2=t.v2;}))));
+const CC=t=>COLORMODE==='vivid'?t.v:t.c;
+const CI=t=>COLORMODE==='vivid'?t.v2:contrastOf(t);
+
 // ===== mandala =====
 const MC={x:500,y:500},MORD=G.map((g,i)=>i).sort((a,b)=>G[a].count-G[b].count||a-b);
 const lum=h=>{const n=parseInt(h.slice(1),16);return .3*(n>>16)+.59*((n>>8)&255)+.11*(n&255)};
@@ -369,10 +389,10 @@ function drawMandalaStyled(T,style){
       ctx.save();ctx.translate(MC.x,MC.y);ctx.rotate(a);ctx.translate(rg.r0+1,0);ctx.scale(s,s);ctx.globalAlpha=pd?.2:1;
       if(gold){motifPath(rg.motif,L,hw,1);ctx.lineWidth=hov?2.2:1.3;ctx.strokeStyle=hov?'#fff3d6':GOLD;ctx.stroke();
         motifPath(rg.motif,L,hw,.66);ctx.lineWidth=.9;ctx.stroke();
-        const jx=rg.motif==='ray'?L*.3:L*.58,jr=Math.max(2.6,Math.min(hw*.3,7));ctx.beginPath();ctx.arc(jx,0,jr,0,Math.PI*2);ctx.fillStyle=p.t.c;ctx.fill();ctx.lineWidth=1.2;ctx.strokeStyle=GOLD;ctx.stroke();}
+        const jx=rg.motif==='ray'?L*.3:L*.58,jr=Math.max(2.6,Math.min(hw*.3,7));ctx.beginPath();ctx.arc(jx,0,jr,0,Math.PI*2);ctx.fillStyle=CC(p.t);ctx.fill();ctx.lineWidth=1.2;ctx.strokeStyle=GOLD;ctx.stroke();}
       else{motifPath(rg.motif,L,hw,1);ctx.fillStyle=col;ctx.fill();ctx.lineWidth=hov?3:1.8;ctx.strokeStyle=hov?tok('--ink'):OUT;ctx.stroke();
-        ctx.save();ctx.translate(L*.1,0);motifPath(rg.motif,L*.86,hw*.7,1);ctx.fillStyle=p.t.c;ctx.fill();ctx.lineWidth=1.4;ctx.strokeStyle=OUT;ctx.stroke();ctx.restore();
-        ctx.save();ctx.translate(L*.1,0);motifDetail(rg.motif,L*.86,hw*.7,OUT,col,p.inner,false);ctx.restore();}
+        ctx.save();ctx.translate(L*.1,0);motifPath(rg.motif,L*.86,hw*.7,1);ctx.fillStyle=CC(p.t);ctx.fill();ctx.lineWidth=1.4;ctx.strokeStyle=OUT;ctx.stroke();ctx.restore();
+        ctx.save();ctx.translate(L*.1,0);motifDetail(rg.motif,L*.86,hw*.7,OUT,col,CI(p.t),false);ctx.restore();}
       ctx.restore();});
     ctx.globalAlpha=1;});
   // centro
@@ -425,7 +445,7 @@ function drawDense(T){
       ctx.beginPath();ctx.moveTo(L*.12,0);ctx.lineTo(L*.86,0);stroke(1.2,OUT);ctx.restore();}
     dpetals.forEach(p=>{if(p.ring!==rg)return;const dim=dimOf(p.g),hov=hover===p,s=hov?1.12:1,a=rad(p.a0+rot);p.hx=MCX+Math.cos(a)*mid;p.hy=MCY+Math.sin(a)*mid;
       ctx.save();ctx.translate(MCX,MCY);ctx.rotate(a);ctx.translate(rg.r0,0);ctx.globalAlpha=dim?.15:1;
-      [[1,G[p.g].color],[.7,p.t.c],[.42,p.inner]].forEach(([k,col],li)=>{ctx.save();ctx.translate(li?L*(1-k)*.2:0,0);ctx.scale(k*s,k*s);dPetal(rg.shape,L,w);fillc(col);ctx.lineWidth=(hov&&!li?3.4:2.2)/(k*s);ctx.strokeStyle=hov&&!li?tok('--ink'):OUT;ctx.stroke();
+      [[1,G[p.g].color],[.7,CC(p.t)],[.42,CI(p.t)]].forEach(([k,col],li)=>{ctx.save();ctx.translate(li?L*(1-k)*.2:0,0);ctx.scale(k*s,k*s);dPetal(rg.shape,L,w);fillc(col);ctx.lineWidth=(hov&&!li?3.4:2.2)/(k*s);ctx.strokeStyle=hov&&!li?tok('--ink'):OUT;ctx.stroke();
         if(rg.shape==='leaf'&&li===0){ctx.beginPath();ctx.moveTo(L*.05,0);ctx.lineTo(L*.95,0);for(let v=1;v<5;v++){const x=L*v/5;ctx.moveTo(x,0);ctx.lineTo(x+L*.08,-w*.22);ctx.moveTo(x,0);ctx.lineTo(x+L*.08,w*.22);}ctx.lineWidth=1.3/(k*s);ctx.stroke();}ctx.restore();});
       ctx.restore();
       const ad=rad(p.a0+180/n+rot);ctx.globalAlpha=dim?.15:1;ctx.beginPath();ctx.arc(MCX+Math.cos(ad)*(rg.r0+7),MCY+Math.sin(ad)*(rg.r0+7),3.6,0,Math.PI*2);fillc('#f4d35e');stroke(1.2,OUT);});});
@@ -458,8 +478,8 @@ function drawSun(T){
     ctx.save();ctx.translate(it.hx,it.hy);ctx.rotate(a+Math.PI/2);ctx.globalAlpha=dim?.2:1;
     const rr=(x,y,w,h,q)=>{ctx.beginPath();ctx.roundRect(x,y,w,h,q);};
     rr(-s/2,-s/2,s,s,s*.18);fillc(G[it.g].color);stroke(hov?3.2:2.4,hov?tok('--ink'):OUT);
-    rr(-s*.32,-s*.32,s*.64,s*.64,s*.1);fillc(it.t.c);stroke(1.8,OUT);
-    ctx.beginPath();ctx.arc(0,-s*.06,s*.13,0,Math.PI*2);fillc(contrastOf(it.t));stroke(1.4,OUT);
+    rr(-s*.32,-s*.32,s*.64,s*.64,s*.1);fillc(CC(it.t));stroke(1.8,OUT);
+    ctx.beginPath();ctx.arc(0,-s*.06,s*.13,0,Math.PI*2);fillc(CI(it.t));stroke(1.4,OUT);
     [-1,0,1].forEach(k=>{ctx.beginPath();ctx.arc(k*s*.16,s*.2,s*.045,0,Math.PI*2);fillc(OUT);});
     ctx.restore();});
   ctx.globalAlpha=1;
@@ -476,7 +496,7 @@ function drawSun(T){
 const RC={x:500,y:500},RB=[70,170,290,420],ROSE_IT=sectorAlloc([RB[1],RB[2],RB[3]]);
 const ROSEV=viewSquare(RC.x,RC.y,488);
 function drawRose(T){
-  const STONE='#9a9284',LEAD='#0f0b12',rot=T*.6;
+  const STONE='#b5a586',LEAD='#120d16',rot=T*.6;
   ctx.beginPath();ctx.arc(RC.x,RC.y,476,0,Math.PI*2);fillc(STONE);stroke(4,OUT);
   ctx.beginPath();ctx.arc(RC.x,RC.y,RB[3]+46,0,Math.PI*2);fillc(LEAD);
   // anillo exterior de rosetas, color por género
@@ -493,7 +513,7 @@ function drawRose(T){
       ctx.quadraticCurveTo(RC.x+Math.cos(ra+hw*.9)*(r1-4),RC.y+Math.sin(ra+hw*.9)*(r1-4),RC.x+Math.cos(ra+hw)*(r1-26),RC.y+Math.sin(ra+hw)*(r1-26));ctx.lineTo(RC.x+Math.cos(ra+hw)*(r0+6),RC.y+Math.sin(ra+hw)*(r0+6));ctx.closePath();}
     else if(it.ring===1){annSector(RC.x,RC.y,r0+5,r1-5,a0+pad,a1-pad);}
     else{const ra=rad(am),hw=rad((a1-a0)/2-pad);ctx.beginPath();ctx.moveTo(RC.x+Math.cos(ra-hw)*(r0+5),RC.y+Math.sin(ra-hw)*(r0+5));ctx.lineTo(RC.x+Math.cos(ra-hw)*(r1-30),RC.y+Math.sin(ra-hw)*(r1-30));ctx.quadraticCurveTo(RC.x+Math.cos(ra-hw)*(r1-4),RC.y+Math.sin(ra-hw)*(r1-4),RC.x+Math.cos(ra)*(r1-4),RC.y+Math.sin(ra)*(r1-4));ctx.quadraticCurveTo(RC.x+Math.cos(ra+hw)*(r1-4),RC.y+Math.sin(ra+hw)*(r1-4),RC.x+Math.cos(ra+hw)*(r1-30),RC.y+Math.sin(ra+hw)*(r1-30));ctx.lineTo(RC.x+Math.cos(ra+hw)*(r0+5),RC.y+Math.sin(ra+hw)*(r0+5));ctx.closePath();}
-    fillc(it.t.c);stroke(hov?5:4,hov?tok('--ink'):LEAD);
+    fillc(CC(it.t));stroke(hov?5:4,hov?tok('--ink'):LEAD);
     ctx.save();ctx.clip();stroke(6,G[it.g].color);ctx.restore();stroke(hov?3:2,hov?tok('--ink'):LEAD);
     const rm=it.ring===2?(r0+r1)/2:(r0+r1)/2;it.hx=RC.x+Math.cos(rad(am))*rm;it.hy=RC.y+Math.sin(rad(am))*rm;});
   ctx.globalAlpha=1;
@@ -536,7 +556,7 @@ function drawDream(T){
   for(let k=0;k<120;k++){const a=rad(k*3);ctx.beginPath();ctx.moveTo(DC.x+Math.cos(a)*(DR-9),DC.y+Math.sin(a)*(DR-9));ctx.lineTo(DC.x+Math.cos(a+.03)*(DR+9),DC.y+Math.sin(a+.03)*(DR+9));stroke(1.4,'#5c3a24');}
   // cuentas: una canción cada una
   rings.flat().forEach(p=>{const it=p.it,dim=dimOf(it.g),hov=hover===it,r=(hov?15:11.5);it.hx=p.x;it.hy=p.y;ctx.globalAlpha=dim?.2:1;
-    ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);fillc(it.t.c);stroke(hov?4.5:3.6,hov?tok('--ink'):G[it.g].color);ctx.beginPath();ctx.arc(p.x,p.y,r+1.8,0,Math.PI*2);stroke(1.4,OUT);
+    ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);fillc(CC(it.t));stroke(hov?4.5:3.6,hov?tok('--ink'):G[it.g].color);ctx.beginPath();ctx.arc(p.x,p.y,r+1.8,0,Math.PI*2);stroke(1.4,OUT);
     ctx.beginPath();ctx.arc(p.x-r*.3,p.y-r*.3,r*.22,0,Math.PI*2);fillc('#ffffff99');});
   ctx.globalAlpha=1;ctx.beginPath();ctx.arc(DC.x,DC.y,22,0,Math.PI*2);stroke(2,THREAD);
 }
@@ -557,9 +577,9 @@ function drawKal(T){
     const cx=pts.reduce((s,p)=>s+p[0],0)/4,cy=pts.reduce((s,p)=>s+p[1],0)/4;it.hx=cx;it.hy=cy;
     const dim=it.t?dimOf(it.g):false,hov=hover===it;ctx.globalAlpha=dim?.22:1;
     ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();
-    fillc(it.t?it.t.c:'#2a2035');stroke(hov?4.5:3.4,hov?tok('--ink'):OUT);
+    fillc(it.t?CC(it.t):'#2a2035');stroke(hov?4.5:3.4,hov?tok('--ink'):OUT);
     if(it.t){ctx.beginPath();pts.forEach((p,i)=>{const x=cx+(p[0]-cx)*.62,y=cy+(p[1]-cy)*.62;i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.closePath();stroke(2.4,G[it.g].color);
-      ctx.beginPath();ctx.arc(cx,cy,3.4,0,Math.PI*2);fillc(contrastOf(it.t));}});
+      ctx.beginPath();ctx.arc(cx,cy,3.4,0,Math.PI*2);fillc(CI(it.t));}});
   ctx.globalAlpha=1;
   for(let w=0;w<KW;w++){const a=rad(-90+w*span+rot);ctx.beginPath();ctx.moveTo(KC.x+Math.cos(a)*KB[0],KC.y+Math.sin(a)*KB[0]);ctx.lineTo(KC.x+Math.cos(a)*460,KC.y+Math.sin(a)*460);stroke(5,OUT);}
   ctx.beginPath();ctx.arc(KC.x,KC.y,460,0,Math.PI*2);stroke(6,OUT);
@@ -601,6 +621,7 @@ cv.addEventListener('click',e=>setHover(pick(e)));
 $('treechips').innerHTML=`<button type="button" data-g="all" aria-pressed="true">Todas</button>`+G.map((g,i)=>`<button type="button" data-g="${i}" aria-pressed="false"><i class="dot" style="background:${g.color}"></i>${esc(g.name)} <span class="count">${g.count}</span></button>`).join('');
 $('treechips').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;focus=b.dataset.g==='all'?null:+b.dataset.g;$('treechips').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));if(reduce)draw(0);});
 size();window.addEventListener('resize',()=>{size();if(reduce)draw(0)});
+$('colortoggle').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;COLORMODE=b.dataset.c;$('colortoggle').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));if(reduce)draw(0);});
 $('viewtoggle').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setMode(b.dataset.m)});
 setMode('dense');
 (document.fonts?document.fonts.ready:Promise.resolve()).then(()=>requestAnimationFrame(draw));

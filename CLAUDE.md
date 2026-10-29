@@ -17,6 +17,7 @@ Contexto para Claude Code en este repositorio.
 ## Stack
 - Front: Vue 3 (Composition API, `<script setup>`), TypeScript, Vite, Pinia, Vitest.
 - Estilo de las figuras: plano, con contornos oscuros y colores sólidos en capas (como mandala); sin brillos ni degradados.
+- Color: los colores extraídos son punto de partida, no regla. Modo por defecto "vivo" (mismo tono, más saturación y luz; interior en color complementario) con opción de ver los originales. Ver `docs/05-dualidad.md`.
 - Figuras: `packages/figures`, TypeScript puro sobre Canvas 2D, sin dependencia de Vue. Todas reciben `FigureData` (ver `docs/02-arquitectura-y-stack.md`).
 - Back (Fase 3): por decidir entre NestJS + Prisma (recomendado) y Spring Boot 3; base de datos PostgreSQL.
 
