@@ -1,0 +1,1906 @@
+{
+ "title": "Core.Lore",
+ "description": "Todo lo que no expliqué",
+ "owner": "A",
+ "source": "spotify",
+ "sourceUrl": "https://open.spotify.com/playlist/1PY1BZG7npaDTSOkf6c1wD",
+ "capturedAt": "2026-10-29",
+ "groups": [
+  {
+   "id": "g1",
+   "name": "Alternativo y trip-hop",
+   "color": "#8a7bd8",
+   "items": [
+    {
+     "id": "t1",
+     "position": 1,
+     "title": "No 1",
+     "subtitle": "Die Antwoord",
+     "palette": [
+      "#fcfcfc",
+      "#fefefe",
+      "#d3d3d3",
+      "#b4b4b4"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/No%201%20Die%20Antwoord"
+    },
+    {
+     "id": "t2",
+     "position": 2,
+     "title": "CHOSEN 1",
+     "subtitle": "Die Antwoord",
+     "palette": [
+      "#533a32",
+      "#151410",
+      "#2a2c2d",
+      "#e9595d"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/CHOSEN%201%20Die%20Antwoord"
+    },
+    {
+     "id": "t3",
+     "position": 3,
+     "title": "Age Of Illusion",
+     "subtitle": "Die Antwoord",
+     "palette": [
+      "#1b1d1d",
+      "#050705",
+      "#282d2c",
+      "#cbcdd3"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Age%20Of%20Illusion%20Die%20Antwoord"
+    },
+    {
+     "id": "t4",
+     "position": 4,
+     "title": "Busted and Blue",
+     "subtitle": "Gorillaz",
+     "palette": [
+      "#74828e",
+      "#768996",
+      "#566a75",
+      "#677a87"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Busted%20and%20Blue%20Gorillaz"
+    },
+    {
+     "id": "t5",
+     "position": 5,
+     "title": "Fire Flies",
+     "subtitle": "Gorillaz",
+     "palette": [
+      "#897769",
+      "#0d0c0b",
+      "#f6e7d1",
+      "#ecdbc8"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Fire%20Flies%20Gorillaz"
+    },
+    {
+     "id": "t6",
+     "position": 6,
+     "title": "Saturnz Barz (feat. Popcaan)",
+     "subtitle": "Gorillaz, Popcaan",
+     "palette": [
+      "#8b1f28",
+      "#dc2f42",
+      "#270b08",
+      "#dc2b3e"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Saturnz%20Barz%20%28feat.%20Popcaan%29%20Gorillaz"
+    },
+    {
+     "id": "t7",
+     "position": 7,
+     "title": "Me and Your Mama",
+     "subtitle": "Childish Gambino",
+     "palette": [
+      "#726854",
+      "#0c0c0b",
+      "#71726e",
+      "#8e908d"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Me%20and%20Your%20Mama%20Childish%20Gambino"
+    },
+    {
+     "id": "t8",
+     "position": 8,
+     "title": "Feels Like Summer",
+     "subtitle": "Childish Gambino",
+     "palette": [
+      "#122138",
+      "#0b152c",
+      "#0e1019",
+      "#021c44"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Feels%20Like%20Summer%20Childish%20Gambino"
+    },
+    {
+     "id": "t9",
+     "position": 9,
+     "title": "Terrified",
+     "subtitle": "Childish Gambino",
+     "palette": [
+      "#222426",
+      "#010101",
+      "#a8b0b7",
+      "#2e3134"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Terrified%20Childish%20Gambino"
+    },
+    {
+     "id": "t10",
+     "position": 10,
+     "title": "All Mine",
+     "subtitle": "Portishead",
+     "palette": [
+      "#3e3e3f",
+      "#060708",
+      "#918f90",
+      "#514f4f"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/All%20Mine%20Portishead"
+    },
+    {
+     "id": "t11",
+     "position": 11,
+     "title": "Undenied",
+     "subtitle": "Portishead",
+     "palette": [
+      "#3e3e3f",
+      "#060708",
+      "#918f90",
+      "#514f4f"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Undenied%20Portishead"
+    },
+    {
+     "id": "t12",
+     "position": 12,
+     "title": "Cowboys",
+     "subtitle": "Portishead",
+     "palette": [
+      "#3e3e3f",
+      "#060708",
+      "#918f90",
+      "#514f4f"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Cowboys%20Portishead"
+    }
+   ]
+  },
+  {
+   "id": "g2",
+   "name": "Indie oscuro y dark pop",
+   "color": "#d0569a",
+   "items": [
+    {
+     "id": "t13",
+     "position": 13,
+     "title": "Let You Down",
+     "subtitle": "Dawid Podsiadło",
+     "palette": [
+      "#864d5c",
+      "#0e0912",
+      "#f590b8",
+      "#f277ad"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Let%20You%20Down%20Dawid%20Podsiad%C5%82o"
+    },
+    {
+     "id": "t14",
+     "position": 14,
+     "title": "Where Did Your Love Go?",
+     "subtitle": "Dawid Podsiadło",
+     "palette": [
+      "#382318",
+      "#0b0504",
+      "#2e1109",
+      "#4e2b13"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Where%20Did%20Your%20Love%20Go%3F%20Dawid%20Podsiad%C5%82o"
+    },
+    {
+     "id": "t15",
+     "position": 15,
+     "title": "Phantom Liberty",
+     "subtitle": "Dawid Podsiadło, P.T. Adamczyk",
+     "palette": [
+      "#2c0410",
+      "#0f040a",
+      "#2c0410",
+      "#4f0112"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Phantom%20Liberty%20Dawid%20Podsiad%C5%82o"
+    },
+    {
+     "id": "t16",
+     "position": 16,
+     "title": "Trouble",
+     "subtitle": "TENDER",
+     "palette": [
+      "#296289",
+      "#3379a8",
+      "#2c6d98",
+      "#0c0d10"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Trouble%20TENDER"
+    },
+    {
+     "id": "t17",
+     "position": 17,
+     "title": "Erode",
+     "subtitle": "TENDER",
+     "palette": [
+      "#296289",
+      "#3379a8",
+      "#2c6d98",
+      "#0c0d10"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Erode%20TENDER"
+    },
+    {
+     "id": "t18",
+     "position": 18,
+     "title": "Slow Love",
+     "subtitle": "TENDER",
+     "palette": [
+      "#953a27",
+      "#501210",
+      "#c73018",
+      "#300f0e"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Slow%20Love%20TENDER"
+    },
+    {
+     "id": "t19",
+     "position": 19,
+     "title": "Show It 2 Me",
+     "subtitle": "Night Club",
+     "palette": [
+      "#e60b8c",
+      "#ed008c",
+      "#adabac",
+      "#e7e7e8"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Show%20It%202%20Me%20Night%20Club"
+    },
+    {
+     "id": "t20",
+     "position": 20,
+     "title": "Schizophrenic",
+     "subtitle": "Night Club",
+     "palette": [
+      "#20111b",
+      "#000000",
+      "#cd2a78",
+      "#c3aed2"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Schizophrenic%20Night%20Club"
+    },
+    {
+     "id": "t21",
+     "position": 21,
+     "title": "Die in the Disco",
+     "subtitle": "Night Club",
+     "palette": [
+      "#fad7e8",
+      "#ffffff",
+      "#ee529c",
+      "#ef6da9"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Die%20in%20the%20Disco%20Night%20Club"
+    },
+    {
+     "id": "t22",
+     "position": 22,
+     "title": "Slip",
+     "subtitle": "Elliot Moss",
+     "palette": [
+      "#5a6160",
+      "#020203",
+      "#6b7274",
+      "#8f968d"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Slip%20Elliot%20Moss"
+    },
+    {
+     "id": "t23",
+     "position": 23,
+     "title": "Closedloop",
+     "subtitle": "Elliot Moss",
+     "palette": [
+      "#3a2e4a",
+      "#32142e",
+      "#2e2e4e",
+      "#4f132a"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Closedloop%20Elliot%20Moss"
+    },
+    {
+     "id": "t24",
+     "position": 24,
+     "title": "99",
+     "subtitle": "Elliot Moss",
+     "palette": [
+      "#3a2e4a",
+      "#32142e",
+      "#2e2e4e",
+      "#4f132a"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/99%20Elliot%20Moss"
+    }
+   ]
+  },
+  {
+   "id": "g3",
+   "name": "Cine y rock psicodélico",
+   "color": "#c9a24a",
+   "items": [
+    {
+     "id": "t25",
+     "position": 25,
+     "title": "Plastic Heart",
+     "subtitle": "Nostalghia, Tyler Bates, Joel J. Richard",
+     "palette": [
+      "#232c47",
+      "#090c0f",
+      "#151a2b",
+      "#152539"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Plastic%20Heart%20Nostalghia"
+    },
+    {
+     "id": "t26",
+     "position": 26,
+     "title": "Fool",
+     "subtitle": "Nostalghia, Tyler Bates",
+     "palette": [
+      "#232c47",
+      "#090c0f",
+      "#151a2b",
+      "#152539"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Fool%20Nostalghia"
+    },
+    {
+     "id": "t27",
+     "position": 27,
+     "title": "Who You Talkin' To Man?",
+     "subtitle": "Nostalghia",
+     "palette": [
+      "#121617",
+      "#080d0e",
+      "#142a2d",
+      "#2b3132"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Who%20You%20Talkin%27%20To%20Man%3F%20Nostalghia"
+    },
+    {
+     "id": "t28",
+     "position": 28,
+     "title": "Welcome to the Machine",
+     "subtitle": "Pink Floyd",
+     "palette": [
+      "#d8dadc",
+      "#feffff",
+      "#a7bbd9",
+      "#546a66"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Welcome%20to%20the%20Machine%20Pink%20Floyd"
+    },
+    {
+     "id": "t29",
+     "position": 29,
+     "title": "Marooned",
+     "subtitle": "Pink Floyd",
+     "palette": [
+      "#747677",
+      "#2d6eac",
+      "#545669",
+      "#d1c8b6"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Marooned%20Pink%20Floyd"
+    },
+    {
+     "id": "t30",
+     "position": 30,
+     "title": "The Great Gig in the Sky",
+     "subtitle": "Pink Floyd",
+     "palette": [
+      "#080705",
+      "#010101",
+      "#2d2f35",
+      "#364b4e"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/The%20Great%20Gig%20in%20the%20Sky%20Pink%20Floyd"
+    },
+    {
+     "id": "t31",
+     "position": 31,
+     "title": "Rebel Paradise",
+     "subtitle": "Common Saints",
+     "palette": [
+      "#846f59",
+      "#2e2c25",
+      "#d9b570",
+      "#2b251c"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Rebel%20Paradise%20Common%20Saints"
+    },
+    {
+     "id": "t32",
+     "position": 32,
+     "title": "Dreams",
+     "subtitle": "Common Saints",
+     "palette": [
+      "#846f59",
+      "#2e2c25",
+      "#d9b570",
+      "#2b251c"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Dreams%20Common%20Saints"
+    },
+    {
+     "id": "t33",
+     "position": 33,
+     "title": "Idol Eyes",
+     "subtitle": "Common Saints",
+     "palette": [
+      "#846f59",
+      "#2e2c25",
+      "#d9b570",
+      "#2b251c"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Idol%20Eyes%20Common%20Saints"
+    }
+   ]
+  },
+  {
+   "id": "g4",
+   "name": "Soundtracks",
+   "color": "#4fa3c7",
+   "items": [
+    {
+     "id": "t34",
+     "position": 34,
+     "title": "The Line",
+     "subtitle": "Arcane, Twenty One Pilots",
+     "palette": [
+      "#1a3657",
+      "#02162d",
+      "#010613",
+      "#04294f"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/The%20Line%20Arcane"
+    },
+    {
+     "id": "t35",
+     "position": 35,
+     "title": "Sucker",
+     "subtitle": "Arcane, Marcus King",
+     "palette": [
+      "#1a3657",
+      "#02162d",
+      "#010613",
+      "#04294f"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Sucker%20Arcane"
+    },
+    {
+     "id": "t36",
+     "position": 36,
+     "title": "Enemy (with JID)",
+     "subtitle": "Imagine Dragons, JID, Arcane, League of Legends",
+     "palette": [
+      "#992226",
+      "#9b2327",
+      "#a42629",
+      "#941d24"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Enemy%20%28with%20JID%29%20Imagine%20Dragons"
+    },
+    {
+     "id": "t37",
+     "position": 37,
+     "title": "Dark Cosmic Jhin",
+     "subtitle": "League of Legends",
+     "palette": [
+      "#36322e",
+      "#131212",
+      "#2f2d2d",
+      "#524d49"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Dark%20Cosmic%20Jhin%20League%20of%20Legends"
+    },
+    {
+     "id": "t38",
+     "position": 38,
+     "title": "VILLAIN",
+     "subtitle": "K/DA, Madison Beer, Kim Petras, League of Legends",
+     "palette": [
+      "#849db3",
+      "#b0d4f1",
+      "#b6ebf8",
+      "#13131b"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/VILLAIN%20K/DA"
+    },
+    {
+     "id": "t39",
+     "position": 39,
+     "title": "Tahm Kench, the River King",
+     "subtitle": "League of Legends",
+     "palette": [
+      "#273428",
+      "#101311",
+      "#2d2d2c",
+      "#15271a"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Tahm%20Kench%2C%20the%20River%20King%20League%20of%20Legends"
+    },
+    {
+     "id": "t40",
+     "position": 40,
+     "title": "The Demeter Suite",
+     "subtitle": "Nicolas Snyder",
+     "palette": [
+      "#6a8ca1",
+      "#6eb5d8",
+      "#312c2f",
+      "#56a9d4"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/The%20Demeter%20Suite%20Nicolas%20Snyder"
+    },
+    {
+     "id": "t41",
+     "position": 41,
+     "title": "Kamen's Folly",
+     "subtitle": "Nicolas Snyder",
+     "palette": [
+      "#6a8ca1",
+      "#6eb5d8",
+      "#312c2f",
+      "#56a9d4"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Kamen%27s%20Folly%20Nicolas%20Snyder"
+    },
+    {
+     "id": "t42",
+     "position": 42,
+     "title": "This Place (feat. Rowan Katz)",
+     "subtitle": "Nicolas Snyder, Rowan Katz",
+     "palette": [
+      "#6a8ca1",
+      "#6eb5d8",
+      "#312c2f",
+      "#56a9d4"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/This%20Place%20%28feat.%20Rowan%20Katz%29%20Nicolas%20Snyder"
+    }
+   ]
+  },
+  {
+   "id": "g5",
+   "name": "Metal y rock pesado",
+   "color": "#c4473a",
+   "items": [
+    {
+     "id": "t43",
+     "position": 43,
+     "title": "Problème d'émotion",
+     "subtitle": "Igorrr",
+     "palette": [
+      "#534c50",
+      "#1a192b",
+      "#2f2b32",
+      "#988678"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Probl%C3%A8me%20d%27%C3%A9motion%20Igorrr"
+    },
+    {
+     "id": "t44",
+     "position": 44,
+     "title": "Downgrade Desert",
+     "subtitle": "Igorrr",
+     "palette": [
+      "#373430",
+      "#100e10",
+      "#312f2d",
+      "#514e48"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Downgrade%20Desert%20Igorrr"
+    },
+    {
+     "id": "t45",
+     "position": 45,
+     "title": "Overweight Poesy",
+     "subtitle": "Igorrr",
+     "palette": [
+      "#373430",
+      "#100e10",
+      "#312f2d",
+      "#514e48"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Overweight%20Poesy%20Igorrr"
+    },
+    {
+     "id": "t46",
+     "position": 46,
+     "title": "Bone Church",
+     "subtitle": "Slipknot",
+     "palette": [
+      "#171510",
+      "#060503",
+      "#32332a",
+      "#290b08"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Bone%20Church%20Slipknot"
+    },
+    {
+     "id": "t47",
+     "position": 47,
+     "title": "Danger - Keep Away",
+     "subtitle": "Slipknot",
+     "palette": [
+      "#311c1e",
+      "#070707",
+      "#2e2d2c",
+      "#4f4e4d"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Danger%20-%20Keep%20Away%20Slipknot"
+    },
+    {
+     "id": "t48",
+     "position": 48,
+     "title": "My Pain",
+     "subtitle": "Slipknot",
+     "palette": [
+      "#2d252f",
+      "#070608",
+      "#2a292e",
+      "#b1b1b2"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/My%20Pain%20Slipknot"
+    },
+    {
+     "id": "t49",
+     "position": 49,
+     "title": "Tattooed In Reverse",
+     "subtitle": "Marilyn Manson",
+     "palette": [
+      "#5e5e5e",
+      "#989898",
+      "#0a0a0a",
+      "#2c2c2c"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Tattooed%20In%20Reverse%20Marilyn%20Manson"
+    },
+    {
+     "id": "t50",
+     "position": 50,
+     "title": "Killing Strangers",
+     "subtitle": "Marilyn Manson",
+     "palette": [
+      "#6c6d6d",
+      "#323232",
+      "#484848",
+      "#d0d0d0"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Killing%20Strangers%20Marilyn%20Manson"
+    },
+    {
+     "id": "t51",
+     "position": 51,
+     "title": "God's Gonna Cut You Down",
+     "subtitle": "Marilyn Manson",
+     "palette": [
+      "#4e4e4e",
+      "#313131",
+      "#4f4f4f",
+      "#6c6c6c"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/God%27s%20Gonna%20Cut%20You%20Down%20Marilyn%20Manson"
+    },
+    {
+     "id": "t52",
+     "position": 52,
+     "title": "Puppe",
+     "subtitle": "Rammstein",
+     "palette": [
+      "#f5f5f4",
+      "#f7f7f7",
+      "#d4b69c",
+      "#d3bba4"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Puppe%20Rammstein"
+    },
+    {
+     "id": "t53",
+     "position": 53,
+     "title": "Mein Herz brennt",
+     "subtitle": "Rammstein",
+     "palette": [
+      "#7b7866",
+      "#6f6c53",
+      "#32332a",
+      "#908972"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Mein%20Herz%20brennt%20Rammstein"
+    },
+    {
+     "id": "t54",
+     "position": 54,
+     "title": "Adieu",
+     "subtitle": "Rammstein",
+     "palette": [
+      "#9fa8ba",
+      "#cfd9e8",
+      "#6c758e",
+      "#dae3ed"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Adieu%20Rammstein"
+    },
+    {
+     "id": "t55",
+     "position": 55,
+     "title": "Holy Mountains",
+     "subtitle": "System Of A Down",
+     "palette": [
+      "#4a3b38",
+      "#181613",
+      "#2b1b18",
+      "#eceaea"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Holy%20Mountains%20System%20Of%20A%20Down"
+    },
+    {
+     "id": "t56",
+     "position": 56,
+     "title": "Aerials",
+     "subtitle": "System Of A Down",
+     "palette": [
+      "#365068",
+      "#1a3349",
+      "#2f506a",
+      "#5b83a6"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Aerials%20System%20Of%20A%20Down"
+    },
+    {
+     "id": "t57",
+     "position": 57,
+     "title": "Spiders",
+     "subtitle": "System Of A Down",
+     "palette": [
+      "#1d0708",
+      "#020101",
+      "#b12a2e",
+      "#2e0a0b"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Spiders%20System%20Of%20A%20Down"
+    },
+    {
+     "id": "t58",
+     "position": 58,
+     "title": "Lying from You",
+     "subtitle": "Linkin Park",
+     "palette": [
+      "#463c2f",
+      "#100903",
+      "#a4947a",
+      "#988970"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Lying%20from%20You%20Linkin%20Park"
+    },
+    {
+     "id": "t59",
+     "position": 59,
+     "title": "ROADS UNTRAVELED",
+     "subtitle": "Linkin Park",
+     "palette": [
+      "#a8a7a6",
+      "#d1d2d1",
+      "#929092",
+      "#b1b2b2"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/ROADS%20UNTRAVELED%20Linkin%20Park"
+    },
+    {
+     "id": "t60",
+     "position": 60,
+     "title": "The Emptiness Machine",
+     "subtitle": "Linkin Park",
+     "palette": [
+      "#997a99",
+      "#2d3231",
+      "#6e4a50",
+      "#cd92d0"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/The%20Emptiness%20Machine%20Linkin%20Park"
+    },
+    {
+     "id": "t61",
+     "position": 61,
+     "title": "THE DEATH OF PEACE OF MIND",
+     "subtitle": "Bad Omens",
+     "palette": [
+      "#8f2e1c",
+      "#b1311b",
+      "#922818",
+      "#511a17"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/THE%20DEATH%20OF%20PEACE%20OF%20MIND%20Bad%20Omens"
+    },
+    {
+     "id": "t62",
+     "position": 62,
+     "title": "Specter",
+     "subtitle": "Bad Omens",
+     "palette": [
+      "#292d30",
+      "#171416",
+      "#25292c",
+      "#1d1d22"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Specter%20Bad%20Omens"
+    },
+    {
+     "id": "t63",
+     "position": 63,
+     "title": "Just Pretend",
+     "subtitle": "Bad Omens",
+     "palette": [
+      "#8f2e1c",
+      "#b1311b",
+      "#922818",
+      "#511a17"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Just%20Pretend%20Bad%20Omens"
+    },
+    {
+     "id": "t64",
+     "position": 64,
+     "title": "Take Me Back To Eden",
+     "subtitle": "Sleep Token",
+     "palette": [
+      "#cecac0",
+      "#e2ded3",
+      "#dcd8cc",
+      "#737068"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Take%20Me%20Back%20To%20Eden%20Sleep%20Token"
+    },
+    {
+     "id": "t65",
+     "position": 65,
+     "title": "Dangerous",
+     "subtitle": "Sleep Token",
+     "palette": [
+      "#634e56",
+      "#534a50",
+      "#6c4d57",
+      "#735a63"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Dangerous%20Sleep%20Token"
+    },
+    {
+     "id": "t66",
+     "position": 66,
+     "title": "Chokehold",
+     "subtitle": "Sleep Token",
+     "palette": [
+      "#c0bdb3",
+      "#e2ded3",
+      "#dcd8cc",
+      "#3a3833"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Chokehold%20Sleep%20Token"
+    },
+    {
+     "id": "t67",
+     "position": 67,
+     "title": "Prequel",
+     "subtitle": "Falling In Reverse",
+     "palette": [
+      "#665650",
+      "#121211",
+      "#2e2e2c",
+      "#958e8a"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Prequel%20Falling%20In%20Reverse"
+    },
+    {
+     "id": "t68",
+     "position": 68,
+     "title": "I'm Not A Vampire - Revamped",
+     "subtitle": "Falling In Reverse",
+     "palette": [
+      "#4e2321",
+      "#2f1411",
+      "#4d1611",
+      "#35282a"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/I%27m%20Not%20A%20Vampire%20-%20Revamped%20Falling%20In%20Reverse"
+    },
+    {
+     "id": "t69",
+     "position": 69,
+     "title": "God Is A Weapon",
+     "subtitle": "Falling In Reverse, Marilyn Manson",
+     "palette": [
+      "#5c595a",
+      "#302d2e",
+      "#504e4f",
+      "#6f6d6d"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/God%20Is%20A%20Weapon%20Falling%20In%20Reverse"
+    },
+    {
+     "id": "t70",
+     "position": 70,
+     "title": "Hospital for Souls",
+     "subtitle": "Bring Me The Horizon",
+     "palette": [
+      "#493726",
+      "#15151a",
+      "#4d3628",
+      "#6f512e"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Hospital%20for%20Souls%20Bring%20Me%20The%20Horizon"
+    },
+    {
+     "id": "t71",
+     "position": 71,
+     "title": "Steal Something.",
+     "subtitle": "Bring Me The Horizon",
+     "palette": [
+      "#8e8479",
+      "#2b2825",
+      "#faf0e8",
+      "#e5ceb4"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Steal%20Something.%20Bring%20Me%20The%20Horizon"
+    },
+    {
+     "id": "t72",
+     "position": 72,
+     "title": "Deathbeds",
+     "subtitle": "Bring Me The Horizon",
+     "palette": [
+      "#493726",
+      "#15151a",
+      "#4d3628",
+      "#6f512e"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Deathbeds%20Bring%20Me%20The%20Horizon"
+    },
+    {
+     "id": "t73",
+     "position": 73,
+     "title": "Fly Like an Eagle",
+     "subtitle": "In This Moment",
+     "palette": [
+      "#50545c",
+      "#0e192b",
+      "#162335",
+      "#8f908d"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Fly%20Like%20an%20Eagle%20In%20This%20Moment"
+    },
+    {
+     "id": "t74",
+     "position": 74,
+     "title": "Whore",
+     "subtitle": "In This Moment",
+     "palette": [
+      "#dcd2c7",
+      "#fbf7ee",
+      "#f3e8da",
+      "#e8d8cc"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Whore%20In%20This%20Moment"
+    },
+    {
+     "id": "t75",
+     "position": 75,
+     "title": "Mother",
+     "subtitle": "In This Moment",
+     "palette": [
+      "#50545c",
+      "#0e192b",
+      "#162335",
+      "#8f908d"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Mother%20In%20This%20Moment"
+    },
+    {
+     "id": "t76",
+     "position": 76,
+     "title": "Closer",
+     "subtitle": "Asking Alexandria",
+     "palette": [
+      "#896761",
+      "#fafaf7",
+      "#b72417",
+      "#32302d"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Closer%20Asking%20Alexandria"
+    },
+    {
+     "id": "t77",
+     "position": 77,
+     "title": "Vultures",
+     "subtitle": "Asking Alexandria",
+     "palette": [
+      "#521a17",
+      "#2e1211",
+      "#180f0e",
+      "#4e1513"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Vultures%20Asking%20Alexandria"
+    },
+    {
+     "id": "t78",
+     "position": 78,
+     "title": "Moving On",
+     "subtitle": "Asking Alexandria",
+     "palette": [
+      "#43474f",
+      "#0e0d12",
+      "#282a32",
+      "#1a1b25"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Moving%20On%20Asking%20Alexandria"
+    },
+    {
+     "id": "t79",
+     "position": 79,
+     "title": "Gary Heidnik (feat. Jonathan Davis)",
+     "subtitle": "SKYND, Jonathan Davis",
+     "palette": [
+      "#cdab9c",
+      "#d5b5a8",
+      "#d0aa97",
+      "#e3bbaa"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Gary%20Heidnik%20%28feat.%20Jonathan%20Davis%29%20SKYND"
+    },
+    {
+     "id": "t80",
+     "position": 80,
+     "title": "Richard Ramirez",
+     "subtitle": "SKYND",
+     "palette": [
+      "#cdab9c",
+      "#d5b5a8",
+      "#d0aa97",
+      "#e3bbaa"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Richard%20Ramirez%20SKYND"
+    },
+    {
+     "id": "t81",
+     "position": 81,
+     "title": "Katherine Knight",
+     "subtitle": "SKYND",
+     "palette": [
+      "#544034",
+      "#4a382e",
+      "#584539",
+      "#6d5545"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Katherine%20Knight%20SKYND"
+    },
+    {
+     "id": "t82",
+     "position": 82,
+     "title": "I Got Bones",
+     "subtitle": "Danny Worsnop",
+     "palette": [
+      "#a69388",
+      "#fcebcc",
+      "#ccae96",
+      "#b19788"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/I%20Got%20Bones%20Danny%20Worsnop"
+    },
+    {
+     "id": "t83",
+     "position": 83,
+     "title": "Best Bad Habit",
+     "subtitle": "Danny Worsnop",
+     "palette": [
+      "#8ba2b0",
+      "#aff9fa",
+      "#302a2e",
+      "#b3cad6"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Best%20Bad%20Habit%20Danny%20Worsnop"
+    },
+    {
+     "id": "t84",
+     "position": 84,
+     "title": "Another You",
+     "subtitle": "Danny Worsnop",
+     "palette": [
+      "#3a3544",
+      "#171718",
+      "#2c2a2d",
+      "#2c1936"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Another%20You%20Danny%20Worsnop"
+    }
+   ]
+  },
+  {
+   "id": "g6",
+   "name": "Electrónica experimental",
+   "color": "#5fbf9a",
+   "items": [
+    {
+     "id": "t85",
+     "position": 85,
+     "title": "Hajime",
+     "subtitle": "UVB76",
+     "palette": [
+      "#99694d",
+      "#b45229",
+      "#ce744a",
+      "#c4582d"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Hajime%20UVB76"
+    },
+    {
+     "id": "t86",
+     "position": 86,
+     "title": "Qiankun Tu",
+     "subtitle": "UVB76",
+     "palette": [
+      "#99694d",
+      "#b45229",
+      "#ce744a",
+      "#c4582d"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Qiankun%20Tu%20UVB76"
+    },
+    {
+     "id": "t87",
+     "position": 87,
+     "title": "Onna",
+     "subtitle": "UVB76",
+     "palette": [
+      "#99694d",
+      "#b45229",
+      "#ce744a",
+      "#c4582d"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Onna%20UVB76"
+    },
+    {
+     "id": "t88",
+     "position": 88,
+     "title": "Destiny Killer",
+     "subtitle": "Emika",
+     "palette": [
+      "#a0b3c4",
+      "#f3f1f1",
+      "#d1cdd7",
+      "#b1d7e7"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Destiny%20Killer%20Emika"
+    },
+    {
+     "id": "t89",
+     "position": 89,
+     "title": "Sing to Me",
+     "subtitle": "Emika",
+     "palette": [
+      "#c36e72",
+      "#f7f7f8",
+      "#e61a24",
+      "#d81921"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Sing%20to%20Me%20Emika"
+    },
+    {
+     "id": "t90",
+     "position": 90,
+     "title": "Promises",
+     "subtitle": "Emika",
+     "palette": [
+      "#cac6bd",
+      "#ede6e4",
+      "#d7d5d0",
+      "#d5c6b5"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Promises%20Emika"
+    },
+    {
+     "id": "t91",
+     "position": 91,
+     "title": "Marimba",
+     "subtitle": "Kermesse",
+     "palette": [
+      "#e8cb89",
+      "#fbde90",
+      "#fce191",
+      "#ccb077"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Marimba%20Kermesse"
+    },
+    {
+     "id": "t92",
+     "position": 92,
+     "title": "Awake",
+     "subtitle": "Kermesse",
+     "palette": [
+      "#b7a791",
+      "#d2b091",
+      "#93d9c6",
+      "#afe3d0"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Awake%20Kermesse"
+    },
+    {
+     "id": "t93",
+     "position": 93,
+     "title": "Camomille",
+     "subtitle": "Kermesse",
+     "palette": [
+      "#745a59",
+      "#502e2c",
+      "#704c4b",
+      "#693736"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Camomille%20Kermesse"
+    }
+   ]
+  },
+  {
+   "id": "g7",
+   "name": "Alt latino electrónico",
+   "color": "#e08a3c",
+   "items": [
+    {
+     "id": "t94",
+     "position": 94,
+     "title": "Sr. Tigre - French Braids Rework",
+     "subtitle": "YoSoyMatt, Eva de Marce, French Braids",
+     "palette": [
+      "#848b7e",
+      "#6f756c",
+      "#8f958b",
+      "#b3b7a7"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Sr.%20Tigre%20-%20French%20Braids%20Rework%20YoSoyMatt"
+    },
+    {
+     "id": "t95",
+     "position": 95,
+     "title": "La Niña del Volcán (Polocorp Remix)",
+     "subtitle": "YoSoyMatt, Eva de Marce, Polocorp",
+     "palette": [
+      "#6a604d",
+      "#302b14",
+      "#383828",
+      "#0a0904"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/La%20Ni%C3%B1a%20del%20Volc%C3%A1n%20%28Polocorp%20Remix%29%20YoSoyMatt"
+    },
+    {
+     "id": "t96",
+     "position": 96,
+     "title": "Aurora Dijo Adiós",
+     "subtitle": "YoSoyMatt, French Braids, Eva de Marce",
+     "palette": [
+      "#ab8078",
+      "#e7e7e7",
+      "#652318",
+      "#ce3b22"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Aurora%20Dijo%20Adi%C3%B3s%20YoSoyMatt"
+    },
+    {
+     "id": "t97",
+     "position": 97,
+     "title": "Ta Que Tiembla",
+     "subtitle": "Buscabulla",
+     "palette": [
+      "#aaa08d",
+      "#b4a98f",
+      "#d2d7ce",
+      "#96886f"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Ta%20Que%20Tiembla%20Buscabulla"
+    },
+    {
+     "id": "t98",
+     "position": 98,
+     "title": "Eva",
+     "subtitle": "Buscabulla",
+     "palette": [
+      "#64778e",
+      "#91afcf",
+      "#b2cbe7",
+      "#2a374a"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Eva%20Buscabulla"
+    },
+    {
+     "id": "t99",
+     "position": 99,
+     "title": "Volta",
+     "subtitle": "Buscabulla",
+     "palette": [
+      "#aaa08d",
+      "#b4a98f",
+      "#d2d7ce",
+      "#96886f"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Volta%20Buscabulla"
+    },
+    {
+     "id": "t100",
+     "position": 100,
+     "title": "Mientras Tanto",
+     "subtitle": "Los Eclipses, Dan Solo, Eva de Marce",
+     "palette": [
+      "#676a61",
+      "#070503",
+      "#50534d",
+      "#6f746c"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Mientras%20Tanto%20Los%20Eclipses"
+    },
+    {
+     "id": "t101",
+     "position": 101,
+     "title": "Elodie",
+     "subtitle": "Los Eclipses, Eva de Marce, Dan Solo",
+     "palette": [
+      "#676a61",
+      "#070503",
+      "#50534d",
+      "#6f746c"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Elodie%20Los%20Eclipses"
+    },
+    {
+     "id": "t102",
+     "position": 102,
+     "title": "Nada Más",
+     "subtitle": "Los Eclipses, Eva de Marce, Dan Solo",
+     "palette": [
+      "#676a61",
+      "#070503",
+      "#50534d",
+      "#6f746c"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Nada%20M%C3%A1s%20Los%20Eclipses"
+    }
+   ]
+  },
+  {
+   "id": "g8",
+   "name": "Rap y R&B mexicano",
+   "color": "#e2c044",
+   "items": [
+    {
+     "id": "t103",
+     "position": 103,
+     "title": "Año 3: De Lunes a Domingo",
+     "subtitle": "Anestesia",
+     "palette": [
+      "#381424",
+      "#040103",
+      "#290719",
+      "#4e0f2f"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/A%C3%B1o%203%3A%20De%20Lunes%20a%20Domingo%20Anestesia"
+    },
+    {
+     "id": "t104",
+     "position": 104,
+     "title": "Año 7: Ninguna",
+     "subtitle": "Anestesia, Tino El Pingüino, Fermín Sanchez",
+     "palette": [
+      "#381424",
+      "#040103",
+      "#290719",
+      "#4e0f2f"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/A%C3%B1o%207%3A%20Ninguna%20Anestesia"
+    },
+    {
+     "id": "t105",
+     "position": 105,
+     "title": "Año 2: Los Amorosos",
+     "subtitle": "Anestesia",
+     "palette": [
+      "#381424",
+      "#040103",
+      "#290719",
+      "#4e0f2f"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/A%C3%B1o%202%3A%20Los%20Amorosos%20Anestesia"
+    },
+    {
+     "id": "t106",
+     "position": 106,
+     "title": "Si Tú Te Vas",
+     "subtitle": "Charles Ans, La Loquera, Ms. Ambar",
+     "palette": [
+      "#80644e",
+      "#292b2b",
+      "#2f4d47",
+      "#b4793c"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Si%20T%C3%BA%20Te%20Vas%20Charles%20Ans"
+    },
+    {
+     "id": "t107",
+     "position": 107,
+     "title": "Retrato",
+     "subtitle": "Charles Ans, BCN",
+     "palette": [
+      "#5f5a64",
+      "#0c1011",
+      "#918e90",
+      "#4f4e52"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Retrato%20Charles%20Ans"
+    },
+    {
+     "id": "t108",
+     "position": 108,
+     "title": "Otra Vela al Pastel",
+     "subtitle": "Charles Ans, Adán Cruz, BCN",
+     "palette": [
+      "#9e8d72",
+      "#998865",
+      "#897555",
+      "#a69570"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Otra%20Vela%20al%20Pastel%20Charles%20Ans"
+    },
+    {
+     "id": "t109",
+     "position": 109,
+     "title": "We Made a Plan",
+     "subtitle": "Adán Cruz",
+     "palette": [
+      "#999c82",
+      "#afb3b2",
+      "#90af94",
+      "#908c73"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/We%20Made%20a%20Plan%20Ad%C3%A1n%20Cruz"
+    },
+    {
+     "id": "t110",
+     "position": 110,
+     "title": "Ando Como Se Debe",
+     "subtitle": "Adán Cruz",
+     "palette": [
+      "#a58379",
+      "#6a76b8",
+      "#8e71b1",
+      "#f0b3c6"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Ando%20Como%20Se%20Debe%20Ad%C3%A1n%20Cruz"
+    },
+    {
+     "id": "t111",
+     "position": 111,
+     "title": "Es Ahí",
+     "subtitle": "NARCOWAVE, Adán Cruz",
+     "palette": [
+      "#585c66",
+      "#272c3a",
+      "#343945",
+      "#474b57"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Es%20Ah%C3%AD%20NARCOWAVE"
+    },
+    {
+     "id": "t112",
+     "position": 112,
+     "title": "Complicado",
+     "subtitle": "Gera MX, Jayrick, Ervin River",
+     "palette": [
+      "#b4cce7",
+      "#a9d5f5",
+      "#efd6e5",
+      "#99cbee"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Complicado%20Gera%20MX"
+    },
+    {
+     "id": "t113",
+     "position": 113,
+     "title": "El Músico",
+     "subtitle": "Gera MX",
+     "palette": [
+      "#3a2422",
+      "#130e0c",
+      "#2b1210",
+      "#2d2a2c"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/El%20M%C3%BAsico%20Gera%20MX"
+    },
+    {
+     "id": "t114",
+     "position": 114,
+     "title": "Pupilas",
+     "subtitle": "Gera MX, Villax",
+     "palette": [
+      "#363d53",
+      "#2a314e",
+      "#171b30",
+      "#1d2447"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Pupilas%20Gera%20MX"
+    },
+    {
+     "id": "t115",
+     "position": 115,
+     "title": "Temperatura",
+     "subtitle": "Villax",
+     "palette": [
+      "#281619",
+      "#030102",
+      "#02294e",
+      "#4e1210"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Temperatura%20Villax"
+    },
+    {
+     "id": "t116",
+     "position": 116,
+     "title": "Ven Búscame",
+     "subtitle": "Villax, Isaac H",
+     "palette": [
+      "#554a1f",
+      "#021b22",
+      "#030f14",
+      "#f0ae0e"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Ven%20B%C3%BAscame%20Villax"
+    },
+    {
+     "id": "t117",
+     "position": 117,
+     "title": "Entre Tu y Yo",
+     "subtitle": "Villax, Rich Vagos, Samantha Barrón",
+     "palette": [
+      "#575b52",
+      "#71675a",
+      "#1c2a26",
+      "#2c3431"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Entre%20Tu%20y%20Yo%20Villax"
+    },
+    {
+     "id": "t118",
+     "position": 118,
+     "title": "Después de las 12",
+     "subtitle": "Samantha Barrón, Gera MX",
+     "palette": [
+      "#1b1b1b",
+      "#0e0e0e",
+      "#292929",
+      "#4d4d4d"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Despu%C3%A9s%20de%20las%2012%20Samantha%20Barr%C3%B3n"
+    },
+    {
+     "id": "t119",
+     "position": 119,
+     "title": "Tu Mirar",
+     "subtitle": "Solitario Mondragon, Samantha Barrón",
+     "palette": [
+      "#6d5546",
+      "#503528",
+      "#271912",
+      "#6c4831"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Tu%20Mirar%20Solitario%20Mondragon"
+    },
+    {
+     "id": "t120",
+     "position": 120,
+     "title": "Cuando No Este",
+     "subtitle": "Rich Vagos, Samantha Barrón, Sandro Malandro, Drama Theme",
+     "palette": [
+      "#0b0b0c",
+      "#09090a",
+      "#4c4c4c",
+      "#303030"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Cuando%20No%20Este%20Rich%20Vagos"
+    },
+    {
+     "id": "t121",
+     "position": 121,
+     "title": "Fresh",
+     "subtitle": "Nanpa Básico",
+     "palette": [
+      "#a8a8a8",
+      "#cccccc",
+      "#b7b7b7",
+      "#908f8f"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Fresh%20Nanpa%20B%C3%A1sico"
+    },
+    {
+     "id": "t122",
+     "position": 122,
+     "title": "Mal Mal Mal",
+     "subtitle": "Nanpa Básico, Blessd",
+     "palette": [
+      "#5c5558",
+      "#1c2c37",
+      "#312a2f",
+      "#70342d"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Mal%20Mal%20Mal%20Nanpa%20B%C3%A1sico"
+    },
+    {
+     "id": "t123",
+     "position": 123,
+     "title": "Tuyo X Siempre",
+     "subtitle": "Jayrick, Nanpa Básico",
+     "palette": [
+      "#57355b",
+      "#2c1d2a",
+      "#49528e",
+      "#2e284e"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Tuyo%20X%20Siempre%20Jayrick"
+    },
+    {
+     "id": "t124",
+     "position": 124,
+     "title": "Gran Vida",
+     "subtitle": "Alemán",
+     "palette": [
+      "#64676a",
+      "#33302d",
+      "#51504f",
+      "#6c6e70"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Gran%20Vida%20Alem%C3%A1n"
+    },
+    {
+     "id": "t125",
+     "position": 125,
+     "title": "Tantas Veces",
+     "subtitle": "Alemán, Yung Sarria, Fntxy",
+     "palette": [
+      "#343a41",
+      "#020407",
+      "#6f7989",
+      "#2a3138"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Tantas%20Veces%20Alem%C3%A1n"
+    },
+    {
+     "id": "t126",
+     "position": 126,
+     "title": "So High (feat. Jambene)",
+     "subtitle": "Alemán, Muelas De Gallo, Fntxy, Jambene",
+     "palette": [
+      "#64676a",
+      "#33302d",
+      "#51504f",
+      "#6c6e70"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/So%20High%20%28feat.%20Jambene%29%20Alem%C3%A1n"
+    },
+    {
+     "id": "t127",
+     "position": 127,
+     "title": "Como Nunca",
+     "subtitle": "Faruz Feet, Ghosk Isais",
+     "palette": [
+      "#78848c",
+      "#0b0b0b",
+      "#eceef0",
+      "#d2e4ee"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Como%20Nunca%20Faruz%20Feet"
+    },
+    {
+     "id": "t128",
+     "position": 128,
+     "title": "Sirena",
+     "subtitle": "Faruz Feet",
+     "palette": [
+      "#af7a55",
+      "#efad73",
+      "#4b362b",
+      "#ce956c"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Sirena%20Faruz%20Feet"
+    },
+    {
+     "id": "t129",
+     "position": 129,
+     "title": "Paisajes",
+     "subtitle": "Faruz Feet, Donovan Morales, Gera MX",
+     "palette": [
+      "#a2a2a2",
+      "#bbbbbb",
+      "#2c2c2c",
+      "#505050"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Paisajes%20Faruz%20Feet"
+    },
+    {
+     "id": "t130",
+     "position": 130,
+     "title": "Loco Con Suerte",
+     "subtitle": "Sandro Malandro",
+     "palette": [
+      "#9f5951",
+      "#ce3436",
+      "#383636",
+      "#8d3232"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Loco%20Con%20Suerte%20Sandro%20Malandro"
+    },
+    {
+     "id": "t131",
+     "position": 131,
+     "title": "Déjame Tocarte",
+     "subtitle": "Sandro Malandro",
+     "palette": [
+      "#464646",
+      "#020202",
+      "#f7f7f7",
+      "#cfcfcf"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/D%C3%A9jame%20Tocarte%20Sandro%20Malandro"
+    },
+    {
+     "id": "t132",
+     "position": 132,
+     "title": "Húchalamama",
+     "subtitle": "Sandro Malandro, ElReghosg",
+     "palette": [
+      "#9f5951",
+      "#ce3436",
+      "#383636",
+      "#8d3232"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/H%C3%BAchalamama%20Sandro%20Malandro"
+    },
+    {
+     "id": "t133",
+     "position": 133,
+     "title": "Algo Más",
+     "subtitle": "Silar Kilos De Estilo",
+     "palette": [
+      "#c4dac5",
+      "#f8fcf8",
+      "#d1f0d2",
+      "#0a0a0a"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Algo%20M%C3%A1s%20Silar%20Kilos%20De%20Estilo"
+    },
+    {
+     "id": "t134",
+     "position": 134,
+     "title": "Sanarme",
+     "subtitle": "Silar Kilos De Estilo, Deekaos, Euro, Mexor",
+     "palette": [
+      "#29791c",
+      "#040a02",
+      "#459130",
+      "#122d0a"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Sanarme%20Silar%20Kilos%20De%20Estilo"
+    },
+    {
+     "id": "t135",
+     "position": 135,
+     "title": "Puro Mexa Rap \"Envidia\"",
+     "subtitle": "Low Art, Silar Kilos De Estilo, Deekaos Aguila en la Esquina",
+     "palette": [
+      "#2a3229",
+      "#030c04",
+      "#0b2a0e",
+      "#2d312e"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Puro%20Mexa%20Rap%20%22Envidia%22%20Low%20Art"
+    },
+    {
+     "id": "t136",
+     "position": 136,
+     "title": "Balas Negras",
+     "subtitle": "MexFutura",
+     "palette": [
+      "#a6aeaf",
+      "#f0f0f0",
+      "#272832",
+      "#2b1c2b"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Balas%20Negras%20MexFutura"
+    },
+    {
+     "id": "t137",
+     "position": 137,
+     "title": "Es Tan Fácil",
+     "subtitle": "MexFutura",
+     "palette": [
+      "#a7b4a3",
+      "#f0e4d4",
+      "#26292f",
+      "#e9ded0"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Es%20Tan%20F%C3%A1cil%20MexFutura"
+    },
+    {
+     "id": "t138",
+     "position": 138,
+     "title": "Perderme",
+     "subtitle": "MexFutura",
+     "palette": [
+      "#a5b9b2",
+      "#e4f8ed",
+      "#252930",
+      "#2a1a2a"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Perderme%20MexFutura"
+    }
+   ]
+  },
+  {
+   "id": "g9",
+   "name": "Rock alternativo mexicano",
+   "color": "#9fbf3f",
+   "items": [
+    {
+     "id": "t139",
+     "position": 139,
+     "title": "Me He Convertido...",
+     "subtitle": "Hello Seahorse!",
+     "palette": [
+      "#c26b1a",
+      "#f37e21",
+      "#010101",
+      "#f3e916"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Me%20He%20Convertido...%20Hello%20Seahorse%21"
+    },
+    {
+     "id": "t140",
+     "position": 140,
+     "title": "Mujer",
+     "subtitle": "Hello Seahorse!",
+     "palette": [
+      "#a0666b",
+      "#904a55",
+      "#8f3847",
+      "#b04c56"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Mujer%20Hello%20Seahorse%21"
+    },
+    {
+     "id": "t141",
+     "position": 141,
+     "title": "Que Nadie Sepa Mi Sufrir",
+     "subtitle": "Hello Seahorse!",
+     "palette": [
+      "#4f5043",
+      "#363628",
+      "#454738",
+      "#2a2a1c"
+     ],
+     "sourceUrl": "https://open.spotify.com/search/Que%20Nadie%20Sepa%20Mi%20Sufrir%20Hello%20Seahorse%21"
+    }
+   ]
+  }
+ ]
+}

@@ -1,9 +1,22 @@
 # packages/figures
 
-Figuras en TypeScript sobre Canvas 2D, independientes de Vue: `dense` (mandala), `mandala` (mandala por anillos), `sun` (Piedra del Sol), `rose` (rosetón), `dream` (atrapasueños), `kal` (caleidoscopio).
+Figuras en TypeScript sobre Canvas 2D, sin dependencia de Vue. Todas reciben `FigureData` (`src/types.ts`).
 
-Punto de partida: el código de dibujo dentro de `prototipos/core-lore/index.html` (busca `drawDense`, `drawMandalaStyled`, `drawSun`, `drawRose`, `drawDream`, `drawKal`; la función `sectorAlloc` reparte elementos por sectores y anillos). La primera tarea es separarlo en un módulo por figura que reciba `FigureData`.
+## Hechas
+- `MandalaFigure` (`src/mandala.ts`): anillos por grupo, pétalos en capas, hojas que se encienden por anillos, hover que aísla, foco por grupo, colores vivos u originales.
 
-## Lenguaje del mandala
+```ts
+import { MandalaFigure } from '@samotracia/figures';
 
-Cada anillo es un grupo y cada motivo un elemento. Motivos disponibles: `lobe`, `ray`, `drop`, `scale`, `petal`, `heart`, `leaf`. Los huecos entre motivos se llenan con ornamentos decorativos que no representan datos.
+const fig = new MandalaFigure(canvas, data, { glow: { speed: 1.38 } });
+fig.onHover = (info) => console.log(info?.item.title);
+fig.start();
+```
+
+Optimizaciones: colores calculados una sola vez por elemento, pausa cuando el canvas no está en pantalla o la pestaña está oculta, resolución limitada a 2× y sin animación si el sistema pide movimiento reducido.
+
+## Por portar
+Del prototipo `prototipos/core-lore/index.html`: `drawSun` (Piedra del Sol), `drawRose` (rosetón), `drawDream` (atrapasueños), `drawKal` (caleidoscopio), `drawMandalaStyled` (mandala por anillos). La función `sectorAlloc` del prototipo reparte elementos por sectores y anillos y sirve para varias de ellas.
+
+## Utilidades de color (`src/color.ts`)
+`vividColors`, `vividGroup`, `contrastColor`, `mix`, `hexToHsl`, `hslToHex`.

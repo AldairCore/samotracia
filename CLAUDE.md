@@ -21,6 +21,10 @@ Contexto para Claude Code en este repositorio.
 - Figuras: `packages/figures`, TypeScript puro sobre Canvas 2D, sin dependencia de Vue. Todas reciben `FigureData` (ver `docs/02-arquitectura-y-stack.md`).
 - Back (Fase 3): por decidir entre NestJS + Prisma (recomendado) y Spring Boot 3; base de datos PostgreSQL.
 
+## Cómo correr
+- `npm install`, luego `npm run dev` (app en http://127.0.0.1:5173) y `npm run typecheck`.
+- Pendientes en `docs/06-pendientes.md`; actualízalo al cerrar una tarea.
+
 ## Reglas
 - Portadas y pósters se muestran en vivo desde la URL de la fuente, con enlace al original. Nunca se guardan copias de imágenes en el repo ni en la base de datos; solo URL y colores extraídos.
 - Llaves y secretos solo en `.env` (ignorado por git). Mantener `.env.example` actualizado.

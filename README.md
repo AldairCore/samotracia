@@ -10,7 +10,7 @@ Todo se ve en tres lentes, **Él · Ella · Harmonía**, alrededor de una idea: 
 |---|---|---|
 | 0 | Prototipo Core.Lore de una voz (6 figuras) | ✅ Hecho |
 | 1 | Prototipo dual: dos playlists, lente Harmonía | ⏳ Siguiente |
-| 2 | App de música con dos voces y portadas (Vue + Spotify) | Pendiente |
+| 2 | App de música con dos voces y portadas (Vue + Spotify) | ⏳ Iniciada: app Vue con el mandala |
 | 3 | Backend y más colecciones (Spring Boot + PostgreSQL) | Pendiente |
 | 4 | El álbum completo y exportación | Pendiente |
 
@@ -21,6 +21,7 @@ Todo se ve en tres lentes, **Él · Ella · Harmonía**, alrededor de una idea: 
 3. [Fuentes de datos y apps conectadas](docs/03-fuentes-de-datos.md)
 4. [Configuración de VS Code y GitHub](docs/04-configuracion-vscode-github.md)
 5. [Dualidad: el concepto](docs/05-dualidad.md)
+6. [Pendientes](docs/06-pendientes.md)
 
 ## Estructura
 
@@ -32,6 +33,23 @@ prototipos/      Prototipos HTML (Core.Lore)
 docs/            Plan y decisiones
 ```
 
+## Correr la app
+
+Requiere Node.js 20 o superior.
+
+```bash
+npm install
+npm run dev        # abre http://127.0.0.1:5173
+npm run build      # compila a apps/web/dist
+npm run typecheck  # revisa tipos de figuras y app
+```
+
+La app muestra el mandala de Core.Lore con colores vivos u originales, foco por género y ficha al pasar el cursor. Los ajustes visuales (velocidad de giro, onda de luz, ancho de pétalos, hover) están en `MandalaOptions` dentro de `packages/figures/src/mandala.ts`.
+
 ## Ver el prototipo
 
-Abre `prototipos/core-lore/index.html` en el navegador (o con Live Server en VS Code).
+Abre `prototipos/core-lore/index.html` en el navegador. Ahí están todas las figuras exploradas; es la referencia visual para portar las que faltan.
+
+## Pendientes
+
+Ver [docs/06-pendientes.md](docs/06-pendientes.md).
