@@ -540,10 +540,16 @@ function drawDream(T){
   DFEATH.forEach(f=>{const dim=dimOf(f.gi);const sw=Math.sin(T*1.1+f.ph)*.06;const top={x:f.x,y:DC.y+Math.sqrt(Math.max(0,DR*DR-(f.x-DC.x)**2))-4};
     ctx.save();ctx.translate(top.x,top.y);ctx.rotate(sw);ctx.globalAlpha=dim?.22:1;
     ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,f.len);stroke(2,THREAD);
-    [f.len*.35,f.len*.55].forEach((y,i)=>{ctx.beginPath();ctx.arc(0,y,i?6:8,0,Math.PI*2);fillc(i?'#f4d35e':G[f.gi].color);stroke(2,OUT);});
-    ctx.translate(0,f.len);const FL=170,FW=30;ctx.beginPath();ctx.moveTo(0,0);ctx.bezierCurveTo(FW,FL*.2,FW*.9,FL*.8,0,FL);ctx.bezierCurveTo(-FW*.9,FL*.8,-FW,FL*.2,0,0);fillc(G[f.gi].color);stroke(2.4,OUT);
-    ctx.beginPath();ctx.moveTo(0,FL*.62);ctx.bezierCurveTo(FW*.85,FL*.7,FW*.6,FL*.95,0,FL);ctx.bezierCurveTo(-FW*.6,FL*.95,-FW*.85,FL*.7,0,FL*.62);fillc('#f5efe6');stroke(1.6,OUT);
-    ctx.beginPath();ctx.moveTo(0,2);ctx.lineTo(0,FL-4);for(let v=1;v<8;v++){const y=FL*v/9;ctx.moveTo(0,y);ctx.lineTo(FW*.8,y+12);ctx.moveTo(0,y);ctx.lineTo(-FW*.8,y+12);}stroke(1.3,OUT);
+    const gh=hex2hsl(G[f.gi].color)[0],gv=VIV()?hsl2hex(gh,.88,.56):G[f.gi].color,gc=VIV()?hsl2hex(gh+180,.85,.6):'#f5efe6',gd=VIV()?hsl2hex(gh+25,.9,.42):mix(G[f.gi].color,'#140c18',.4);
+    [f.len*.3,f.len*.48,f.len*.66].forEach((y,i)=>{ctx.beginPath();ctx.arc(0,y,i===1?8:6,0,Math.PI*2);fillc(i===1?gv:(i?gc:'#f4d35e'));stroke(2,OUT);});
+    ctx.translate(0,f.len);const FL=170,FW=32;
+    const vane=()=>{ctx.beginPath();ctx.moveTo(0,0);ctx.bezierCurveTo(FW,FL*.2,FW*.9,FL*.8,0,FL);ctx.bezierCurveTo(-FW*.9,FL*.8,-FW,FL*.2,0,0);};
+    vane();fillc(gv);ctx.save();vane();ctx.clip();
+    const band=(y0,y1,c)=>{ctx.beginPath();ctx.moveTo(-FW,y0+14);ctx.lineTo(0,y0);ctx.lineTo(FW,y0+14);ctx.lineTo(FW,y1+14);ctx.lineTo(0,y1);ctx.lineTo(-FW,y1+14);ctx.closePath();fillc(c);};
+    band(FL*.08,FL*.2,gd);band(FL*.34,FL*.4,'#050307');band(FL*.4,FL*.5,gc);band(FL*.5,FL*.56,'#050307');band(FL*.7,FL*.76,'#050307');band(FL*.76,FL*1.05,'#f5efe6');band(FL*.9,FL*.94,'#050307');
+    ctx.restore();vane();stroke(2.6,OUT);
+    ctx.beginPath();ctx.moveTo(0,-4);ctx.lineTo(0,FL-4);stroke(2.4,OUT);
+    ctx.beginPath();for(let v=1;v<9;v++){const y=FL*v/10;ctx.moveTo(0,y);ctx.lineTo(FW*.7,y+11);ctx.moveTo(0,y);ctx.lineTo(-FW*.7,y+11);}stroke(1,OUT);
     ctx.restore();});
   ctx.globalAlpha=1;
   ctx.beginPath();ctx.arc(DC.x,DC.y,DR,0,Math.PI*2);fillc(BG('#1c1424','#060408'));for(let k=0;k<24;k++){ctx.beginPath();ctx.moveTo(DC.x,DC.y);ctx.arc(DC.x,DC.y,DR,rad(k*15+rot),rad(k*15+7.5+rot));ctx.closePath();fillc(BG('#231a2d','#100b14'));}
@@ -559,9 +565,10 @@ function drawDream(T){
   ctx.beginPath();ctx.arc(DC.x,DC.y,DR,0,Math.PI*2);stroke(26,OUT);stroke(20,HOOP);
   for(let k=0;k<120;k++){const a=rad(k*3);ctx.beginPath();ctx.moveTo(DC.x+Math.cos(a)*(DR-9),DC.y+Math.sin(a)*(DR-9));ctx.lineTo(DC.x+Math.cos(a+.03)*(DR+9),DC.y+Math.sin(a+.03)*(DR+9));stroke(1.4,'#5c3a24');}
   // cuentas: una canción cada una
-  rings.flat().forEach(p=>{const it=p.it,dim=dimOf(it.g),hov=hover===it,r=(hov?15:11.5);it.hx=p.x;it.hy=p.y;ctx.globalAlpha=dim?.2:1;
-    ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);fillc(CC(it.t));stroke(hov?4.5:3.6,hov?tok('--ink'):G[it.g].color);ctx.beginPath();ctx.arc(p.x,p.y,r+1.8,0,Math.PI*2);stroke(1.4,OUT);
-    ctx.beginPath();ctx.arc(p.x-r*.3,p.y-r*.3,r*.22,0,Math.PI*2);fillc('#ffffff99');});
+  rings.flat().forEach(p=>{const it=p.it,dim=dimOf(it.g),hov=hover===it,r=(hov?16:12.5);it.hx=p.x;it.hy=p.y;ctx.globalAlpha=dim?.2:1;
+    ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);fillc(CC(it.t));stroke(hov?3.2:2.2,hov?tok('--ink'):OUT);
+    ctx.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3+p.a;ctx.moveTo(p.x+Math.cos(a)*r*.42,p.y+Math.sin(a)*r*.42);ctx.lineTo(p.x+Math.cos(a)*r*.92,p.y+Math.sin(a)*r*.92);}stroke(1.1,OUT);
+    ctx.beginPath();ctx.arc(p.x,p.y,r*.42,0,Math.PI*2);fillc(CI(it.t));stroke(1.4,OUT);});
   ctx.globalAlpha=1;ctx.beginPath();ctx.arc(DC.x,DC.y,22,0,Math.PI*2);stroke(2,THREAD);
 }
 
