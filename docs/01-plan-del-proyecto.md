@@ -4,7 +4,7 @@
 
 ## 1. Visión
 
-Un álbum de **figuras ilustradas** (pavo real, árbol, dalia, galaxia, eclipse…) que retrata los gustos de **Aldair, de su novia y de los dos juntos**: música, películas, series, comidas, lugares. Cada elemento de la figura (pluma, hoja, pétalo, estrella) es algo real: una canción, una película, un platillo, un viaje.
+Un álbum de **figuras ilustradas** (mandala, pavo real, árbol, dalia, galaxia, eclipse…) que retrata los gustos de **Aldair, de su novia y de los dos juntos**: música, películas, series, comidas, lugares. Cada elemento de la figura (pluma, hoja, pétalo, estrella) es algo real: una canción, una película, un platillo, un viaje.
 
 El proyecto gira alrededor de la **dualidad**: cómo dos personas se complementan y en qué se contrastan. Todo existe en tres lentes: **Él · Ella · Harmonía**. El detalle del concepto está en [`05-dualidad.md`](05-dualidad.md).
 
@@ -15,7 +15,7 @@ No hay perfiles ni cuentas: es un solo espacio compartido con dos voces.
 | Pieza | Estado | Dónde |
 |---|---|---|
 | Prototipo **Core.Lore** (playlist de Aldair, 141 canciones) | Listo | `prototipos/core-lore/index.html` |
-| Figuras probadas: pavo real, árbol, dalia, galaxia | Listas, solo para una voz | mismo archivo |
+| Figuras probadas: mandala, pavo real, árbol, dalia, galaxia | Listas, solo para una voz, en estilo plano con contornos | mismo archivo |
 | Clasificación por géneros y subgéneros | Manual, por bloque de artista | prototipo |
 | Colores de carátula por canción | Extraídos de miniaturas (48×48 px) | datos del prototipo |
 | Figuras duales (dos voces en una figura) | Pendiente | Fase 1 |
@@ -30,7 +30,7 @@ Cada figura recibe siempre la misma estructura: **grupos → subgrupos → eleme
 | Música | canción | género → subgénero → artista | Pavo real | carátula |
 | Películas | película | género → década o director | Galaxia binaria | póster |
 | Series | serie / temporada | género → serie → temporada | Árbol de dos troncos | póster |
-| Comidas | platillo o lugar | tipo de cocina → lugar | Dalia bicolor | foto propia |
+| Comidas | platillo o lugar | tipo de cocina → lugar | Mandala o dalia bicolor | foto propia |
 | Lugares | viaje / lugar | país → ciudad → lugar | Eclipse o constelación | foto propia |
 | Formas de querer | gesto | tipo de gesto | Por definir | ninguna |
 
@@ -71,7 +71,8 @@ Cada fase deja algo usable y tiene un criterio claro de salida.
 
 - [x] Nombre del proyecto: **Samotracia**; la vista conjunta se llama **Harmonía** (sección 7).
 - [ ] Color base de cada voz y color de lo nuestro.
-- [ ] Spring Boot propio o Supabase para la Fase 3 (ver `02-arquitectura-y-stack.md`).
+- [x] Estilo visual: ilustración plana con contornos oscuros y colores sólidos, sin brillos ni degradados (inspirado en mandalas).
+- [ ] Backend para la Fase 3: NestJS (recomendado), Spring Boot o Supabase (ver `02-arquitectura-y-stack.md`).
 - [ ] Canvas 2D, o pasar a SVG/PixiJS para exportar mejor.
 - [ ] Qué colección sigue después de música.
 

@@ -23,6 +23,23 @@
 ### ¿Por qué PostgreSQL y no SQL Server?
 SQL Server funcionaría y lo conoces bien, pero para un proyecto personal en la nube PostgreSQL es más práctico: no tiene costo de licencia, hay planes gratuitos administrados (Neon, Supabase, Railway) y su tipo `JSONB` encaja con colecciones que guardan metadatos distintos (una canción no tiene los mismos campos que un viaje). Con JPA/Hibernate el cambio para ti es mínimo.
 
+### Alternativa: NestJS + Vue + Vuetify + PostgreSQL
+
+Es una opción tan buena como Spring Boot, y para Samotracia probablemente mejor:
+
+| | Spring Boot | NestJS |
+|---|---|---|
+| Lenguaje | Java en el back, TypeScript en el front | **TypeScript en todo el proyecto** |
+| Tipos compartidos | Hay que duplicar `FigureData` en Java | Un solo paquete `packages/shared` que usan front, back y figuras |
+| Monorepo | Dos sistemas de build (Maven/Gradle y npm) | Un solo `npm` con workspaces |
+| Hosting gratuito | Más pesado (JVM) | Más ligero, más opciones |
+| Curva para Aldair | Su stack de diario | Conocida si ya hizo un proyecto con NestJS |
+| ORM | JPA/Hibernate | Prisma o TypeORM |
+
+**Recomendación:** NestJS + PostgreSQL (con Prisma) para Samotracia, porque las figuras ya son TypeScript y los tipos de dualidad (`FigureData`, `DualFigureData`) se escriben una sola vez. Spring Boot sigue siendo válido si prefieres usar este proyecto para afinar tu stack del trabajo.
+
+Sobre **Vuetify**: sirve bien para formularios y pantallas de captura (comidas, lugares). Las figuras se dibujan en canvas y no dependen de la librería de componentes, así que Vuetify o PrimeVue son igual de válidos. Usa la que ya conozcas mejor.
+
 ### Alternativa: Supabase en lugar de backend propio
 Supabase da PostgreSQL + autenticación + almacenamiento de fotos + reglas por usuario (Row Level Security) sin escribir backend. Es la ruta más rápida para compartir el espacio entre los dos. La contra: algunas llaves secretas (TMDB, Spotify si no usas PKCE) siguen necesitando un lugar seguro (Edge Functions de Supabase). **Recomendación:** si quieres aprender y controlar todo, Spring Boot; si quieres llegar rápido a un espacio compartido en línea, Supabase.
 

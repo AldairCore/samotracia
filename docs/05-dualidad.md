@@ -40,6 +40,7 @@ Las dos colecciones se enfrentan como reflejo: él de un lado, ella del otro. Se
 | **Árbol** | Dos troncos que se entrelazan y comparten copa; lo nuestro son los frutos | Un árbol con raíces de uno y ramas del otro, como reflejo arriba y abajo |
 | **Dalia** | Una flor bicolor: pétalos de él y de ella alternados, el centro es lo nuestro | Dos flores en un mismo tallo que miran a lados opuestos |
 | **Galaxia** | Galaxia binaria: dos núcleos que giran juntos; las coincidencias forman el puente de estrellas entre ellos | Dos galaxias separadas; la distancia entre ellas es qué tan distintos son |
+| **Mandala** | Un mandala: anillos alternados de él y de ella; lo nuestro en el centro | Dos medios mandalas espejo, uno de cada voz, unidos por el eje |
 | **Eclipse** (nueva) | Sol y luna superpuestos: el área que se cubre es lo compartido | Sol y luna separados con su espectro de colores a cada lado |
 
 ## 5. Lo que se mide
@@ -61,7 +62,8 @@ Además de música, películas, series, comidas y viajes, hay colecciones donde 
 
 ## 7. Reglas de diseño
 
-1. Cada voz tiene **su color base** y lo conserva en todas las figuras. Lo nuestro usa un tercer color que mezcla los dos.
-2. Toda figura debe funcionar en las tres lentes.
-3. Ninguna lente es "la principal". El orden en pantalla es siempre Él · Ella · Harmonía, o el que ustedes elijan.
-4. Lo opuesto nunca se presenta como algo malo: el texto de la interfaz habla de "contraste", no de "diferencia" o "incompatibilidad".
+1. Estilo plano: contornos oscuros, colores sólidos, capas como en un mandala; sin brillos ni degradados.
+2. Cada voz tiene **su color base** y lo conserva en todas las figuras. Lo nuestro usa un tercer color que mezcla los dos.
+3. Toda figura debe funcionar en las tres lentes.
+4. Ninguna lente es "la principal". El orden en pantalla es siempre Él · Ella · Harmonía, o el que ustedes elijan.
+5. Lo opuesto nunca se presenta como algo malo: el texto de la interfaz habla de "contraste", no de "diferencia" o "incompatibilidad".
