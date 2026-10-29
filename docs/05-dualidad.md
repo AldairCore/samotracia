@@ -41,6 +41,7 @@ Las dos colecciones se enfrentan como reflejo: él de un lado, ella del otro. Se
 | **Dalia** | Una flor bicolor: pétalos de él y de ella alternados, el centro es lo nuestro | Dos flores en un mismo tallo que miran a lados opuestos |
 | **Galaxia** | Galaxia binaria: dos núcleos que giran juntos; las coincidencias forman el puente de estrellas entre ellos | Dos galaxias separadas; la distancia entre ellas es qué tan distintos son |
 | **Mandala** | Un mandala: anillos alternados de él y de ella; lo nuestro en el centro | Dos medios mandalas espejo, uno de cada voz, unidos por el eje |
+| **Vinilo** | Un disco grabado en dorado: surcos de él y de ella alternados, la flor de la vida al centro | Lado A y lado B: cada voz en una cara del disco |
 | **Eclipse** (nueva) | Sol y luna superpuestos: el área que se cubre es lo compartido | Sol y luna separados con su espectro de colores a cada lado |
 
 ## 5. Lo que se mide

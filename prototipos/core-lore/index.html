@@ -171,7 +171,7 @@ footer{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:
       <h2>Core.Lore, ilustrada</h2>
       <p class="muted" id="viewnote"></p>
     </div>
-    <div class="seg" id="viewtoggle" role="group" aria-label="Figura"><button type="button" data-m="mandala" aria-pressed="true">Mandala</button><button type="button" data-m="peacock" aria-pressed="false">Pavo real</button><button type="button" data-m="tree" aria-pressed="false">Árbol</button><button type="button" data-m="dahlia" aria-pressed="false">Dalia</button><button type="button" data-m="galaxy" aria-pressed="false">Galaxia</button></div>
+    <div class="seg" id="viewtoggle" role="group" aria-label="Figura"><button type="button" data-m="mandala" aria-pressed="true">Mandala</button><button type="button" data-m="vinyl" aria-pressed="false">Vinilo</button><button type="button" data-m="peacock" aria-pressed="false">Pavo real</button><button type="button" data-m="tree" aria-pressed="false">Árbol</button><button type="button" data-m="dahlia" aria-pressed="false">Dalia</button><button type="button" data-m="galaxy" aria-pressed="false">Galaxia</button></div>
     <div class="chips" id="treechips"></div>
     <div class="grove">
       <div class="leafcard" id="leafcard" hidden></div>
@@ -437,48 +437,85 @@ function drawGalaxy(T){
 
 // ===== mandala =====
 const MC={x:500,y:500},MORD=G.map((g,i)=>i).sort((a,b)=>G[a].count-G[b].count||a-b);
-const SHAPES=['drop','leaf','scallop','lotus'];const mpetals=[],mrings=[];
 const lum=h=>{const n=parseInt(h.slice(1),16);return .3*(n>>16)+.59*((n>>8)&255)+.11*(n&255)};
-{let r0=64;MORD.forEach((gi,ri)=>{const g=G[gi],ts=D.tracks.filter(t=>t.g===g.name),n=ts.length,th=n<6?44:n<15?46:52,r1=r0+th;
-  const shape=SHAPES[ri%4];const ring={gi,ri,r0,r1,n,shape,dir:ri%2?1:-1};mrings.push(ring);
-  ts.forEach((t,j)=>{const inner=t.p.slice(1).reduce((b,c)=>Math.abs(lum(c)-lum(t.c))>Math.abs(lum(b)-lum(t.c))?c:b,t.p[1]);mpetals.push({t,g:gi,ring,a0:360*j/n,inner});});
-  r0=r1-6;});}
-const MANV=(()=>{const R=Math.max(...mrings.map(r=>r.r1))+40,f=W/(2*R);return{fit:f,offx:-(MC.x-R)*f,offy:-(MC.y-R)*f,H:Math.round(2*R*f)};})();
-function petalPath(shape,L,w){ctx.beginPath();
-  if(shape==='drop'){ctx.moveTo(0,0);ctx.bezierCurveTo(L*.3,-w*.62,L*1.04,-w*.66,L,0);ctx.bezierCurveTo(L*1.04,w*.66,L*.3,w*.62,0,0);}
-  else if(shape==='leaf'){ctx.moveTo(0,0);ctx.quadraticCurveTo(L*.5,-w*.75,L,0);ctx.quadraticCurveTo(L*.5,w*.75,0,0);}
-  else if(shape==='scallop'){const rr=Math.min(w/2,L*.6);ctx.moveTo(0,-w*.42);ctx.lineTo(L-rr,-w*.5);ctx.arc(L-rr,0,rr,-Math.PI/2,Math.PI/2);ctx.lineTo(0,w*.42);ctx.closePath();}
-  else {ctx.moveTo(0,-w*.3);ctx.bezierCurveTo(L*.25,-w*.62,L*.72,-w*.5,L,0);ctx.bezierCurveTo(L*.72,w*.5,L*.25,w*.62,0,w*.3);ctx.closePath();}}
-function drawMandala(T){
-  // fondo de rayos, como un caleidoscopio
-  const R=Math.max(...mrings.map(r=>r.r1))+34,rays=36,rr=T*-1.2;
-  for(let k=0;k<rays;k++){const a0=rad(rr+k*360/rays),a1=rad(rr+(k+1)*360/rays);ctx.fillStyle=k%2?'#1f1628':'#281c33';ctx.beginPath();ctx.moveTo(MC.x,MC.y);ctx.arc(MC.x,MC.y,R,a0,a1);ctx.closePath();ctx.fill();}
-  ctx.lineWidth=3;ctx.strokeStyle=OUT;ctx.beginPath();ctx.arc(MC.x,MC.y,R,0,Math.PI*2);ctx.stroke();
-  // anillos de fondo
-  [...mrings].reverse().forEach(rg=>{const dim=focus!==null&&focus!==rg.gi;ctx.globalAlpha=dim?.25:1;ctx.fillStyle=OUT;ctx.beginPath();ctx.arc(MC.x,MC.y,rg.r1+3,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle=G[rg.gi].color;ctx.globalAlpha=dim?.08:.28;ctx.beginPath();ctx.arc(MC.x,MC.y,rg.r1,0,Math.PI*2);ctx.arc(MC.x,MC.y,rg.r0+2,0,Math.PI*2,true);ctx.fill();ctx.globalAlpha=1;});
-  // pétalos, de afuera hacia adentro
-  [...mrings].reverse().forEach(rg=>{const rot=rg.dir*T*2.2,n=rg.n,L=(rg.r1-rg.r0)*1.25,mid=rg.r0+L*.5,w=Math.min(2*Math.PI*mid/n*.96,L*2.1);
-    {const dimR=focus!==null&&focus!==rg.gi;for(let j=0;j<n;j++){const a=rad(360*(j+.5)/n+rot);ctx.save();ctx.translate(MC.x,MC.y);ctx.rotate(a);ctx.translate(rg.r0+L*.12,0);ctx.globalAlpha=dimR?.1:.85;petalPath('leaf',L*.95,w*.75);ctx.fillStyle=G[rg.gi].color;ctx.globalAlpha*=.55;ctx.fill();ctx.globalAlpha=dimR?.1:1;ctx.lineWidth=1.8;ctx.strokeStyle=OUT;ctx.stroke();ctx.restore();}}
-    mpetals.filter(p=>p.ring===rg).forEach(p=>{const dim=focus!==null&&focus!==p.g;const hov=hover===p,s=hov?1.12:1;const a=rad(p.a0+rot);
-      p.hx=MC.x+Math.cos(a)*mid;p.hy=MC.y+Math.sin(a)*mid;
-      ctx.save();ctx.translate(MC.x,MC.y);ctx.rotate(a);ctx.translate(rg.r0,0);ctx.globalAlpha=dim?.15:1;
-      [[1,G[p.g].color],[.7,p.t.c],[.42,p.inner]].forEach(([k,col],li)=>{ctx.save();ctx.translate(li?L*(1-k)*.18:0,0);ctx.scale(k*s,k*s);petalPath(rg.shape,L,w);ctx.fillStyle=col;ctx.fill();ctx.lineWidth=(hov&&!li?3:2)/(k*s);ctx.strokeStyle=hov&&!li?tok('--ink'):OUT;ctx.stroke();
-        if(rg.shape==='leaf'&&li===0){ctx.beginPath();ctx.moveTo(L*.05,0);ctx.lineTo(L*.95,0);for(let v=1;v<5;v++){const x=L*v/5;ctx.moveTo(x,0);ctx.lineTo(x+L*.08,-w*.22);ctx.moveTo(x,0);ctx.lineTo(x+L*.08,w*.22);}ctx.lineWidth=1.2/(k*s);ctx.stroke();}
-        ctx.restore();});
-      ctx.restore();
-      // puntos entre pétalos
-      const ad=rad(p.a0+180/n+rot);ctx.globalAlpha=dim?.15:1;ctx.fillStyle='#f4d35e';ctx.beginPath();ctx.arc(MC.x+Math.cos(ad)*(rg.r0+6),MC.y+Math.sin(ad)*(rg.r0+6),3.4,0,Math.PI*2);ctx.fill();ctx.lineWidth=1;ctx.strokeStyle=OUT;ctx.stroke();});});
-  ctx.globalAlpha=1;
-  // centro: flor pequeña
-  const cr=mrings[0].r0-4,crot=T*-3;
-  ctx.fillStyle=OUT;ctx.beginPath();ctx.arc(MC.x,MC.y,cr+3,0,Math.PI*2);ctx.fill();
-  for(let k=0;k<10;k++){ctx.save();ctx.translate(MC.x,MC.y);ctx.rotate(rad(crot+k*36));petalPath('drop',cr*.95,cr*.62);ctx.fillStyle=k%2?'#d0569a':'#8a7bd8';ctx.fill();ctx.lineWidth=1.6;ctx.strokeStyle=OUT;ctx.stroke();ctx.restore();}
-  [[cr*.42,'#f4d35e'],[cr*.24,'#f7a8c4']].forEach(([r,c])=>{ctx.fillStyle=c;ctx.beginPath();ctx.arc(MC.x,MC.y,r,0,Math.PI*2);ctx.fill();ctx.lineWidth=1.6;ctx.strokeStyle=OUT;ctx.stroke();});
+const mix=(c1,c2,t)=>{const p=x=>[1,3,5].map(i=>parseInt(x.substr(i,2),16));const A=p(c1),B=p(c2);return'#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')};
+const MOTIFS=['lobe','ray','drop','scale','petal','heart','ray','scale','leaf'];
+const mpetals=[],mrings=[];
+{let r0=74;MORD.forEach((gi,ri)=>{const g=G[gi],ts=D.tracks.filter(t=>t.g===g.name),n=ts.length,motif=MOTIFS[ri]||'petal';
+  const th=motif==='leaf'?78:motif==='lobe'?54:n>30?50:44,r1=r0+th;
+  const ring={gi,ri,r0,r1,n,motif,dir:ri%2?1:-1,off:ri%2?.5:0};mrings.push(ring);
+  ts.forEach((t,j)=>{const inner=t.p.slice(1).reduce((b,c)=>Math.abs(lum(c)-lum(t.c))>Math.abs(lum(b)-lum(t.c))?c:b,t.p[1]);mpetals.push({t,g:gi,ring,j,inner});});
+  r0=r1+8;});}
+const MR=Math.max(...mrings.map(r=>r.r1))+30;
+const MANV=(()=>{const f=W/(2*MR);return{fit:f,offx:-(MC.x-MR)*f,offy:-(MC.y-MR)*f,H:Math.round(2*MR*f)};})();
+function motifPath(m,L,hw,k){ // k: escala de la capa (1 externa)
+  const l=L*k,w=hw*k;ctx.beginPath();
+  if(m==='lobe'){ctx.moveTo(0,0);ctx.bezierCurveTo(l*.15,-w*1.05,l*1.02,-w*1.1,l,0);ctx.bezierCurveTo(l*1.02,w*1.1,l*.15,w*1.05,0,0);}
+  else if(m==='ray'){ctx.moveTo(0,-w);ctx.lineTo(l,0);ctx.lineTo(0,w);ctx.quadraticCurveTo(l*.12,0,0,-w);}
+  else if(m==='drop'){ctx.moveTo(0,0);ctx.bezierCurveTo(l*.3,-w*.95,l*1.04,-w*.95,l,0);ctx.bezierCurveTo(l*1.04,w*.95,l*.3,w*.95,0,0);}
+  else if(m==='scale'){const r=Math.min(w,l*.55);ctx.moveTo(0,-w);ctx.lineTo(l-r,-w);ctx.arc(l-r,0,w,-Math.PI/2,Math.PI/2);ctx.lineTo(0,w);ctx.closePath();}
+  else if(m==='petal'){ctx.moveTo(0,0);ctx.quadraticCurveTo(l*.45,-w*1.15,l,0);ctx.quadraticCurveTo(l*.45,w*1.15,0,0);}
+  else if(m==='heart'){ctx.moveTo(0,0);ctx.bezierCurveTo(l*.3,-w*.25,l*.7,-w*1.15,l*.95,-w*.6);ctx.quadraticCurveTo(l*1.05,-w*.05,l*.8,0);ctx.quadraticCurveTo(l*1.05,w*.05,l*.95,w*.6);ctx.bezierCurveTo(l*.7,w*1.15,l*.3,w*.25,0,0);}
+  else {ctx.moveTo(0,0);ctx.bezierCurveTo(l*.25,-w*1.05,l*.75,-w*.8,l*1.15,0);ctx.bezierCurveTo(l*.75,w*.8,l*.25,w*1.05,0,0);}
 }
+function motifDetail(m,L,hw,line,fillA,fillB,gold){ // detalles internos de cada motivo
+  ctx.lineWidth=1.2;ctx.strokeStyle=line;
+  const dot=(x,y,r,c)=>{ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);if(c){ctx.fillStyle=c;ctx.fill();}ctx.stroke();};
+  if(m==='lobe'){dot(L*.62,0,hw*.32,fillB);dot(L*.62,0,hw*.12,line);}
+  else if(m==='ray'){ctx.beginPath();ctx.moveTo(L*.15,0);ctx.lineTo(L*.85,0);ctx.stroke();dot(L*.22,0,hw*.22,fillB);}
+  else if(m==='drop'){ctx.beginPath();ctx.ellipse(L*.62,0,L*.2,hw*.42,0,0,Math.PI*2);ctx.fillStyle=fillB;ctx.fill();ctx.stroke();dot(L*.62,0,hw*.14,line);}
+  else if(m==='scale'){for(const k of [.68,.4]){ctx.beginPath();const r=hw*k;ctx.arc(L*.9-hw-(1-k)*hw*.2,0,r,-Math.PI/2,Math.PI/2);ctx.stroke();}dot(L*.18,0,Math.min(hw*.18,4),fillB);}
+  else if(m==='petal'){const cx=L*.55,r=hw*.38;for(let i=0;i<5;i++){const a=i*Math.PI*2/5;dot(cx+Math.cos(a)*r*.62,Math.sin(a)*r*.62,r*.42,fillB);}dot(cx,0,r*.32,fillA);}
+  else if(m==='heart'){dot(L*.5,0,hw*.26,fillB);ctx.beginPath();ctx.moveTo(L*.1,0);ctx.lineTo(L*.32,0);ctx.stroke();}
+  else {ctx.beginPath();ctx.moveTo(L*.05,0);ctx.lineTo(L*1.05,0);for(let v=1;v<6;v++){const x=L*v/6.5;ctx.moveTo(x,0);ctx.lineTo(x+L*.1,-hw*.42);ctx.moveTo(x,0);ctx.lineTo(x+L*.1,hw*.42);}ctx.stroke();}
+}
+function flowerOfLife(x,y,r,col){ctx.strokeStyle=col;ctx.lineWidth=1.3;const c=r/3;ctx.beginPath();ctx.arc(x,y,c,0,Math.PI*2);for(let i=0;i<6;i++){const a=i*Math.PI/3;ctx.moveTo(x+Math.cos(a)*c+c,y+Math.sin(a)*c);ctx.arc(x+Math.cos(a)*c,y+Math.sin(a)*c,c,0,Math.PI*2);}
+  for(let i=0;i<6;i++){const a=i*Math.PI/3+Math.PI/6,d=c*Math.sqrt(3);ctx.moveTo(x+Math.cos(a)*d+c,y+Math.sin(a)*d);ctx.arc(x+Math.cos(a)*d,y+Math.sin(a)*d,c,0,Math.PI*2);}ctx.stroke();
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.stroke();}
+function drawMandalaStyled(T,style){
+  const gold=style==='vinyl',GOLD='#d9b86c',INK=gold?GOLD:OUT;
+  const spin=T*(gold?4:1.5);
+  // fondo
+  if(gold){ctx.fillStyle='#0c1230';ctx.beginPath();ctx.arc(MC.x,MC.y,MR,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#ffffff';ctx.lineWidth=.6;for(let r=MR-4;r>40;r-=4){ctx.globalAlpha=.035+(r%12===0?.03:0);ctx.beginPath();ctx.arc(MC.x,MC.y,r,0,Math.PI*2);ctx.stroke();}ctx.globalAlpha=1;
+    ctx.lineWidth=2;ctx.strokeStyle=GOLD;ctx.beginPath();ctx.arc(MC.x,MC.y,MR-2,0,Math.PI*2);ctx.stroke();}
+  else{const rays=48;for(let k=0;k<rays;k++){const a0=rad(-spin+k*360/rays),a1=rad(-spin+(k+1)*360/rays);ctx.fillStyle=k%2?'#1f1628':'#261b31';ctx.beginPath();ctx.moveTo(MC.x,MC.y);ctx.arc(MC.x,MC.y,MR,a0,a1);ctx.closePath();ctx.fill();}}
+  // anillos
+  mrings.forEach(rg=>{const dim=focus!==null&&focus!==rg.gi,col=G[rg.gi].color,n=rg.n,L=rg.r1-rg.r0,mid=(rg.r0+rg.r1)/2,step=2*Math.PI/n,hw=Math.min(mid*Math.sin(step/2)*.94,L*1.25),rot=rg.dir*spin+rg.off*360/n;
+    ctx.globalAlpha=dim?.22:1;
+    if(!gold){ctx.fillStyle=mix(col,'#140c18',.72);ctx.beginPath();ctx.arc(MC.x,MC.y,rg.r1+3,0,Math.PI*2);ctx.arc(MC.x,MC.y,rg.r0-3,0,Math.PI*2,true);ctx.fill();}
+    // separadores: doble línea y cuentas
+    ctx.strokeStyle=INK;ctx.lineWidth=gold?1:2;[rg.r0-4,rg.r0-1].forEach(r=>{ctx.beginPath();ctx.arc(MC.x,MC.y,r,0,Math.PI*2);ctx.stroke();});
+    const beads=Math.max(24,Math.round(2*Math.PI*(rg.r0-2.5)/9));ctx.fillStyle=gold?GOLD:'#f4d35e';for(let k=0;k<beads;k++){const a=rad(k*360/beads+rot*.3);ctx.beginPath();ctx.arc(MC.x+Math.cos(a)*(rg.r0-2.5),MC.y+Math.sin(a)*(rg.r0-2.5),gold?.9:1.2,0,Math.PI*2);ctx.fill();}
+    {const half=mid*Math.sin(step/2),gap=half-hw;if(gap>8){const fw=Math.min(gap*.95,L*.42),fl=L*.72;
+      for(let j=0;j<n;j++){const fa=rad((j+.5)*360/n+rot);ctx.save();ctx.translate(MC.x,MC.y);ctx.rotate(fa);ctx.translate(rg.r0+L*.14,0);
+        motifPath('petal',fl,fw,1);if(gold){ctx.lineWidth=.9;ctx.strokeStyle=GOLD;ctx.globalAlpha=dim?.15:.7;ctx.stroke();}else{ctx.fillStyle=mix(col,'#140c18',.35);ctx.fill();ctx.lineWidth=1.4;ctx.strokeStyle=OUT;ctx.stroke();}
+        ctx.beginPath();ctx.arc(fl*.55,0,Math.min(fw*.25,3.5),0,Math.PI*2);ctx.fillStyle=gold?GOLD:'#f4d35e';ctx.fill();
+        if(gap>fw+10){[-1,1].forEach(sg=>{ctx.beginPath();ctx.arc(fl*.3,sg*(fw+6),2.2,0,Math.PI*2);ctx.fill();});}
+        ctx.restore();}ctx.globalAlpha=dim?.22:1;}}
+    mpetals.forEach(p=>{if(p.ring!==rg)return;const pd=focus!==null&&focus!==p.g,hov=hover===p,s=hov?1.08:1,a=rad(p.j*360/n+rot);
+      p.hx=MC.x+Math.cos(a)*mid;p.hy=MC.y+Math.sin(a)*mid;
+      ctx.save();ctx.translate(MC.x,MC.y);ctx.rotate(a);ctx.translate(rg.r0+1,0);ctx.scale(s,s);ctx.globalAlpha=pd?.2:1;
+      if(gold){motifPath(rg.motif,L,hw,1);ctx.lineWidth=hov?2.2:1.3;ctx.strokeStyle=hov?'#fff3d6':GOLD;ctx.stroke();
+        motifPath(rg.motif,L,hw,.66);ctx.lineWidth=.9;ctx.stroke();
+        const jx=rg.motif==='ray'?L*.3:L*.58,jr=Math.max(2.6,Math.min(hw*.3,7));ctx.beginPath();ctx.arc(jx,0,jr,0,Math.PI*2);ctx.fillStyle=p.t.c;ctx.fill();ctx.lineWidth=1.2;ctx.strokeStyle=GOLD;ctx.stroke();}
+      else{motifPath(rg.motif,L,hw,1);ctx.fillStyle=col;ctx.fill();ctx.lineWidth=hov?3:1.8;ctx.strokeStyle=hov?tok('--ink'):OUT;ctx.stroke();
+        ctx.save();ctx.translate(L*.1,0);motifPath(rg.motif,L*.86,hw*.7,1);ctx.fillStyle=p.t.c;ctx.fill();ctx.lineWidth=1.4;ctx.strokeStyle=OUT;ctx.stroke();ctx.restore();
+        ctx.save();ctx.translate(L*.1,0);motifDetail(rg.motif,L*.86,hw*.7,OUT,col,p.inner,false);ctx.restore();}
+      ctx.restore();});
+    ctx.globalAlpha=1;});
+  // centro
+  const cr=mrings[0].r0-8;
+  if(gold){flowerOfLife(MC.x,MC.y,cr,GOLD);}
+  else{ctx.fillStyle='#2a1d36';ctx.beginPath();ctx.arc(MC.x,MC.y,cr,0,Math.PI*2);ctx.fill();ctx.lineWidth=2;ctx.strokeStyle=OUT;ctx.stroke();
+    for(let k=0;k<16;k++){ctx.save();ctx.translate(MC.x,MC.y);ctx.rotate(rad(k*22.5+spin*2));ctx.translate(cr*.38,0);motifPath('ray',cr*.55,cr*.12,1);ctx.fillStyle=k%2?'#f4d35e':'#d0569a';ctx.fill();ctx.lineWidth=1.2;ctx.strokeStyle=OUT;ctx.stroke();ctx.restore();}
+    [[cr*.38,'#8a7bd8'],[cr*.22,'#f4d35e'],[cr*.1,'#d0569a']].forEach(([r,c])=>{ctx.fillStyle=c;ctx.beginPath();ctx.arc(MC.x,MC.y,r,0,Math.PI*2);ctx.fill();ctx.lineWidth=1.6;ctx.strokeStyle=OUT;ctx.stroke();});}
+}
+const drawMandala=T=>drawMandalaStyled(T,'color'),drawVinyl=T=>drawMandalaStyled(T,'vinyl');
 let mode='mandala';
 const VIEWS={
-  mandala:{v:MANV,draw:drawMandala,items:()=>mpetals,word:'un pétalo',note:'Cada anillo es un género, del más pequeño en el centro al más grande afuera, y cada pétalo una canción. El pétalo lleva tres capas: el color de su género por fuera y dos colores de su carátula por dentro. Los anillos giran en sentidos opuestos.'},
+  mandala:{v:MANV,draw:drawMandala,items:()=>mpetals,word:'un motivo',note:'Cada anillo es un género, del más pequeño en el centro al más grande afuera, y cada motivo del anillo es una canción. Cada anillo tiene su propia forma (gota, rayo, escama, pétalo, corazón, hoja); por fuera lleva el color del género y por dentro dos colores de la carátula.'},
+  vinyl:{v:MANV,draw:drawVinyl,items:()=>mpetals,word:'un motivo',note:'El mismo mandala grabado en dorado sobre un disco azul marino, como un vinilo. Cada motivo es una canción y la piedra de color al centro es el color de su carátula. En el centro, la flor de la vida.'},
   peacock:{v:PEAV,draw:drawPeacock,items:()=>feathers,word:'una pluma',note:'Cada pluma es una canción: el ojo lleva el color de su carátula y el borde, el color de su género. Cada abanico de plumas es un género, en el orden de la playlist.'},
   tree:{v:TREEV,draw:drawTree,items:()=>leaves,word:'una hoja',note:'El tronco es la playlist; cada rama gruesa un género, cada ramita un subgénero y cada hoja una canción.'},
   dahlia:{v:FLOWV,draw:drawDahlia,items:()=>petals,word:'un pétalo',note:'Cada pétalo es una canción con el color de su carátula. La flor se reparte en gajos, uno por género, empezando arriba y en el orden de la playlist; los géneros grandes tienen más pétalos en cada capa.'},
