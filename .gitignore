@@ -1,0 +1,22 @@
+# Node
+node_modules/
+dist/
+.vite/
+coverage/
+# Java
+target/
+build/
+.gradle/
+*.class
+# Entorno
+.env
+.env.*
+!.env.example
+# Editores y sistema
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

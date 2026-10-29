@@ -1,0 +1,15 @@
+{
+  "recommendations": [
+    "Vue.volar",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "vitest.explorer",
+    "vscjava.vscode-java-pack",
+    "vmware.vscode-boot-dev-pack",
+    "ms-azuretools.vscode-docker",
+    "ritwickdey.LiveServer",
+    "yzhang.markdown-all-in-one",
+    "bierner.markdown-mermaid",
+    "anthropic.claude-code"
+  ]
+}

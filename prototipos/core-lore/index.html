@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
+<title>Core.Lore</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: una columna nocturna; la playlist como franja de color arriba, luego árbol, gráficas y paletas. Look oscuro único, elegido a propósito. */
+:root{
+  --bg:#0f0d12; --panel:#17141b; --line:#2b2632; --ink:#ece7f2; --muted:#9b91a9; --accent:#d0569a; --sky2:#1d1824; --bark:#4d3a30; --bark2:#6b5244;
+  --display:"Syne","Arial Black",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  color-scheme:dark;
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 72px;display:flex;flex-direction:column;gap:64px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(44px,9vw,96px);font-weight:800;line-height:.95}
+h2{font-size:clamp(24px,4vw,34px);font-weight:800}
+h3{font-size:17px;font-weight:600}
+p{margin:0;max-width:65ch}
+.eyebrow{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.muted{color:var(--muted)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+section{display:flex;flex-direction:column;gap:20px}
+.head{display:flex;flex-direction:column;gap:6px}
+
+/* hero */
+.hero{display:flex;flex-direction:column;gap:22px}
+.tag{font-family:var(--display);font-size:clamp(18px,3vw,24px);color:var(--muted);font-weight:600}
+.stats{display:flex;flex-wrap:wrap;gap:8px 28px}
+.stats div{display:flex;flex-direction:column}
+.stats b{font-family:var(--mono);font-size:26px;font-weight:500;font-variant-numeric:tabular-nums}
+.stats span{font-size:12px;color:var(--muted)}
+.barcode{display:grid;grid-template-columns:repeat(141,minmax(0,1fr));height:120px;border-radius:6px;overflow:hidden}
+.barcode i{display:block;cursor:pointer;transition:transform .15s}
+.barcode i:hover,.barcode i.on{transform:scaleY(1.08);outline:1px solid var(--ink)}
+.genreband{display:flex;height:10px;border-radius:3px;overflow:hidden;gap:2px}
+.genreband b{display:block}
+.readout{font-family:var(--mono);font-size:13px;min-height:1.6em;color:var(--muted)}
+.readout strong{color:var(--ink);font-weight:500}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+
+/* tree */
+.treebox{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px 16px}
+.root{display:inline-flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:22px}
+.root .dot{width:14px;height:14px;background:var(--ink)}
+.tree,.tree ul{list-style:none;margin:0;padding:0}
+.tree ul{padding-left:26px}
+.tree li{position:relative;padding-left:18px}
+.tree li::before{content:"";position:absolute;left:0;top:0;bottom:0;border-left:1.5px solid var(--bc,var(--line))}
+.tree li:last-child::before{bottom:auto;height:17px}
+.tree li::after{content:"";position:absolute;left:0;top:17px;width:14px;border-top:1.5px solid var(--bc,var(--line))}
+.tree>li{--bc:var(--line)}
+summary{list-style:none;cursor:pointer;padding:5px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+summary::-webkit-details-marker{display:none}
+summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.gnode{font-family:var(--display);font-weight:600;font-size:17px}
+.gnode .dot{width:12px;height:12px}
+.count{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.snode{font-weight:600;font-size:14px;color:var(--ink)}
+.anode{font-size:14px}
+.sw{display:inline-flex;border-radius:3px;overflow:hidden;flex:none}
+.sw i{width:10px;height:14px;display:block}
+.caret{font-family:var(--mono);font-size:11px;color:var(--muted);width:10px;transition:transform .15s}
+details[open]>summary .caret{transform:rotate(90deg)}
+.tracks{padding:2px 0 8px 26px;display:flex;flex-direction:column;gap:3px}
+.tracks div{display:flex;gap:8px;align-items:center;font-size:13px}
+.tracks .n{font-family:var(--mono);font-size:11px;color:var(--muted);width:26px;text-align:right;flex:none}
+.tracks .sq{width:14px;height:14px;border-radius:2px;flex:none}
+.tracks .ft{color:var(--muted)}
+.treetools{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;font-size:13px;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+button:hover{border-color:var(--muted)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* charts */
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar{display:grid;grid-template-columns:minmax(0,10.5em) 1fr 4.2em;gap:10px;align-items:center;font-size:13px}
+.bar .lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .track{height:12px;background:var(--line);border-radius:2px;overflow:hidden}
+.bar .fill{height:100%;border-radius:2px}
+.bar .v{font-family:var(--mono);font-size:12px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.stack{display:flex;height:28px;border-radius:4px;overflow:hidden;gap:2px}
+.stack div{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:#111}
+.note{font-size:13px;color:var(--muted)}
+
+/* palettes */
+.pals{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.pal{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.pal .strip{display:flex;height:64px}
+.pal .strip div{flex:1;position:relative}
+.pal .strip div span{position:absolute;bottom:4px;left:4px;font-family:var(--mono);font-size:9px;color:#fff;mix-blend-mode:difference;opacity:0;transition:opacity .15s}
+.pal .strip:hover span{opacity:1}
+.pal .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px}
+.pal .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.mosaic{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:2px}
+.mosaic i{aspect-ratio:1;display:block;border-radius:1px;max-width:100%}
+.avg{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.avg i{width:16px;height:16px;border-radius:50%;display:block}
+.spot{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;color:var(--ink);text-decoration:none;transition:border-color .15s}
+.spot:hover{border-color:var(--muted)}
+.spot:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.spot-art{width:84px;height:84px;border-radius:6px;overflow:hidden;display:grid;grid-template-columns:repeat(12,1fr);flex:none}
+.spot-art i{display:block}
+.spot-txt{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.spot-txt strong{font-family:var(--display);font-size:22px;font-weight:800}
+.spot-btn{font-size:14px;font-weight:600;background:#1ed760;color:#0b0b0b;border-radius:999px;padding:9px 18px}
+.grove{background:radial-gradient(120% 90% at 50% 100%,var(--sky2),var(--panel) 70%);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.grove canvas{display:block;width:100%;height:auto;aspect-ratio:1000/860;max-width:100%;cursor:crosshair;touch-action:manipulation}
+.grove .readout{padding:10px 16px 14px;border-top:1px solid var(--line)}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px;align-self:flex-start}
+.seg button{border:0;padding:6px 16px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{display:inline-flex;align-items:center;gap:6px;padding:5px 12px}
+.chips button[aria-pressed="true"]{background:var(--line);border-color:var(--muted)}
+.aslist>summary{font-size:14px;color:var(--muted);padding:6px 0}
+.aslist[open]>summary{margin-bottom:10px}
+.aslist .treetools{margin-bottom:12px}
+.grove{position:relative}
+.leafcard{position:absolute;z-index:2;width:min(270px,calc(100% - 16px));background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.45);pointer-events:auto}
+.leafcard[hidden]{display:none}
+.lc-art{width:78px;height:78px;flex:none;border-radius:6px;overflow:hidden;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:2fr 1fr}
+.lc-art i{display:block}
+.lc-art i:first-child{grid-column:1/4}
+.lc-txt{display:flex;flex-direction:column;gap:2px;min-width:0;font-size:13px}
+.lc-txt strong{font-family:var(--display);font-size:16px;line-height:1.2;overflow-wrap:anywhere}
+.lc-txt .muted{overflow-wrap:anywhere}
+.lc-hex{font-size:10px;color:var(--muted)}
+.lc-txt a{color:#1ed760;font-weight:600;text-decoration:none;margin-top:4px}
+.lc-txt a:hover{text-decoration:underline}
+footer{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:520px){.barcode{height:84px}.bar{grid-template-columns:minmax(0,8.5em) 1fr 3.8em}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Playlist de AldairCore · análisis al 29 oct 2026</div>
+    <h1>Core.Lore</h1>
+    <div class="tag">Todo lo que no expliqué</div>
+    <div class="stats" id="stats"></div>
+    <div class="head" style="gap:8px">
+      <div class="barcode" id="barcode" aria-label="Color de la carátula de cada canción, en orden"></div>
+      <div class="genreband" id="band"></div>
+      <div class="readout" id="readout">Pasa el cursor o toca una franja: cada una es una canción, pintada con el color promedio de su carátula.</div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <a class="spot" href="https://open.spotify.com/playlist/1PY1BZG7npaDTSOkf6c1wD" target="_blank" rel="noopener">
+      <span class="spot-art" id="spotart"></span>
+      <span class="spot-txt"><span class="eyebrow">Escúchala</span><strong>Core.Lore</strong><span class="muted">AldairCore · 141 canciones · ~9 h</span></span>
+      <span class="spot-btn">Abrir en Spotify ↗</span>
+    </a>
+  </header>
+
+  <section>
+    <div class="head">
+      <div class="eyebrow">Mapa mental</div>
+      <h2>Core.Lore, ilustrada</h2>
+      <p class="muted" id="viewnote"></p>
+    </div>
+    <div class="seg" id="viewtoggle" role="group" aria-label="Figura"><button type="button" data-m="peacock" aria-pressed="true">Pavo real</button><button type="button" data-m="tree" aria-pressed="false">Árbol</button><button type="button" data-m="dahlia" aria-pressed="false">Dalia</button><button type="button" data-m="galaxy" aria-pressed="false">Galaxia</button></div>
+    <div class="chips" id="treechips"></div>
+    <div class="grove">
+      <div class="leafcard" id="leafcard" hidden></div>
+      <canvas id="grove" aria-label="Ilustración de la playlist: un pavo real o un árbol, con una pluma u hoja por canción"></canvas>
+      <div class="readout" id="leafout">Pasa el cursor o toca una hoja para ver su canción.</div>
+    </div>
+    <details class="aslist">
+      <summary><span class="caret">›</span>Ver el árbol como lista</summary>
+      <div class="treetools"><button type="button" id="openAll">Abrir todo</button><button type="button" id="closeAll">Solo géneros</button></div>
+      <div class="treebox">
+        <div class="root"><span class="dot"></span>Core.Lore <span class="count">141</span></div>
+        <ul class="tree" id="tree" style="margin-top:8px"></ul>
+      </div>
+    </details>
+  </section>
+
+  <section>
+    <div class="head">
+      <div class="eyebrow">Números</div>
+      <h2>Cómo se reparte</h2>
+    </div>
+    <div class="charts">
+      <div class="card"><h3>Canciones por género</h3><div class="bars" id="gbars"></div></div>
+      <div class="card"><h3>Artistas que más aparecen</h3><div class="bars" id="abars"></div><p class="note">Cuenta créditos, colaboraciones incluidas. Eva de Marce aparece en todos los temas de YoSoyMatt y Los Eclipses.</p></div>
+      <div class="card"><h3>Idioma</h3><div class="stack" id="lang"></div><div class="legend" id="langleg"></div><p class="note">El cambio al español ocurre en la canción 94 y ya no regresa: la última tercera parte es toda mexicana o latina.</p></div>
+      <div class="card"><h3>Luz de las carátulas a lo largo de la playlist</h3><svg id="lum" viewBox="0 0 420 150" style="width:100%;height:auto" role="img" aria-label="Brillo promedio de las carátulas por género"></svg><p class="note">Brillo promedio de las portadas en cada bloque, de 0 (negro) a 100 (blanco). El número debajo de cada barra es el orden del género en la playlist, igual que en las paletas.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="head">
+      <div class="eyebrow">Carátulas</div>
+      <h2>Paleta de cada género</h2>
+      <p class="muted">Arriba, los cinco colores más vivos sacados de las portadas de ese género (pasa el cursor para ver el código). Abajo, cada portada como un cuadro, en orden.</p>
+    </div>
+    <div class="pals" id="pals"></div>
+  </section>
+
+  <footer>
+    <span>Fuente: la playlist pública Core.Lore en Spotify, leída el 29 de octubre de 2026. Los géneros son una clasificación propia por bloque de artista; Spotify no publica géneros por canción.</span>
+    <span>Los colores salen de las miniaturas de cada álbum, reducidas a 48×48 px.</span>
+  </footer>
+</div>
+
+<script>
+const D={"tracks": [{"n": 1, "t": "No 1", "a": "Die Antwoord", "c": "#fcfcfc", "g": "Alternativo y trip-hop", "p": ["#fcfcfc", "#fefefe", "#d3d3d3", "#b4b4b4"]}, {"n": 2, "t": "CHOSEN 1", "a": "Die Antwoord", "c": "#533a32", "g": "Alternativo y trip-hop", "p": ["#533a32", "#151410", "#2a2c2d", "#e9595d"]}, {"n": 3, "t": "Age Of Illusion", "a": "Die Antwoord", "c": "#1b1d1d", "g": "Alternativo y trip-hop", "p": ["#1b1d1d", "#050705", "#282d2c", "#cbcdd3"]}, {"n": 4, "t": "Busted and Blue", "a": "Gorillaz", "c": "#74828e", "g": "Alternativo y trip-hop", "p": ["#74828e", "#768996", "#566a75", "#677a87"]}, {"n": 5, "t": "Fire Flies", "a": "Gorillaz", "c": "#897769", "g": "Alternativo y trip-hop", "p": ["#897769", "#0d0c0b", "#f6e7d1", "#ecdbc8"]}, {"n": 6, "t": "Saturnz Barz (feat. Popcaan)", "a": "Gorillaz, Popcaan", "c": "#8b1f28", "g": "Alternativo y trip-hop", "p": ["#8b1f28", "#dc2f42", "#270b08", "#dc2b3e"]}, {"n": 7, "t": "Me and Your Mama", "a": "Childish Gambino", "c": "#726854", "g": "Alternativo y trip-hop", "p": ["#726854", "#0c0c0b", "#71726e", "#8e908d"]}, {"n": 8, "t": "Feels Like Summer", "a": "Childish Gambino", "c": "#122138", "g": "Alternativo y trip-hop", "p": ["#122138", "#0b152c", "#0e1019", "#021c44"]}, {"n": 9, "t": "Terrified", "a": "Childish Gambino", "c": "#222426", "g": "Alternativo y trip-hop", "p": ["#222426", "#010101", "#a8b0b7", "#2e3134"]}, {"n": 10, "t": "All Mine", "a": "Portishead", "c": "#3e3e3f", "g": "Alternativo y trip-hop", "p": ["#3e3e3f", "#060708", "#918f90", "#514f4f"]}, {"n": 11, "t": "Undenied", "a": "Portishead", "c": "#3e3e3f", "g": "Alternativo y trip-hop", "p": ["#3e3e3f", "#060708", "#918f90", "#514f4f"]}, {"n": 12, "t": "Cowboys", "a": "Portishead", "c": "#3e3e3f", "g": "Alternativo y trip-hop", "p": ["#3e3e3f", "#060708", "#918f90", "#514f4f"]}, {"n": 13, "t": "Let You Down", "a": "Dawid Podsiadło", "c": "#864d5c", "g": "Indie oscuro y dark pop", "p": ["#864d5c", "#0e0912", "#f590b8", "#f277ad"]}, {"n": 14, "t": "Where Did Your Love Go?", "a": "Dawid Podsiadło", "c": "#382318", "g": "Indie oscuro y dark pop", "p": ["#382318", "#0b0504", "#2e1109", "#4e2b13"]}, {"n": 15, "t": "Phantom Liberty", "a": "Dawid Podsiadło, P.T. Adamczyk", "c": "#2c0410", "g": "Indie oscuro y dark pop", "p": ["#2c0410", "#0f040a", "#2c0410", "#4f0112"]}, {"n": 16, "t": "Trouble", "a": "TENDER", "c": "#296289", "g": "Indie oscuro y dark pop", "p": ["#296289", "#3379a8", "#2c6d98", "#0c0d10"]}, {"n": 17, "t": "Erode", "a": "TENDER", "c": "#296289", "g": "Indie oscuro y dark pop", "p": ["#296289", "#3379a8", "#2c6d98", "#0c0d10"]}, {"n": 18, "t": "Slow Love", "a": "TENDER", "c": "#953a27", "g": "Indie oscuro y dark pop", "p": ["#953a27", "#501210", "#c73018", "#300f0e"]}, {"n": 19, "t": "Show It 2 Me", "a": "Night Club", "c": "#e60b8c", "g": "Indie oscuro y dark pop", "p": ["#e60b8c", "#ed008c", "#adabac", "#e7e7e8"]}, {"n": 20, "t": "Schizophrenic", "a": "Night Club", "c": "#20111b", "g": "Indie oscuro y dark pop", "p": ["#20111b", "#000000", "#cd2a78", "#c3aed2"]}, {"n": 21, "t": "Die in the Disco", "a": "Night Club", "c": "#fad7e8", "g": "Indie oscuro y dark pop", "p": ["#fad7e8", "#ffffff", "#ee529c", "#ef6da9"]}, {"n": 22, "t": "Slip", "a": "Elliot Moss", "c": "#5a6160", "g": "Indie oscuro y dark pop", "p": ["#5a6160", "#020203", "#6b7274", "#8f968d"]}, {"n": 23, "t": "Closedloop", "a": "Elliot Moss", "c": "#3a2e4a", "g": "Indie oscuro y dark pop", "p": ["#3a2e4a", "#32142e", "#2e2e4e", "#4f132a"]}, {"n": 24, "t": "99", "a": "Elliot Moss", "c": "#3a2e4a", "g": "Indie oscuro y dark pop", "p": ["#3a2e4a", "#32142e", "#2e2e4e", "#4f132a"]}, {"n": 25, "t": "Plastic Heart", "a": "Nostalghia, Tyler Bates, Joel J. Richard", "c": "#232c47", "g": "Cine y rock psicodélico", "p": ["#232c47", "#090c0f", "#151a2b", "#152539"]}, {"n": 26, "t": "Fool", "a": "Nostalghia, Tyler Bates", "c": "#232c47", "g": "Cine y rock psicodélico", "p": ["#232c47", "#090c0f", "#151a2b", "#152539"]}, {"n": 27, "t": "Who You Talkin' To Man?", "a": "Nostalghia", "c": "#121617", "g": "Cine y rock psicodélico", "p": ["#121617", "#080d0e", "#142a2d", "#2b3132"]}, {"n": 28, "t": "Welcome to the Machine", "a": "Pink Floyd", "c": "#d8dadc", "g": "Cine y rock psicodélico", "p": ["#d8dadc", "#feffff", "#a7bbd9", "#546a66"]}, {"n": 29, "t": "Marooned", "a": "Pink Floyd", "c": "#747677", "g": "Cine y rock psicodélico", "p": ["#747677", "#2d6eac", "#545669", "#d1c8b6"]}, {"n": 30, "t": "The Great Gig in the Sky", "a": "Pink Floyd", "c": "#080705", "g": "Cine y rock psicodélico", "p": ["#080705", "#010101", "#2d2f35", "#364b4e"]}, {"n": 31, "t": "Rebel Paradise", "a": "Common Saints", "c": "#846f59", "g": "Cine y rock psicodélico", "p": ["#846f59", "#2e2c25", "#d9b570", "#2b251c"]}, {"n": 32, "t": "Dreams", "a": "Common Saints", "c": "#846f59", "g": "Cine y rock psicodélico", "p": ["#846f59", "#2e2c25", "#d9b570", "#2b251c"]}, {"n": 33, "t": "Idol Eyes", "a": "Common Saints", "c": "#846f59", "g": "Cine y rock psicodélico", "p": ["#846f59", "#2e2c25", "#d9b570", "#2b251c"]}, {"n": 34, "t": "The Line", "a": "Arcane, Twenty One Pilots", "c": "#1a3657", "g": "Soundtracks", "p": ["#1a3657", "#02162d", "#010613", "#04294f"]}, {"n": 35, "t": "Sucker", "a": "Arcane, Marcus King", "c": "#1a3657", "g": "Soundtracks", "p": ["#1a3657", "#02162d", "#010613", "#04294f"]}, {"n": 36, "t": "Enemy (with JID)", "a": "Imagine Dragons, JID, Arcane, League of Legends", "c": "#992226", "g": "Soundtracks", "p": ["#992226", "#9b2327", "#a42629", "#941d24"]}, {"n": 37, "t": "Dark Cosmic Jhin", "a": "League of Legends", "c": "#36322e", "g": "Soundtracks", "p": ["#36322e", "#131212", "#2f2d2d", "#524d49"]}, {"n": 38, "t": "VILLAIN", "a": "K/DA, Madison Beer, Kim Petras, League of Legends", "c": "#849db3", "g": "Soundtracks", "p": ["#849db3", "#b0d4f1", "#b6ebf8", "#13131b"]}, {"n": 39, "t": "Tahm Kench, the River King", "a": "League of Legends", "c": "#273428", "g": "Soundtracks", "p": ["#273428", "#101311", "#2d2d2c", "#15271a"]}, {"n": 40, "t": "The Demeter Suite", "a": "Nicolas Snyder", "c": "#6a8ca1", "g": "Soundtracks", "p": ["#6a8ca1", "#6eb5d8", "#312c2f", "#56a9d4"]}, {"n": 41, "t": "Kamen's Folly", "a": "Nicolas Snyder", "c": "#6a8ca1", "g": "Soundtracks", "p": ["#6a8ca1", "#6eb5d8", "#312c2f", "#56a9d4"]}, {"n": 42, "t": "This Place (feat. Rowan Katz)", "a": "Nicolas Snyder, Rowan Katz", "c": "#6a8ca1", "g": "Soundtracks", "p": ["#6a8ca1", "#6eb5d8", "#312c2f", "#56a9d4"]}, {"n": 43, "t": "Problème d'émotion", "a": "Igorrr", "c": "#534c50", "g": "Metal y rock pesado", "p": ["#534c50", "#1a192b", "#2f2b32", "#988678"]}, {"n": 44, "t": "Downgrade Desert", "a": "Igorrr", "c": "#373430", "g": "Metal y rock pesado", "p": ["#373430", "#100e10", "#312f2d", "#514e48"]}, {"n": 45, "t": "Overweight Poesy", "a": "Igorrr", "c": "#373430", "g": "Metal y rock pesado", "p": ["#373430", "#100e10", "#312f2d", "#514e48"]}, {"n": 46, "t": "Bone Church", "a": "Slipknot", "c": "#171510", "g": "Metal y rock pesado", "p": ["#171510", "#060503", "#32332a", "#290b08"]}, {"n": 47, "t": "Danger - Keep Away", "a": "Slipknot", "c": "#311c1e", "g": "Metal y rock pesado", "p": ["#311c1e", "#070707", "#2e2d2c", "#4f4e4d"]}, {"n": 48, "t": "My Pain", "a": "Slipknot", "c": "#2d252f", "g": "Metal y rock pesado", "p": ["#2d252f", "#070608", "#2a292e", "#b1b1b2"]}, {"n": 49, "t": "Tattooed In Reverse", "a": "Marilyn Manson", "c": "#5e5e5e", "g": "Metal y rock pesado", "p": ["#5e5e5e", "#989898", "#0a0a0a", "#2c2c2c"]}, {"n": 50, "t": "Killing Strangers", "a": "Marilyn Manson", "c": "#6c6d6d", "g": "Metal y rock pesado", "p": ["#6c6d6d", "#323232", "#484848", "#d0d0d0"]}, {"n": 51, "t": "God's Gonna Cut You Down", "a": "Marilyn Manson", "c": "#4e4e4e", "g": "Metal y rock pesado", "p": ["#4e4e4e", "#313131", "#4f4f4f", "#6c6c6c"]}, {"n": 52, "t": "Puppe", "a": "Rammstein", "c": "#f5f5f4", "g": "Metal y rock pesado", "p": ["#f5f5f4", "#f7f7f7", "#d4b69c", "#d3bba4"]}, {"n": 53, "t": "Mein Herz brennt", "a": "Rammstein", "c": "#7b7866", "g": "Metal y rock pesado", "p": ["#7b7866", "#6f6c53", "#32332a", "#908972"]}, {"n": 54, "t": "Adieu", "a": "Rammstein", "c": "#9fa8ba", "g": "Metal y rock pesado", "p": ["#9fa8ba", "#cfd9e8", "#6c758e", "#dae3ed"]}, {"n": 55, "t": "Holy Mountains", "a": "System Of A Down", "c": "#4a3b38", "g": "Metal y rock pesado", "p": ["#4a3b38", "#181613", "#2b1b18", "#eceaea"]}, {"n": 56, "t": "Aerials", "a": "System Of A Down", "c": "#365068", "g": "Metal y rock pesado", "p": ["#365068", "#1a3349", "#2f506a", "#5b83a6"]}, {"n": 57, "t": "Spiders", "a": "System Of A Down", "c": "#1d0708", "g": "Metal y rock pesado", "p": ["#1d0708", "#020101", "#b12a2e", "#2e0a0b"]}, {"n": 58, "t": "Lying from You", "a": "Linkin Park", "c": "#463c2f", "g": "Metal y rock pesado", "p": ["#463c2f", "#100903", "#a4947a", "#988970"]}, {"n": 59, "t": "ROADS UNTRAVELED", "a": "Linkin Park", "c": "#a8a7a6", "g": "Metal y rock pesado", "p": ["#a8a7a6", "#d1d2d1", "#929092", "#b1b2b2"]}, {"n": 60, "t": "The Emptiness Machine", "a": "Linkin Park", "c": "#997a99", "g": "Metal y rock pesado", "p": ["#997a99", "#2d3231", "#6e4a50", "#cd92d0"]}, {"n": 61, "t": "THE DEATH OF PEACE OF MIND", "a": "Bad Omens", "c": "#8f2e1c", "g": "Metal y rock pesado", "p": ["#8f2e1c", "#b1311b", "#922818", "#511a17"]}, {"n": 62, "t": "Specter", "a": "Bad Omens", "c": "#292d30", "g": "Metal y rock pesado", "p": ["#292d30", "#171416", "#25292c", "#1d1d22"]}, {"n": 63, "t": "Just Pretend", "a": "Bad Omens", "c": "#8f2e1c", "g": "Metal y rock pesado", "p": ["#8f2e1c", "#b1311b", "#922818", "#511a17"]}, {"n": 64, "t": "Take Me Back To Eden", "a": "Sleep Token", "c": "#cecac0", "g": "Metal y rock pesado", "p": ["#cecac0", "#e2ded3", "#dcd8cc", "#737068"]}, {"n": 65, "t": "Dangerous", "a": "Sleep Token", "c": "#634e56", "g": "Metal y rock pesado", "p": ["#634e56", "#534a50", "#6c4d57", "#735a63"]}, {"n": 66, "t": "Chokehold", "a": "Sleep Token", "c": "#c0bdb3", "g": "Metal y rock pesado", "p": ["#c0bdb3", "#e2ded3", "#dcd8cc", "#3a3833"]}, {"n": 67, "t": "Prequel", "a": "Falling In Reverse", "c": "#665650", "g": "Metal y rock pesado", "p": ["#665650", "#121211", "#2e2e2c", "#958e8a"]}, {"n": 68, "t": "I'm Not A Vampire - Revamped", "a": "Falling In Reverse", "c": "#4e2321", "g": "Metal y rock pesado", "p": ["#4e2321", "#2f1411", "#4d1611", "#35282a"]}, {"n": 69, "t": "God Is A Weapon", "a": "Falling In Reverse, Marilyn Manson", "c": "#5c595a", "g": "Metal y rock pesado", "p": ["#5c595a", "#302d2e", "#504e4f", "#6f6d6d"]}, {"n": 70, "t": "Hospital for Souls", "a": "Bring Me The Horizon", "c": "#493726", "g": "Metal y rock pesado", "p": ["#493726", "#15151a", "#4d3628", "#6f512e"]}, {"n": 71, "t": "Steal Something.", "a": "Bring Me The Horizon", "c": "#8e8479", "g": "Metal y rock pesado", "p": ["#8e8479", "#2b2825", "#faf0e8", "#e5ceb4"]}, {"n": 72, "t": "Deathbeds", "a": "Bring Me The Horizon", "c": "#493726", "g": "Metal y rock pesado", "p": ["#493726", "#15151a", "#4d3628", "#6f512e"]}, {"n": 73, "t": "Fly Like an Eagle", "a": "In This Moment", "c": "#50545c", "g": "Metal y rock pesado", "p": ["#50545c", "#0e192b", "#162335", "#8f908d"]}, {"n": 74, "t": "Whore", "a": "In This Moment", "c": "#dcd2c7", "g": "Metal y rock pesado", "p": ["#dcd2c7", "#fbf7ee", "#f3e8da", "#e8d8cc"]}, {"n": 75, "t": "Mother", "a": "In This Moment", "c": "#50545c", "g": "Metal y rock pesado", "p": ["#50545c", "#0e192b", "#162335", "#8f908d"]}, {"n": 76, "t": "Closer", "a": "Asking Alexandria", "c": "#896761", "g": "Metal y rock pesado", "p": ["#896761", "#fafaf7", "#b72417", "#32302d"]}, {"n": 77, "t": "Vultures", "a": "Asking Alexandria", "c": "#521a17", "g": "Metal y rock pesado", "p": ["#521a17", "#2e1211", "#180f0e", "#4e1513"]}, {"n": 78, "t": "Moving On", "a": "Asking Alexandria", "c": "#43474f", "g": "Metal y rock pesado", "p": ["#43474f", "#0e0d12", "#282a32", "#1a1b25"]}, {"n": 79, "t": "Gary Heidnik (feat. Jonathan Davis)", "a": "SKYND, Jonathan Davis", "c": "#cdab9c", "g": "Metal y rock pesado", "p": ["#cdab9c", "#d5b5a8", "#d0aa97", "#e3bbaa"]}, {"n": 80, "t": "Richard Ramirez", "a": "SKYND", "c": "#cdab9c", "g": "Metal y rock pesado", "p": ["#cdab9c", "#d5b5a8", "#d0aa97", "#e3bbaa"]}, {"n": 81, "t": "Katherine Knight", "a": "SKYND", "c": "#544034", "g": "Metal y rock pesado", "p": ["#544034", "#4a382e", "#584539", "#6d5545"]}, {"n": 82, "t": "I Got Bones", "a": "Danny Worsnop", "c": "#a69388", "g": "Metal y rock pesado", "p": ["#a69388", "#fcebcc", "#ccae96", "#b19788"]}, {"n": 83, "t": "Best Bad Habit", "a": "Danny Worsnop", "c": "#8ba2b0", "g": "Metal y rock pesado", "p": ["#8ba2b0", "#aff9fa", "#302a2e", "#b3cad6"]}, {"n": 84, "t": "Another You", "a": "Danny Worsnop", "c": "#3a3544", "g": "Metal y rock pesado", "p": ["#3a3544", "#171718", "#2c2a2d", "#2c1936"]}, {"n": 85, "t": "Hajime", "a": "UVB76", "c": "#99694d", "g": "Electrónica experimental", "p": ["#99694d", "#b45229", "#ce744a", "#c4582d"]}, {"n": 86, "t": "Qiankun Tu", "a": "UVB76", "c": "#99694d", "g": "Electrónica experimental", "p": ["#99694d", "#b45229", "#ce744a", "#c4582d"]}, {"n": 87, "t": "Onna", "a": "UVB76", "c": "#99694d", "g": "Electrónica experimental", "p": ["#99694d", "#b45229", "#ce744a", "#c4582d"]}, {"n": 88, "t": "Destiny Killer", "a": "Emika", "c": "#a0b3c4", "g": "Electrónica experimental", "p": ["#a0b3c4", "#f3f1f1", "#d1cdd7", "#b1d7e7"]}, {"n": 89, "t": "Sing to Me", "a": "Emika", "c": "#c36e72", "g": "Electrónica experimental", "p": ["#c36e72", "#f7f7f8", "#e61a24", "#d81921"]}, {"n": 90, "t": "Promises", "a": "Emika", "c": "#cac6bd", "g": "Electrónica experimental", "p": ["#cac6bd", "#ede6e4", "#d7d5d0", "#d5c6b5"]}, {"n": 91, "t": "Marimba", "a": "Kermesse", "c": "#e8cb89", "g": "Electrónica experimental", "p": ["#e8cb89", "#fbde90", "#fce191", "#ccb077"]}, {"n": 92, "t": "Awake", "a": "Kermesse", "c": "#b7a791", "g": "Electrónica experimental", "p": ["#b7a791", "#d2b091", "#93d9c6", "#afe3d0"]}, {"n": 93, "t": "Camomille", "a": "Kermesse", "c": "#745a59", "g": "Electrónica experimental", "p": ["#745a59", "#502e2c", "#704c4b", "#693736"]}, {"n": 94, "t": "Sr. Tigre - French Braids Rework", "a": "YoSoyMatt, Eva de Marce, French Braids", "c": "#848b7e", "g": "Alt latino electrónico", "p": ["#848b7e", "#6f756c", "#8f958b", "#b3b7a7"]}, {"n": 95, "t": "La Niña del Volcán (Polocorp Remix)", "a": "YoSoyMatt, Eva de Marce, Polocorp", "c": "#6a604d", "g": "Alt latino electrónico", "p": ["#6a604d", "#302b14", "#383828", "#0a0904"]}, {"n": 96, "t": "Aurora Dijo Adiós", "a": "YoSoyMatt, French Braids, Eva de Marce", "c": "#ab8078", "g": "Alt latino electrónico", "p": ["#ab8078", "#e7e7e7", "#652318", "#ce3b22"]}, {"n": 97, "t": "Ta Que Tiembla", "a": "Buscabulla", "c": "#aaa08d", "g": "Alt latino electrónico", "p": ["#aaa08d", "#b4a98f", "#d2d7ce", "#96886f"]}, {"n": 98, "t": "Eva", "a": "Buscabulla", "c": "#64778e", "g": "Alt latino electrónico", "p": ["#64778e", "#91afcf", "#b2cbe7", "#2a374a"]}, {"n": 99, "t": "Volta", "a": "Buscabulla", "c": "#aaa08d", "g": "Alt latino electrónico", "p": ["#aaa08d", "#b4a98f", "#d2d7ce", "#96886f"]}, {"n": 100, "t": "Mientras Tanto", "a": "Los Eclipses, Dan Solo, Eva de Marce", "c": "#676a61", "g": "Alt latino electrónico", "p": ["#676a61", "#070503", "#50534d", "#6f746c"]}, {"n": 101, "t": "Elodie", "a": "Los Eclipses, Eva de Marce, Dan Solo", "c": "#676a61", "g": "Alt latino electrónico", "p": ["#676a61", "#070503", "#50534d", "#6f746c"]}, {"n": 102, "t": "Nada Más", "a": "Los Eclipses, Eva de Marce, Dan Solo", "c": "#676a61", "g": "Alt latino electrónico", "p": ["#676a61", "#070503", "#50534d", "#6f746c"]}, {"n": 103, "t": "Año 3: De Lunes a Domingo", "a": "Anestesia", "c": "#381424", "g": "Rap y R&B mexicano", "p": ["#381424", "#040103", "#290719", "#4e0f2f"]}, {"n": 104, "t": "Año 7: Ninguna", "a": "Anestesia, Tino El Pingüino, Fermín Sanchez", "c": "#381424", "g": "Rap y R&B mexicano", "p": ["#381424", "#040103", "#290719", "#4e0f2f"]}, {"n": 105, "t": "Año 2: Los Amorosos", "a": "Anestesia", "c": "#381424", "g": "Rap y R&B mexicano", "p": ["#381424", "#040103", "#290719", "#4e0f2f"]}, {"n": 106, "t": "Si Tú Te Vas", "a": "Charles Ans, La Loquera, Ms. Ambar", "c": "#80644e", "g": "Rap y R&B mexicano", "p": ["#80644e", "#292b2b", "#2f4d47", "#b4793c"]}, {"n": 107, "t": "Retrato", "a": "Charles Ans, BCN", "c": "#5f5a64", "g": "Rap y R&B mexicano", "p": ["#5f5a64", "#0c1011", "#918e90", "#4f4e52"]}, {"n": 108, "t": "Otra Vela al Pastel", "a": "Charles Ans, Adán Cruz, BCN", "c": "#9e8d72", "g": "Rap y R&B mexicano", "p": ["#9e8d72", "#998865", "#897555", "#a69570"]}, {"n": 109, "t": "We Made a Plan", "a": "Adán Cruz", "c": "#999c82", "g": "Rap y R&B mexicano", "p": ["#999c82", "#afb3b2", "#90af94", "#908c73"]}, {"n": 110, "t": "Ando Como Se Debe", "a": "Adán Cruz", "c": "#a58379", "g": "Rap y R&B mexicano", "p": ["#a58379", "#6a76b8", "#8e71b1", "#f0b3c6"]}, {"n": 111, "t": "Es Ahí", "a": "NARCOWAVE, Adán Cruz", "c": "#585c66", "g": "Rap y R&B mexicano", "p": ["#585c66", "#272c3a", "#343945", "#474b57"]}, {"n": 112, "t": "Complicado", "a": "Gera MX, Jayrick, Ervin River", "c": "#b4cce7", "g": "Rap y R&B mexicano", "p": ["#b4cce7", "#a9d5f5", "#efd6e5", "#99cbee"]}, {"n": 113, "t": "El Músico", "a": "Gera MX", "c": "#3a2422", "g": "Rap y R&B mexicano", "p": ["#3a2422", "#130e0c", "#2b1210", "#2d2a2c"]}, {"n": 114, "t": "Pupilas", "a": "Gera MX, Villax", "c": "#363d53", "g": "Rap y R&B mexicano", "p": ["#363d53", "#2a314e", "#171b30", "#1d2447"]}, {"n": 115, "t": "Temperatura", "a": "Villax", "c": "#281619", "g": "Rap y R&B mexicano", "p": ["#281619", "#030102", "#02294e", "#4e1210"]}, {"n": 116, "t": "Ven Búscame", "a": "Villax, Isaac H", "c": "#554a1f", "g": "Rap y R&B mexicano", "p": ["#554a1f", "#021b22", "#030f14", "#f0ae0e"]}, {"n": 117, "t": "Entre Tu y Yo", "a": "Villax, Rich Vagos, Samantha Barrón", "c": "#575b52", "g": "Rap y R&B mexicano", "p": ["#575b52", "#71675a", "#1c2a26", "#2c3431"]}, {"n": 118, "t": "Después de las 12", "a": "Samantha Barrón, Gera MX", "c": "#1b1b1b", "g": "Rap y R&B mexicano", "p": ["#1b1b1b", "#0e0e0e", "#292929", "#4d4d4d"]}, {"n": 119, "t": "Tu Mirar", "a": "Solitario Mondragon, Samantha Barrón", "c": "#6d5546", "g": "Rap y R&B mexicano", "p": ["#6d5546", "#503528", "#271912", "#6c4831"]}, {"n": 120, "t": "Cuando No Este", "a": "Rich Vagos, Samantha Barrón, Sandro Malandro, Drama Theme", "c": "#0b0b0c", "g": "Rap y R&B mexicano", "p": ["#0b0b0c", "#09090a", "#4c4c4c", "#303030"]}, {"n": 121, "t": "Fresh", "a": "Nanpa Básico", "c": "#a8a8a8", "g": "Rap y R&B mexicano", "p": ["#a8a8a8", "#cccccc", "#b7b7b7", "#908f8f"]}, {"n": 122, "t": "Mal Mal Mal", "a": "Nanpa Básico, Blessd", "c": "#5c5558", "g": "Rap y R&B mexicano", "p": ["#5c5558", "#1c2c37", "#312a2f", "#70342d"]}, {"n": 123, "t": "Tuyo X Siempre", "a": "Jayrick, Nanpa Básico", "c": "#57355b", "g": "Rap y R&B mexicano", "p": ["#57355b", "#2c1d2a", "#49528e", "#2e284e"]}, {"n": 124, "t": "Gran Vida", "a": "Alemán", "c": "#64676a", "g": "Rap y R&B mexicano", "p": ["#64676a", "#33302d", "#51504f", "#6c6e70"]}, {"n": 125, "t": "Tantas Veces", "a": "Alemán, Yung Sarria, Fntxy", "c": "#343a41", "g": "Rap y R&B mexicano", "p": ["#343a41", "#020407", "#6f7989", "#2a3138"]}, {"n": 126, "t": "So High (feat. Jambene)", "a": "Alemán, Muelas De Gallo, Fntxy, Jambene", "c": "#64676a", "g": "Rap y R&B mexicano", "p": ["#64676a", "#33302d", "#51504f", "#6c6e70"]}, {"n": 127, "t": "Como Nunca", "a": "Faruz Feet, Ghosk Isais", "c": "#78848c", "g": "Rap y R&B mexicano", "p": ["#78848c", "#0b0b0b", "#eceef0", "#d2e4ee"]}, {"n": 128, "t": "Sirena", "a": "Faruz Feet", "c": "#af7a55", "g": "Rap y R&B mexicano", "p": ["#af7a55", "#efad73", "#4b362b", "#ce956c"]}, {"n": 129, "t": "Paisajes", "a": "Faruz Feet, Donovan Morales, Gera MX", "c": "#a2a2a2", "g": "Rap y R&B mexicano", "p": ["#a2a2a2", "#bbbbbb", "#2c2c2c", "#505050"]}, {"n": 130, "t": "Loco Con Suerte", "a": "Sandro Malandro", "c": "#9f5951", "g": "Rap y R&B mexicano", "p": ["#9f5951", "#ce3436", "#383636", "#8d3232"]}, {"n": 131, "t": "Déjame Tocarte", "a": "Sandro Malandro", "c": "#464646", "g": "Rap y R&B mexicano", "p": ["#464646", "#020202", "#f7f7f7", "#cfcfcf"]}, {"n": 132, "t": "Húchalamama", "a": "Sandro Malandro, ElReghosg", "c": "#9f5951", "g": "Rap y R&B mexicano", "p": ["#9f5951", "#ce3436", "#383636", "#8d3232"]}, {"n": 133, "t": "Algo Más", "a": "Silar Kilos De Estilo", "c": "#c4dac5", "g": "Rap y R&B mexicano", "p": ["#c4dac5", "#f8fcf8", "#d1f0d2", "#0a0a0a"]}, {"n": 134, "t": "Sanarme", "a": "Silar Kilos De Estilo, Deekaos, Euro, Mexor", "c": "#29791c", "g": "Rap y R&B mexicano", "p": ["#29791c", "#040a02", "#459130", "#122d0a"]}, {"n": 135, "t": "Puro Mexa Rap \"Envidia\"", "a": "Low Art, Silar Kilos De Estilo, Deekaos Aguila en la Esquina", "c": "#2a3229", "g": "Rap y R&B mexicano", "p": ["#2a3229", "#030c04", "#0b2a0e", "#2d312e"]}, {"n": 136, "t": "Balas Negras", "a": "MexFutura", "c": "#a6aeaf", "g": "Rap y R&B mexicano", "p": ["#a6aeaf", "#f0f0f0", "#272832", "#2b1c2b"]}, {"n": 137, "t": "Es Tan Fácil", "a": "MexFutura", "c": "#a7b4a3", "g": "Rap y R&B mexicano", "p": ["#a7b4a3", "#f0e4d4", "#26292f", "#e9ded0"]}, {"n": 138, "t": "Perderme", "a": "MexFutura", "c": "#a5b9b2", "g": "Rap y R&B mexicano", "p": ["#a5b9b2", "#e4f8ed", "#252930", "#2a1a2a"]}, {"n": 139, "t": "Me He Convertido...", "a": "Hello Seahorse!", "c": "#c26b1a", "g": "Rock alternativo mexicano", "p": ["#c26b1a", "#f37e21", "#010101", "#f3e916"]}, {"n": 140, "t": "Mujer", "a": "Hello Seahorse!", "c": "#a0666b", "g": "Rock alternativo mexicano", "p": ["#a0666b", "#904a55", "#8f3847", "#b04c56"]}, {"n": 141, "t": "Que Nadie Sepa Mi Sufrir", "a": "Hello Seahorse!", "c": "#4f5043", "g": "Rock alternativo mexicano", "p": ["#4f5043", "#363628", "#454738", "#2a2a1c"]}], "genres": [{"name": "Alternativo y trip-hop", "color": "#8a7bd8", "count": 12, "avg": "#5c5252", "palette": ["#dc2b3e", "#021c44", "#f6e7d1", "#768996", "#270b08"], "subs": [{"name": "Rap-rave sudafricano", "artists": [{"name": "Die Antwoord", "range": [1, 3], "tracks": [{"n": 1, "t": "No 1", "a": "Die Antwoord", "c": "#fcfcfc", "p": ["#fcfcfc", "#fefefe", "#d3d3d3", "#b4b4b4"]}, {"n": 2, "t": "CHOSEN 1", "a": "Die Antwoord", "c": "#533a32", "p": ["#533a32", "#151410", "#2a2c2d", "#e9595d"]}, {"n": 3, "t": "Age Of Illusion", "a": "Die Antwoord", "c": "#1b1d1d", "p": ["#1b1d1d", "#050705", "#282d2c", "#cbcdd3"]}]}]}, {"name": "Alt pop / art pop", "artists": [{"name": "Gorillaz", "range": [4, 6], "tracks": [{"n": 4, "t": "Busted and Blue", "a": "Gorillaz", "c": "#74828e", "p": ["#74828e", "#768996", "#566a75", "#677a87"]}, {"n": 5, "t": "Fire Flies", "a": "Gorillaz", "c": "#897769", "p": ["#897769", "#0d0c0b", "#f6e7d1", "#ecdbc8"]}, {"n": 6, "t": "Saturnz Barz (feat. Popcaan)", "a": "Gorillaz, Popcaan", "c": "#8b1f28", "p": ["#8b1f28", "#dc2f42", "#270b08", "#dc2b3e"]}]}]}, {"name": "Funk y soul psicodélico", "artists": [{"name": "Childish Gambino", "range": [7, 9], "tracks": [{"n": 7, "t": "Me and Your Mama", "a": "Childish Gambino", "c": "#726854", "p": ["#726854", "#0c0c0b", "#71726e", "#8e908d"]}, {"n": 8, "t": "Feels Like Summer", "a": "Childish Gambino", "c": "#122138", "p": ["#122138", "#0b152c", "#0e1019", "#021c44"]}, {"n": 9, "t": "Terrified", "a": "Childish Gambino", "c": "#222426", "p": ["#222426", "#010101", "#a8b0b7", "#2e3134"]}]}]}, {"name": "Trip-hop", "artists": [{"name": "Portishead", "range": [10, 12], "tracks": [{"n": 10, "t": "All Mine", "a": "Portishead", "c": "#3e3e3f", "p": ["#3e3e3f", "#060708", "#918f90", "#514f4f"]}, {"n": 11, "t": "Undenied", "a": "Portishead", "c": "#3e3e3f", "p": ["#3e3e3f", "#060708", "#918f90", "#514f4f"]}, {"n": 12, "t": "Cowboys", "a": "Portishead", "c": "#3e3e3f", "p": ["#3e3e3f", "#060708", "#918f90", "#514f4f"]}]}]}]}, {"name": "Indie oscuro y dark pop", "color": "#d0569a", "count": 12, "avg": "#63435b", "palette": ["#ed008c", "#c73018", "#cd2a78", "#ee529c", "#3379a8"], "subs": [{"name": "Pop alternativo", "artists": [{"name": "Dawid Podsiadło", "range": [13, 15], "tracks": [{"n": 13, "t": "Let You Down", "a": "Dawid Podsiadło", "c": "#864d5c", "p": ["#864d5c", "#0e0912", "#f590b8", "#f277ad"]}, {"n": 14, "t": "Where Did Your Love Go?", "a": "Dawid Podsiadło", "c": "#382318", "p": ["#382318", "#0b0504", "#2e1109", "#4e2b13"]}, {"n": 15, "t": "Phantom Liberty", "a": "Dawid Podsiadło, P.T. Adamczyk", "c": "#2c0410", "p": ["#2c0410", "#0f040a", "#2c0410", "#4f0112"]}]}]}, {"name": "Dark R&B / synth soul", "artists": [{"name": "TENDER", "range": [16, 18], "tracks": [{"n": 16, "t": "Trouble", "a": "TENDER", "c": "#296289", "p": ["#296289", "#3379a8", "#2c6d98", "#0c0d10"]}, {"n": 17, "t": "Erode", "a": "TENDER", "c": "#296289", "p": ["#296289", "#3379a8", "#2c6d98", "#0c0d10"]}, {"n": 18, "t": "Slow Love", "a": "TENDER", "c": "#953a27", "p": ["#953a27", "#501210", "#c73018", "#300f0e"]}]}, {"name": "Elliot Moss", "range": [22, 24], "tracks": [{"n": 22, "t": "Slip", "a": "Elliot Moss", "c": "#5a6160", "p": ["#5a6160", "#020203", "#6b7274", "#8f968d"]}, {"n": 23, "t": "Closedloop", "a": "Elliot Moss", "c": "#3a2e4a", "p": ["#3a2e4a", "#32142e", "#2e2e4e", "#4f132a"]}, {"n": 24, "t": "99", "a": "Elliot Moss", "c": "#3a2e4a", "p": ["#3a2e4a", "#32142e", "#2e2e4e", "#4f132a"]}]}]}, {"name": "Dark pop / synthwave", "artists": [{"name": "Night Club", "range": [19, 21], "tracks": [{"n": 19, "t": "Show It 2 Me", "a": "Night Club", "c": "#e60b8c", "p": ["#e60b8c", "#ed008c", "#adabac", "#e7e7e8"]}, {"n": 20, "t": "Schizophrenic", "a": "Night Club", "c": "#20111b", "p": ["#20111b", "#000000", "#cd2a78", "#c3aed2"]}, {"n": 21, "t": "Die in the Disco", "a": "Night Club", "c": "#fad7e8", "p": ["#fad7e8", "#ffffff", "#ee529c", "#ef6da9"]}]}]}]}, {"name": "Cine y rock psicodélico", "color": "#c9a24a", "count": 9, "avg": "#5c5756", "palette": ["#2d6eac", "#d9b570", "#a7bbd9", "#152539", "#364b4e"], "subs": [{"name": "Darkwave de película", "artists": [{"name": "Nostalghia", "range": [25, 27], "tracks": [{"n": 25, "t": "Plastic Heart", "a": "Nostalghia, Tyler Bates, Joel J. Richard", "c": "#232c47", "p": ["#232c47", "#090c0f", "#151a2b", "#152539"]}, {"n": 26, "t": "Fool", "a": "Nostalghia, Tyler Bates", "c": "#232c47", "p": ["#232c47", "#090c0f", "#151a2b", "#152539"]}, {"n": 27, "t": "Who You Talkin' To Man?", "a": "Nostalghia", "c": "#121617", "p": ["#121617", "#080d0e", "#142a2d", "#2b3132"]}]}]}, {"name": "Rock progresivo", "artists": [{"name": "Pink Floyd", "range": [28, 30], "tracks": [{"n": 28, "t": "Welcome to the Machine", "a": "Pink Floyd", "c": "#d8dadc", "p": ["#d8dadc", "#feffff", "#a7bbd9", "#546a66"]}, {"n": 29, "t": "Marooned", "a": "Pink Floyd", "c": "#747677", "p": ["#747677", "#2d6eac", "#545669", "#d1c8b6"]}, {"n": 30, "t": "The Great Gig in the Sky", "a": "Pink Floyd", "c": "#080705", "p": ["#080705", "#010101", "#2d2f35", "#364b4e"]}]}]}, {"name": "Psicodelia retro", "artists": [{"name": "Common Saints", "range": [31, 33], "tracks": [{"n": 31, "t": "Rebel Paradise", "a": "Common Saints", "c": "#846f59", "p": ["#846f59", "#2e2c25", "#d9b570", "#2b251c"]}, {"n": 32, "t": "Dreams", "a": "Common Saints", "c": "#846f59", "p": ["#846f59", "#2e2c25", "#d9b570", "#2b251c"]}, {"n": 33, "t": "Idol Eyes", "a": "Common Saints", "c": "#846f59", "p": ["#846f59", "#2e2c25", "#d9b570", "#2b251c"]}]}]}]}, {"name": "Soundtracks", "color": "#4fa3c7", "count": 9, "avg": "#535b6b", "palette": ["#56a9d4", "#a42629", "#04294f", "#b6ebf8", "#010613"], "subs": [{"name": "Arcane / League of Legends", "artists": [{"name": "Arcane · LoL · K/DA", "range": [34, 39], "tracks": [{"n": 34, "t": "The Line", "a": "Arcane, Twenty One Pilots", "c": "#1a3657", "p": ["#1a3657", "#02162d", "#010613", "#04294f"]}, {"n": 35, "t": "Sucker", "a": "Arcane, Marcus King", "c": "#1a3657", "p": ["#1a3657", "#02162d", "#010613", "#04294f"]}, {"n": 36, "t": "Enemy (with JID)", "a": "Imagine Dragons, JID, Arcane, League of Legends", "c": "#992226", "p": ["#992226", "#9b2327", "#a42629", "#941d24"]}, {"n": 37, "t": "Dark Cosmic Jhin", "a": "League of Legends", "c": "#36322e", "p": ["#36322e", "#131212", "#2f2d2d", "#524d49"]}, {"n": 38, "t": "VILLAIN", "a": "K/DA, Madison Beer, Kim Petras, League of Legends", "c": "#849db3", "p": ["#849db3", "#b0d4f1", "#b6ebf8", "#13131b"]}, {"n": 39, "t": "Tahm Kench, the River King", "a": "League of Legends", "c": "#273428", "p": ["#273428", "#101311", "#2d2d2c", "#15271a"]}]}]}, {"name": "Score de serie", "artists": [{"name": "Nicolas Snyder (Scavengers Reign)", "range": [40, 42], "tracks": [{"n": 40, "t": "The Demeter Suite", "a": "Nicolas Snyder", "c": "#6a8ca1", "p": ["#6a8ca1", "#6eb5d8", "#312c2f", "#56a9d4"]}, {"n": 41, "t": "Kamen's Folly", "a": "Nicolas Snyder", "c": "#6a8ca1", "p": ["#6a8ca1", "#6eb5d8", "#312c2f", "#56a9d4"]}, {"n": 42, "t": "This Place (feat. Rowan Katz)", "a": "Nicolas Snyder, Rowan Katz", "c": "#6a8ca1", "p": ["#6a8ca1", "#6eb5d8", "#312c2f", "#56a9d4"]}]}]}]}, {"name": "Metal y rock pesado", "color": "#c4473a", "count": 42, "avg": "#6d5f5d", "palette": ["#b72417", "#aff9fa", "#5b83a6", "#6f512e", "#cd92d0"], "subs": [{"name": "Avant-garde / breakcore", "artists": [{"name": "Igorrr", "range": [43, 45], "tracks": [{"n": 43, "t": "Problème d'émotion", "a": "Igorrr", "c": "#534c50", "p": ["#534c50", "#1a192b", "#2f2b32", "#988678"]}, {"n": 44, "t": "Downgrade Desert", "a": "Igorrr", "c": "#373430", "p": ["#373430", "#100e10", "#312f2d", "#514e48"]}, {"n": 45, "t": "Overweight Poesy", "a": "Igorrr", "c": "#373430", "p": ["#373430", "#100e10", "#312f2d", "#514e48"]}]}]}, {"name": "Nu metal e industrial", "artists": [{"name": "Slipknot", "range": [46, 48], "tracks": [{"n": 46, "t": "Bone Church", "a": "Slipknot", "c": "#171510", "p": ["#171510", "#060503", "#32332a", "#290b08"]}, {"n": 47, "t": "Danger - Keep Away", "a": "Slipknot", "c": "#311c1e", "p": ["#311c1e", "#070707", "#2e2d2c", "#4f4e4d"]}, {"n": 48, "t": "My Pain", "a": "Slipknot", "c": "#2d252f", "p": ["#2d252f", "#070608", "#2a292e", "#b1b1b2"]}]}, {"name": "Marilyn Manson", "range": [49, 51], "tracks": [{"n": 49, "t": "Tattooed In Reverse", "a": "Marilyn Manson", "c": "#5e5e5e", "p": ["#5e5e5e", "#989898", "#0a0a0a", "#2c2c2c"]}, {"n": 50, "t": "Killing Strangers", "a": "Marilyn Manson", "c": "#6c6d6d", "p": ["#6c6d6d", "#323232", "#484848", "#d0d0d0"]}, {"n": 51, "t": "God's Gonna Cut You Down", "a": "Marilyn Manson", "c": "#4e4e4e", "p": ["#4e4e4e", "#313131", "#4f4f4f", "#6c6c6c"]}]}, {"name": "Rammstein", "range": [52, 54], "tracks": [{"n": 52, "t": "Puppe", "a": "Rammstein", "c": "#f5f5f4", "p": ["#f5f5f4", "#f7f7f7", "#d4b69c", "#d3bba4"]}, {"n": 53, "t": "Mein Herz brennt", "a": "Rammstein", "c": "#7b7866", "p": ["#7b7866", "#6f6c53", "#32332a", "#908972"]}, {"n": 54, "t": "Adieu", "a": "Rammstein", "c": "#9fa8ba", "p": ["#9fa8ba", "#cfd9e8", "#6c758e", "#dae3ed"]}]}, {"name": "System Of A Down", "range": [55, 57], "tracks": [{"n": 55, "t": "Holy Mountains", "a": "System Of A Down", "c": "#4a3b38", "p": ["#4a3b38", "#181613", "#2b1b18", "#eceaea"]}, {"n": 56, "t": "Aerials", "a": "System Of A Down", "c": "#365068", "p": ["#365068", "#1a3349", "#2f506a", "#5b83a6"]}, {"n": 57, "t": "Spiders", "a": "System Of A Down", "c": "#1d0708", "p": ["#1d0708", "#020101", "#b12a2e", "#2e0a0b"]}]}, {"name": "Linkin Park", "range": [58, 60], "tracks": [{"n": 58, "t": "Lying from You", "a": "Linkin Park", "c": "#463c2f", "p": ["#463c2f", "#100903", "#a4947a", "#988970"]}, {"n": 59, "t": "ROADS UNTRAVELED", "a": "Linkin Park", "c": "#a8a7a6", "p": ["#a8a7a6", "#d1d2d1", "#929092", "#b1b2b2"]}, {"n": 60, "t": "The Emptiness Machine", "a": "Linkin Park", "c": "#997a99", "p": ["#997a99", "#2d3231", "#6e4a50", "#cd92d0"]}]}]}, {"name": "Metalcore y post-hardcore", "artists": [{"name": "Bad Omens", "range": [61, 63], "tracks": [{"n": 61, "t": "THE DEATH OF PEACE OF MIND", "a": "Bad Omens", "c": "#8f2e1c", "p": ["#8f2e1c", "#b1311b", "#922818", "#511a17"]}, {"n": 62, "t": "Specter", "a": "Bad Omens", "c": "#292d30", "p": ["#292d30", "#171416", "#25292c", "#1d1d22"]}, {"n": 63, "t": "Just Pretend", "a": "Bad Omens", "c": "#8f2e1c", "p": ["#8f2e1c", "#b1311b", "#922818", "#511a17"]}]}, {"name": "Sleep Token", "range": [64, 66], "tracks": [{"n": 64, "t": "Take Me Back To Eden", "a": "Sleep Token", "c": "#cecac0", "p": ["#cecac0", "#e2ded3", "#dcd8cc", "#737068"]}, {"n": 65, "t": "Dangerous", "a": "Sleep Token", "c": "#634e56", "p": ["#634e56", "#534a50", "#6c4d57", "#735a63"]}, {"n": 66, "t": "Chokehold", "a": "Sleep Token", "c": "#c0bdb3", "p": ["#c0bdb3", "#e2ded3", "#dcd8cc", "#3a3833"]}]}, {"name": "Falling In Reverse", "range": [67, 69], "tracks": [{"n": 67, "t": "Prequel", "a": "Falling In Reverse", "c": "#665650", "p": ["#665650", "#121211", "#2e2e2c", "#958e8a"]}, {"n": 68, "t": "I'm Not A Vampire - Revamped", "a": "Falling In Reverse", "c": "#4e2321", "p": ["#4e2321", "#2f1411", "#4d1611", "#35282a"]}, {"n": 69, "t": "God Is A Weapon", "a": "Falling In Reverse, Marilyn Manson", "c": "#5c595a", "p": ["#5c595a", "#302d2e", "#504e4f", "#6f6d6d"]}]}, {"name": "Bring Me The Horizon", "range": [70, 72], "tracks": [{"n": 70, "t": "Hospital for Souls", "a": "Bring Me The Horizon", "c": "#493726", "p": ["#493726", "#15151a", "#4d3628", "#6f512e"]}, {"n": 71, "t": "Steal Something.", "a": "Bring Me The Horizon", "c": "#8e8479", "p": ["#8e8479", "#2b2825", "#faf0e8", "#e5ceb4"]}, {"n": 72, "t": "Deathbeds", "a": "Bring Me The Horizon", "c": "#493726", "p": ["#493726", "#15151a", "#4d3628", "#6f512e"]}]}, {"name": "In This Moment", "range": [73, 75], "tracks": [{"n": 73, "t": "Fly Like an Eagle", "a": "In This Moment", "c": "#50545c", "p": ["#50545c", "#0e192b", "#162335", "#8f908d"]}, {"n": 74, "t": "Whore", "a": "In This Moment", "c": "#dcd2c7", "p": ["#dcd2c7", "#fbf7ee", "#f3e8da", "#e8d8cc"]}, {"n": 75, "t": "Mother", "a": "In This Moment", "c": "#50545c", "p": ["#50545c", "#0e192b", "#162335", "#8f908d"]}]}, {"name": "Asking Alexandria", "range": [76, 78], "tracks": [{"n": 76, "t": "Closer", "a": "Asking Alexandria", "c": "#896761", "p": ["#896761", "#fafaf7", "#b72417", "#32302d"]}, {"n": 77, "t": "Vultures", "a": "Asking Alexandria", "c": "#521a17", "p": ["#521a17", "#2e1211", "#180f0e", "#4e1513"]}, {"n": 78, "t": "Moving On", "a": "Asking Alexandria", "c": "#43474f", "p": ["#43474f", "#0e0d12", "#282a32", "#1a1b25"]}]}]}, {"name": "Industrial narrativo", "artists": [{"name": "SKYND", "range": [79, 81], "tracks": [{"n": 79, "t": "Gary Heidnik (feat. Jonathan Davis)", "a": "SKYND, Jonathan Davis", "c": "#cdab9c", "p": ["#cdab9c", "#d5b5a8", "#d0aa97", "#e3bbaa"]}, {"n": 80, "t": "Richard Ramirez", "a": "SKYND", "c": "#cdab9c", "p": ["#cdab9c", "#d5b5a8", "#d0aa97", "#e3bbaa"]}, {"n": 81, "t": "Katherine Knight", "a": "SKYND", "c": "#544034", "p": ["#544034", "#4a382e", "#584539", "#6d5545"]}]}]}, {"name": "Blues rock / country", "artists": [{"name": "Danny Worsnop", "range": [82, 84], "tracks": [{"n": 82, "t": "I Got Bones", "a": "Danny Worsnop", "c": "#a69388", "p": ["#a69388", "#fcebcc", "#ccae96", "#b19788"]}, {"n": 83, "t": "Best Bad Habit", "a": "Danny Worsnop", "c": "#8ba2b0", "p": ["#8ba2b0", "#aff9fa", "#302a2e", "#b3cad6"]}, {"n": 84, "t": "Another You", "a": "Danny Worsnop", "c": "#3a3544", "p": ["#3a3544", "#171718", "#2c2a2d", "#2c1936"]}]}]}]}, {"name": "Electrónica experimental", "color": "#5fbf9a", "count": 9, "avg": "#ac8c7a", "palette": ["#e61a24", "#c4582d", "#fbde90", "#ccb077", "#93d9c6"], "subs": [{"name": "Electrónica oriental / downtempo", "artists": [{"name": "UVB76", "range": [85, 87], "tracks": [{"n": 85, "t": "Hajime", "a": "UVB76", "c": "#99694d", "p": ["#99694d", "#b45229", "#ce744a", "#c4582d"]}, {"n": 86, "t": "Qiankun Tu", "a": "UVB76", "c": "#99694d", "p": ["#99694d", "#b45229", "#ce744a", "#c4582d"]}, {"n": 87, "t": "Onna", "a": "UVB76", "c": "#99694d", "p": ["#99694d", "#b45229", "#ce744a", "#c4582d"]}]}]}, {"name": "Dubstep oscuro / electro-pop", "artists": [{"name": "Emika", "range": [88, 90], "tracks": [{"n": 88, "t": "Destiny Killer", "a": "Emika", "c": "#a0b3c4", "p": ["#a0b3c4", "#f3f1f1", "#d1cdd7", "#b1d7e7"]}, {"n": 89, "t": "Sing to Me", "a": "Emika", "c": "#c36e72", "p": ["#c36e72", "#f7f7f8", "#e61a24", "#d81921"]}, {"n": 90, "t": "Promises", "a": "Emika", "c": "#cac6bd", "p": ["#cac6bd", "#ede6e4", "#d7d5d0", "#d5c6b5"]}]}]}, {"name": "Dub / chill", "artists": [{"name": "Kermesse", "range": [91, 93], "tracks": [{"n": 91, "t": "Marimba", "a": "Kermesse", "c": "#e8cb89", "p": ["#e8cb89", "#fbde90", "#fce191", "#ccb077"]}, {"n": 92, "t": "Awake", "a": "Kermesse", "c": "#b7a791", "p": ["#b7a791", "#d2b091", "#93d9c6", "#afe3d0"]}, {"n": 93, "t": "Camomille", "a": "Kermesse", "c": "#745a59", "p": ["#745a59", "#502e2c", "#704c4b", "#693736"]}]}]}]}, {"name": "Alt latino electrónico", "color": "#e08a3c", "count": 9, "avg": "#817c73", "palette": ["#ce3b22", "#652318", "#91afcf", "#96886f", "#b4a98f"], "subs": [{"name": "Indie electrónico", "artists": [{"name": "YoSoyMatt + Eva de Marce", "range": [94, 96], "tracks": [{"n": 94, "t": "Sr. Tigre - French Braids Rework", "a": "YoSoyMatt, Eva de Marce, French Braids", "c": "#848b7e", "p": ["#848b7e", "#6f756c", "#8f958b", "#b3b7a7"]}, {"n": 95, "t": "La Niña del Volcán (Polocorp Remix)", "a": "YoSoyMatt, Eva de Marce, Polocorp", "c": "#6a604d", "p": ["#6a604d", "#302b14", "#383828", "#0a0904"]}, {"n": 96, "t": "Aurora Dijo Adiós", "a": "YoSoyMatt, French Braids, Eva de Marce", "c": "#ab8078", "p": ["#ab8078", "#e7e7e7", "#652318", "#ce3b22"]}]}, {"name": "Los Eclipses + Eva de Marce", "range": [100, 102], "tracks": [{"n": 100, "t": "Mientras Tanto", "a": "Los Eclipses, Dan Solo, Eva de Marce", "c": "#676a61", "p": ["#676a61", "#070503", "#50534d", "#6f746c"]}, {"n": 101, "t": "Elodie", "a": "Los Eclipses, Eva de Marce, Dan Solo", "c": "#676a61", "p": ["#676a61", "#070503", "#50534d", "#6f746c"]}, {"n": 102, "t": "Nada Más", "a": "Los Eclipses, Eva de Marce, Dan Solo", "c": "#676a61", "p": ["#676a61", "#070503", "#50534d", "#6f746c"]}]}]}, {"name": "Synth pop caribeño", "artists": [{"name": "Buscabulla", "range": [97, 99], "tracks": [{"n": 97, "t": "Ta Que Tiembla", "a": "Buscabulla", "c": "#aaa08d", "p": ["#aaa08d", "#b4a98f", "#d2d7ce", "#96886f"]}, {"n": 98, "t": "Eva", "a": "Buscabulla", "c": "#64778e", "p": ["#64778e", "#91afcf", "#b2cbe7", "#2a374a"]}, {"n": 99, "t": "Volta", "a": "Buscabulla", "c": "#aaa08d", "p": ["#aaa08d", "#b4a98f", "#d2d7ce", "#96886f"]}]}]}]}, {"name": "Rap y R&B mexicano", "color": "#e2c044", "count": 36, "avg": "#6a625e", "palette": ["#f0ae0e", "#ce3436", "#efad73", "#b4793c", "#459130"], "subs": [{"name": "Rap romántico", "artists": [{"name": "Anestesia", "range": [103, 105], "tracks": [{"n": 103, "t": "Año 3: De Lunes a Domingo", "a": "Anestesia", "c": "#381424", "p": ["#381424", "#040103", "#290719", "#4e0f2f"]}, {"n": 104, "t": "Año 7: Ninguna", "a": "Anestesia, Tino El Pingüino, Fermín Sanchez", "c": "#381424", "p": ["#381424", "#040103", "#290719", "#4e0f2f"]}, {"n": 105, "t": "Año 2: Los Amorosos", "a": "Anestesia", "c": "#381424", "p": ["#381424", "#040103", "#290719", "#4e0f2f"]}]}, {"name": "Charles Ans", "range": [106, 108], "tracks": [{"n": 106, "t": "Si Tú Te Vas", "a": "Charles Ans, La Loquera, Ms. Ambar", "c": "#80644e", "p": ["#80644e", "#292b2b", "#2f4d47", "#b4793c"]}, {"n": 107, "t": "Retrato", "a": "Charles Ans, BCN", "c": "#5f5a64", "p": ["#5f5a64", "#0c1011", "#918e90", "#4f4e52"]}, {"n": 108, "t": "Otra Vela al Pastel", "a": "Charles Ans, Adán Cruz, BCN", "c": "#9e8d72", "p": ["#9e8d72", "#998865", "#897555", "#a69570"]}]}, {"name": "Gera MX", "range": [112, 114], "tracks": [{"n": 112, "t": "Complicado", "a": "Gera MX, Jayrick, Ervin River", "c": "#b4cce7", "p": ["#b4cce7", "#a9d5f5", "#efd6e5", "#99cbee"]}, {"n": 113, "t": "El Músico", "a": "Gera MX", "c": "#3a2422", "p": ["#3a2422", "#130e0c", "#2b1210", "#2d2a2c"]}, {"n": 114, "t": "Pupilas", "a": "Gera MX, Villax", "c": "#363d53", "p": ["#363d53", "#2a314e", "#171b30", "#1d2447"]}]}, {"name": "Villax", "range": [115, 117], "tracks": [{"n": 115, "t": "Temperatura", "a": "Villax", "c": "#281619", "p": ["#281619", "#030102", "#02294e", "#4e1210"]}, {"n": 116, "t": "Ven Búscame", "a": "Villax, Isaac H", "c": "#554a1f", "p": ["#554a1f", "#021b22", "#030f14", "#f0ae0e"]}, {"n": 117, "t": "Entre Tu y Yo", "a": "Villax, Rich Vagos, Samantha Barrón", "c": "#575b52", "p": ["#575b52", "#71675a", "#1c2a26", "#2c3431"]}]}, {"name": "Alemán", "range": [124, 126], "tracks": [{"n": 124, "t": "Gran Vida", "a": "Alemán", "c": "#64676a", "p": ["#64676a", "#33302d", "#51504f", "#6c6e70"]}, {"n": 125, "t": "Tantas Veces", "a": "Alemán, Yung Sarria, Fntxy", "c": "#343a41", "p": ["#343a41", "#020407", "#6f7989", "#2a3138"]}, {"n": 126, "t": "So High (feat. Jambene)", "a": "Alemán, Muelas De Gallo, Fntxy, Jambene", "c": "#64676a", "p": ["#64676a", "#33302d", "#51504f", "#6c6e70"]}]}, {"name": "Faruz Feet", "range": [127, 129], "tracks": [{"n": 127, "t": "Como Nunca", "a": "Faruz Feet, Ghosk Isais", "c": "#78848c", "p": ["#78848c", "#0b0b0b", "#eceef0", "#d2e4ee"]}, {"n": 128, "t": "Sirena", "a": "Faruz Feet", "c": "#af7a55", "p": ["#af7a55", "#efad73", "#4b362b", "#ce956c"]}, {"n": 129, "t": "Paisajes", "a": "Faruz Feet, Donovan Morales, Gera MX", "c": "#a2a2a2", "p": ["#a2a2a2", "#bbbbbb", "#2c2c2c", "#505050"]}]}]}, {"name": "R&B y trap suave", "artists": [{"name": "Adán Cruz", "range": [109, 111], "tracks": [{"n": 109, "t": "We Made a Plan", "a": "Adán Cruz", "c": "#999c82", "p": ["#999c82", "#afb3b2", "#90af94", "#908c73"]}, {"n": 110, "t": "Ando Como Se Debe", "a": "Adán Cruz", "c": "#a58379", "p": ["#a58379", "#6a76b8", "#8e71b1", "#f0b3c6"]}, {"n": 111, "t": "Es Ahí", "a": "NARCOWAVE, Adán Cruz", "c": "#585c66", "p": ["#585c66", "#272c3a", "#343945", "#474b57"]}]}, {"name": "Samantha Barrón", "range": [118, 120], "tracks": [{"n": 118, "t": "Después de las 12", "a": "Samantha Barrón, Gera MX", "c": "#1b1b1b", "p": ["#1b1b1b", "#0e0e0e", "#292929", "#4d4d4d"]}, {"n": 119, "t": "Tu Mirar", "a": "Solitario Mondragon, Samantha Barrón", "c": "#6d5546", "p": ["#6d5546", "#503528", "#271912", "#6c4831"]}, {"n": 120, "t": "Cuando No Este", "a": "Rich Vagos, Samantha Barrón, Sandro Malandro, Drama Theme", "c": "#0b0b0c", "p": ["#0b0b0c", "#09090a", "#4c4c4c", "#303030"]}]}, {"name": "Nanpa Básico", "range": [121, 123], "tracks": [{"n": 121, "t": "Fresh", "a": "Nanpa Básico", "c": "#a8a8a8", "p": ["#a8a8a8", "#cccccc", "#b7b7b7", "#908f8f"]}, {"n": 122, "t": "Mal Mal Mal", "a": "Nanpa Básico, Blessd", "c": "#5c5558", "p": ["#5c5558", "#1c2c37", "#312a2f", "#70342d"]}, {"n": 123, "t": "Tuyo X Siempre", "a": "Jayrick, Nanpa Básico", "c": "#57355b", "p": ["#57355b", "#2c1d2a", "#49528e", "#2e284e"]}]}, {"name": "Sandro Malandro", "range": [130, 132], "tracks": [{"n": 130, "t": "Loco Con Suerte", "a": "Sandro Malandro", "c": "#9f5951", "p": ["#9f5951", "#ce3436", "#383636", "#8d3232"]}, {"n": 131, "t": "Déjame Tocarte", "a": "Sandro Malandro", "c": "#464646", "p": ["#464646", "#020202", "#f7f7f7", "#cfcfcf"]}, {"n": 132, "t": "Húchalamama", "a": "Sandro Malandro, ElReghosg", "c": "#9f5951", "p": ["#9f5951", "#ce3436", "#383636", "#8d3232"]}]}]}, {"name": "Rap underground / boom bap", "artists": [{"name": "Silar Kilos De Estilo", "range": [133, 135], "tracks": [{"n": 133, "t": "Algo Más", "a": "Silar Kilos De Estilo", "c": "#c4dac5", "p": ["#c4dac5", "#f8fcf8", "#d1f0d2", "#0a0a0a"]}, {"n": 134, "t": "Sanarme", "a": "Silar Kilos De Estilo, Deekaos, Euro, Mexor", "c": "#29791c", "p": ["#29791c", "#040a02", "#459130", "#122d0a"]}, {"n": 135, "t": "Puro Mexa Rap \"Envidia\"", "a": "Low Art, Silar Kilos De Estilo, Deekaos Aguila en la Esquina", "c": "#2a3229", "p": ["#2a3229", "#030c04", "#0b2a0e", "#2d312e"]}]}, {"name": "MexFutura", "range": [136, 138], "tracks": [{"n": 136, "t": "Balas Negras", "a": "MexFutura", "c": "#a6aeaf", "p": ["#a6aeaf", "#f0f0f0", "#272832", "#2b1c2b"]}, {"n": 137, "t": "Es Tan Fácil", "a": "MexFutura", "c": "#a7b4a3", "p": ["#a7b4a3", "#f0e4d4", "#26292f", "#e9ded0"]}, {"n": 138, "t": "Perderme", "a": "MexFutura", "c": "#a5b9b2", "p": ["#a5b9b2", "#e4f8ed", "#252930", "#2a1a2a"]}]}]}]}, {"name": "Rock alternativo mexicano", "color": "#9fbf3f", "count": 3, "avg": "#906043", "palette": ["#f3e916", "#f37e21", "#b04c56", "#454738", "#010101"], "subs": [{"name": "Indie rock", "artists": [{"name": "Hello Seahorse!", "range": [139, 141], "tracks": [{"n": 139, "t": "Me He Convertido...", "a": "Hello Seahorse!", "c": "#c26b1a", "p": ["#c26b1a", "#f37e21", "#010101", "#f3e916"]}, {"n": 140, "t": "Mujer", "a": "Hello Seahorse!", "c": "#a0666b", "p": ["#a0666b", "#904a55", "#8f3847", "#b04c56"]}, {"n": 141, "t": "Que Nadie Sepa Mi Sufrir", "a": "Hello Seahorse!", "c": "#4f5043", "p": ["#4f5043", "#363628", "#454738", "#2a2a1c"]}]}]}]}], "top": [["Eva de Marce", 6], ["Gera MX", 5], ["League of Legends", 4], ["Marilyn Manson", 4], ["Adán Cruz", 4], ["Villax", 4], ["Samantha Barrón", 4], ["Sandro Malandro", 4], ["Die Antwoord", 3], ["Gorillaz", 3], ["Childish Gambino", 3], ["Portishead", 3], ["Dawid Podsiadło", 3], ["TENDER", 3]], "lang": {"Español": 48, "Inglés / instrumental": 90, "Alemán": 3}, "artists": 89};
+const $=s=>document.getElementById(s);
+const gcol=Object.fromEntries(D.genres.map(g=>[g.name,g.color]));
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// stats
+$('stats').innerHTML=[[141,'canciones'],[D.artists,'artistas acreditados'],['~9 h','de duración'],[D.genres.length,'géneros grandes']].map(([b,s])=>`<div><b>${b}</b><span>${s}</span></div>`).join('');
+// barcode
+const bc=$('barcode');
+D.tracks.forEach(t=>{const i=document.createElement('i');i.style.background=t.c;i.title=`${t.n}. ${t.t} — ${t.a}`;i.dataset.n=t.n;bc.appendChild(i)});
+const show=n=>{const t=D.tracks[n-1];$('readout').innerHTML=`<strong>${t.n}. ${esc(t.t)}</strong> · ${esc(t.a)} · <span style="color:${gcol[t.g]}">${esc(t.g)}</span> · ${t.c}`;bc.querySelectorAll('i.on').forEach(x=>x.classList.remove('on'));bc.children[n-1].classList.add('on')};
+bc.addEventListener('mouseover',e=>{if(e.target.dataset.n)show(+e.target.dataset.n)});
+bc.addEventListener('click',e=>{if(e.target.dataset.n)show(+e.target.dataset.n)});
+$('band').innerHTML=D.genres.map(g=>`<b style="flex:${g.count};background:${g.color}" title="${esc(g.name)}"></b>`).join('');
+$('legend').innerHTML=D.genres.map(g=>`<span><i class="dot" style="background:${g.color}"></i>${esc(g.name)}</span>`).join('');
+$('spotart').innerHTML=D.tracks.slice(0,144).map(t=>`<i style="background:${t.c}"></i>`).join('');
+// tree
+const sw=cs=>`<span class="sw">${cs.map(c=>`<i style="background:${c}"></i>`).join('')}</span>`;
+$('tree').innerHTML=D.genres.map(g=>{
+  const subs=g.subs.map(s=>{
+    const arts=s.artists.map(a=>`<li><details><summary><span class="caret">›</span>${sw(a.tracks.map(t=>t.c))}<span class="anode">${esc(a.name)}</span><span class="count">${a.range[0]}–${a.range[1]}</span></summary><div class="tracks">${a.tracks.map(t=>`<div><span class="n">${t.n}</span><span class="sq" style="background:${t.c}"></span><span>${esc(t.t)}${t.a.includes(',')?` <span class="ft">· ${esc(t.a)}</span>`:''}</span></div>`).join('')}</div></details></li>`).join('');
+    const n=s.artists.reduce((x,a)=>x+a.tracks.length,0);
+    return `<li><details open><summary><span class="caret">›</span><span class="snode">${esc(s.name)}</span><span class="count">${n}</span></summary><ul>${arts}</ul></details></li>`}).join('');
+  return `<li style="--bc:${g.color}"><details open><summary><span class="caret">›</span><span class="gnode"><i class="dot" style="background:${g.color}"></i> ${esc(g.name)}</span><span class="count">${g.count} · ${Math.round(g.count/1.41)}%</span></summary><ul style="--bc:${g.color}">${subs}</ul></details></li>`}).join('');
+$('openAll').onclick=()=>document.querySelectorAll('#tree details').forEach(d=>d.open=true);
+$('closeAll').onclick=()=>document.querySelectorAll('#tree details').forEach(d=>d.open=false);
+
+// ===== árbol ilustrado =====
+(function(){
+const cv=$('grove'),ctx=cv.getContext('2d'),W=1000;let H=860;
+let seed=11;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const css=getComputedStyle(document.documentElement),tok=n=>css.getPropertyValue(n).trim();
+const bark=tok('--bark'),bark2=tok('--bark2');
+const G=D.genres,tx=500,base=1000,top=700;
+const span=[-178,-2],wts=G.map(g=>Math.pow(g.count,.5)),ws=wts.reduce((a,b)=>a+b,0);
+const rad=d=>d*Math.PI/180,dir=a=>({x:Math.cos(rad(a)),y:Math.sin(rad(a))});
+const pt=(o,c,e,t)=>({x:(1-t)**2*o.x+2*(1-t)*t*c.x+t*t*e.x,y:(1-t)**2*o.y+2*(1-t)*t*c.y+t*t*e.y});
+const curve=(o,a,L,bend)=>{const d=dir(a),e={x:o.x+d.x*L,y:o.y+d.y*L-bend},c={x:o.x+d.x*L*.5+(rnd()-.5)*L*.08,y:o.y+d.y*L*.5-bend*1.4};return{o,c,e};};
+const sticks=[],leaves=[],labels=[];let acc=0;
+G.forEach((g,gi)=>{
+  const a=span[0]+(span[1]-span[0])*(acc+wts[gi]/2)/ws;const half=(span[1]-span[0])*wts[gi]/ws/2;acc+=wts[gi];const fan=Math.min(40,half*1.25+6);
+  const side=Math.min(1,Math.abs(a+90)/88);
+  const o={x:tx+dir(a).x*12,y:top+190*side**1.5};
+  const L=200+26*Math.sqrt(g.count)-70*side;
+  const w0=6+2.4*Math.sqrt(g.count);
+  const br=curve(o,a,L,40*side);sticks.push({...br,w0,w1:w0*.38,col:bark,g:gi});
+  const K=g.subs.length;const mine=[];
+  g.subs.forEach((s,si)=>{
+    const n=s.artists.reduce((x,ar)=>x+ar.tracks.length,0);
+    const t=K===1?1:.5+.5*si/(K-1);
+    const so=pt(br.o,br.c,br.e,t);
+    const ta=a+(K===1?0:-fan+2*fan*si/(K-1))+(rnd()-.5)*6;
+    const tw=curve(so,ta,60+16*Math.sqrt(n),6);
+    const tw0=Math.max(2.4,w0*.42*Math.sqrt(n/g.count)+1.5);
+    sticks.push({...tw,w0:tw0,w1:tw0*.5,col:bark,g:gi});
+    const M=s.artists.length;
+    s.artists.forEach((ar,ai)=>{
+      const tt=M===1?1:.45+.55*ai/(M-1);
+      const ao=pt(tw.o,tw.c,tw.e,tt);
+      const aa=ta+(M===1?0:-(fan+14)+2*(fan+14)*ai/(M-1))+(rnd()-.5)*10;
+      const m=ar.tracks.length,sl=46+14*m+rnd()*12;
+      const sp=curve(ao,aa,sl,4);sticks.push({...sp,w0:Math.max(1.6,tw0*.55),w1:1,col:bark2,g:gi});
+      ar.tracks.forEach((t,j)=>{
+        const last=j===m-1;const tp=last?1:.38+.55*(j/(m-1||1));
+        const p=pt(sp.o,sp.c,sp.e,tp),q=pt(sp.o,sp.c,sp.e,Math.min(1,tp+.05));
+        const sa=Math.atan2(q.y-p.y,q.x-p.x);const sgn=j%2?1:-1;
+        const la=last?sa:sa+sgn*rad(52+rnd()*14);
+        const lx=p.x+Math.cos(la)*22,ly=p.y+Math.sin(la)*22;
+        const lf={t,g:gi,x:lx,y:ly,bx:p.x,by:p.y,ang:la,s:.85+rnd()*.35,ph:rnd()*6};leaves.push(lf);mine.push(lf);
+      });
+    });
+  });
+  // etiqueta en la punta del género
+  const d=dir(a);let far=mine[0],fv=-1e9;mine.forEach(l=>{const v=(l.x-o.x)*d.x+(l.y-o.y)*d.y;if(v>fv){fv=v;far=l}});
+  const cx=mine.reduce((s,l)=>s+l.x,0)/mine.length,cy=mine.reduce((s,l)=>s+l.y,0)/mine.length;
+  labels.push({g:gi,text:g.name,x:cx+d.x*0,y:Math.min(...mine.map(l=>l.y))-24,cx});
+});
+// encuadre automático
+let mnx=1e9,mxx=-1e9,mny=1e9,mxy=-1e9;
+leaves.forEach(l=>{mnx=Math.min(mnx,l.x-20);mxx=Math.max(mxx,l.x+20);mny=Math.min(mny,l.y-20)});
+labels.forEach(l=>{mny=Math.min(mny,l.y-22);mnx=Math.min(mnx,l.cx-110);mxx=Math.max(mxx,l.cx+110)});
+mxy=base+30;const fitTo=(x0,x1,y0,y1)=>{const f=Math.min(W/(x1-x0),860/(y1-y0));return{H:860,fit:f,offx:(W-(x1-x0)*f)/2-x0*f,offy:(H-(y1-y0)*f)/2-y0*f};};
+const TREEV=fitTo(mnx,mxx,mny,mxy);let fit=TREEV.fit,offx=TREEV.offx,offy=TREEV.offy;
+let focus=null,hover=null,scale=1;
+
+
+function size(){const r=cv.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1);cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.width*H/W*dpr);scale=cv.width/W;}
+function seg(s,col,alpha){const N=12;ctx.strokeStyle=col;ctx.lineCap='round';for(let i=0;i<N;i++){const p=pt(s.o,s.c,s.e,i/N),q=pt(s.o,s.c,s.e,(i+1)/N);ctx.lineWidth=s.w0+(s.w1-s.w0)*(i/N);ctx.globalAlpha=alpha;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();}}
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ===== pavo real =====
+const C={x:500,y:720},RINGS=[235,315,395,472],RS=RINGS.reduce((a,b)=>a+b,0),PSPAN=[-174,-6];
+const feathers=[],plabels=[];let pacc=0;
+G.forEach((g,gi)=>{
+  const s0=PSPAN[0]+(PSPAN[1]-PSPAN[0])*pacc/141,s1=PSPAN[0]+(PSPAN[1]-PSPAN[0])*(pacc+g.count)/141;pacc+=g.count;
+  const n=g.count,q=RINGS.map(r=>n*r/RS);let cnt=q.map(Math.floor);let left=n-cnt.reduce((a,b)=>a+b,0);
+  q.map((v,i)=>[v-Math.floor(v),i]).sort((x,y)=>y[0]-x[0]).slice(0,left).forEach(([,i])=>cnt[i]++);
+  const ts=D.tracks.filter(t=>t.g===g.name);let k=0;
+  cnt.forEach((m,ri)=>{for(let i=0;i<m;i++){const t=ts[k++];const th=s0+(s1-s0)*(i+.5+(ri%2?.25:-.25)*(m>1?1:0))/m;
+    const r=RINGS[ri]+(rnd()-.5)*16;const d=dir(th);
+    feathers.push({t,g:gi,th,r,ring:ri,ph:rnd()*6,bend:(rnd()-.5)*14,ex:C.x+d.x*r,ey:C.y+d.y*r,hx:C.x+d.x*r,hy:C.y+d.y*r});}});
+  const mid=(s0+s1)/2;plabels.push({g:gi,th:mid,len:g.name.length*9.8});
+});
+feathers.sort((a,b)=>a.ring-b.ring);
+let pmnx=1e9,pmxx=-1e9,pmny=1e9;
+feathers.forEach(f=>{pmnx=Math.min(pmnx,f.ex-26);pmxx=Math.max(pmxx,f.ex+26);pmny=Math.min(pmny,f.ey-26)});
+plabels.forEach(l=>{const d=dir(l.th),e={x:C.x+d.x*(505+l.len),y:C.y+d.y*(505+l.len)};pmnx=Math.min(pmnx,e.x-10);pmxx=Math.max(pmxx,e.x+10);pmny=Math.min(pmny,e.y-12)});
+const PEAV=(()=>{const f=W/(pmxx-pmnx);return{fit:f,offx:-pmnx*f,offy:-(pmny-10)*f,H:Math.round((C.y+185-pmny+10)*f)};})();
+const darkest=p=>p.reduce((m,c)=>{const v=parseInt(c.slice(1,3),16)+parseInt(c.slice(3,5),16)+parseInt(c.slice(5,7),16);return v<m[0]?[v,c]:m},[1e9,p[0]])[1];
+function drawPeacock(T){
+  // halo detrás de la cola
+  const hg=ctx.createRadialGradient(C.x,C.y,60,C.x,C.y,520);hg.addColorStop(0,'#2a6f7a22');hg.addColorStop(1,'#2a6f7a00');ctx.fillStyle=hg;ctx.beginPath();ctx.arc(C.x,C.y,520,Math.PI,0);ctx.fill();
+  // plumas: raquis y barbas
+  feathers.forEach(f=>{const dim=focus!==null&&focus!==f.g;const th=f.th+Math.sin(T*.7+f.ph)*.5;f.cth=th;const d=dir(th),n={x:-d.y,y:d.x};
+    const b={x:C.x+d.x*70,y:C.y+d.y*70},e={x:C.x+d.x*f.r,y:C.y+d.y*f.r};f.hx=e.x;f.hy=e.y;
+    const cp={x:(b.x+e.x)/2+n.x*f.bend,y:(b.y+e.y)/2+n.y*f.bend};
+    ctx.globalAlpha=dim?.12:1;
+    const w=12+f.r*.02,v0=pt(b,cp,e,.4);
+    ctx.beginPath();ctx.moveTo(v0.x,v0.y);
+    const vm=pt(b,cp,e,.82);ctx.quadraticCurveTo(vm.x+n.x*w*1.6,vm.y+n.y*w*1.6,e.x+d.x*6,e.y+d.y*6);
+    ctx.quadraticCurveTo(vm.x-n.x*w*1.6,vm.y-n.y*w*1.6,v0.x,v0.y);
+    const vg=ctx.createLinearGradient(v0.x,v0.y,e.x,e.y);vg.addColorStop(0,G[f.g].color+'00');vg.addColorStop(1,G[f.g].color+'55');ctx.fillStyle=vg;ctx.fill();
+    ctx.strokeStyle=G[f.g].color;ctx.globalAlpha=dim?.1:.55;ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(b.x,b.y);ctx.quadraticCurveTo(cp.x,cp.y,e.x,e.y);ctx.stroke();
+  });
+  // ojos
+  feathers.forEach(f=>{const dim=focus!==null&&focus!==f.g;const hov=hover===f,s=hov?1.55:1;
+    ctx.save();ctx.translate(f.hx,f.hy);ctx.rotate(rad(f.cth)+Math.PI/2);ctx.globalAlpha=dim?.15:1;
+    ctx.beginPath();ctx.ellipse(0,0,15*s,21*s,0,0,Math.PI*2);ctx.fillStyle=G[f.g].color;ctx.fill();
+    ctx.beginPath();ctx.ellipse(0,1.5*s,11.5*s,16*s,0,0,Math.PI*2);ctx.fillStyle=f.t.c;ctx.fill();
+    ctx.beginPath();ctx.ellipse(0,4*s,5.5*s,7.5*s,0,0,Math.PI*2);ctx.fillStyle=darkest(f.t.p);ctx.fill();
+    ctx.lineWidth=hov?2.4:.8;ctx.strokeStyle=hov?tok('--ink'):'#00000066';ctx.beginPath();ctx.ellipse(0,0,15*s,21*s,0,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.ellipse(-3*s,-6*s,2.4*s,3.2*s,0,0,Math.PI*2);ctx.fillStyle='#ffffff55';ctx.fill();
+    ctx.restore();});
+  ctx.globalAlpha=1;
+  // cuerpo
+  const blue='#1d56c4',blue2='#2f7de0',teal='#0f6e74';
+  ctx.strokeStyle='#8c7a66';ctx.lineWidth=4;ctx.lineCap='round';
+  [[-14,1],[14,-1]].forEach(([dx,k])=>{ctx.beginPath();ctx.moveTo(C.x+dx,C.y+100);ctx.lineTo(C.x+dx-k*4,C.y+165);ctx.lineTo(C.x+dx-k*4-12,C.y+172);ctx.moveTo(C.x+dx-k*4,C.y+165);ctx.lineTo(C.x+dx-k*4+12,C.y+172);ctx.stroke();});
+  const bg=ctx.createLinearGradient(C.x,C.y-40,C.x,C.y+120);bg.addColorStop(0,blue2);bg.addColorStop(.55,teal);bg.addColorStop(1,'#0b3b40');
+  ctx.fillStyle=bg;ctx.beginPath();ctx.ellipse(C.x,C.y+30,52,88,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#7a5c38';ctx.globalAlpha=.85;ctx.beginPath();ctx.ellipse(C.x+20,C.y+38,22,58,-.25,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+  ctx.fillStyle='#5d4429';for(let i=0;i<10;i++){ctx.beginPath();ctx.arc(C.x+14+(i%3)*7,C.y+8+i*7,1.6,0,Math.PI*2);ctx.fill();}
+  const ng=ctx.createLinearGradient(C.x,C.y-150,C.x,C.y);ng.addColorStop(0,blue2);ng.addColorStop(1,blue);
+  ctx.strokeStyle=ng;ctx.lineWidth=30;ctx.beginPath();ctx.moveTo(C.x-4,C.y-20);ctx.bezierCurveTo(C.x-22,C.y-70,C.x+4,C.y-120,C.x+8,C.y-150);ctx.stroke();
+  ctx.fillStyle=blue2;ctx.beginPath();ctx.arc(C.x+10,C.y-160,19,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#d9cdb8';ctx.beginPath();ctx.moveTo(C.x+25,C.y-166);ctx.lineTo(C.x+44,C.y-158);ctx.lineTo(C.x+25,C.y-152);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#ffffff';ctx.beginPath();ctx.ellipse(C.x+16,C.y-165,5,3.4,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#0b0b0b';ctx.beginPath();ctx.arc(C.x+17,C.y-165,2,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#ffffff';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(C.x+6,C.y-158);ctx.lineTo(C.x+22,C.y-156);ctx.stroke();
+  ctx.lineWidth=1.4;[-34,-18,-4,10,24].forEach((ang,i)=>{const d=dir(-90+ang),sx=C.x+8,sy=C.y-176,L=28+(i%2)*6;ctx.strokeStyle='#3f86c9';ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(sx+d.x*L,sy+d.y*L);ctx.stroke();ctx.fillStyle='#38c3c9';ctx.beginPath();ctx.ellipse(sx+d.x*L,sy+d.y*L,3.4,4.6,rad(ang),0,Math.PI*2);ctx.fill();});
+  // etiquetas radiales
+  ctx.font='600 16px Syne, "Arial Black", sans-serif';ctx.textBaseline='middle';
+  plabels.forEach(l=>{const d=dir(l.th);ctx.save();ctx.translate(C.x+d.x*505,C.y+d.y*505);const left=l.th<-90;ctx.rotate(rad(l.th)+(left?Math.PI:0));ctx.textAlign=left?'right':'left';
+    ctx.globalAlpha=focus!==null&&focus!==l.g?.25:1;ctx.lineWidth=5;ctx.lineJoin='round';ctx.strokeStyle=tok('--panel');ctx.strokeText(G[l.g].name,0,0);ctx.fillStyle=G[l.g].color;ctx.fillText(G[l.g].name,0,0);ctx.restore();});
+  ctx.textBaseline='alphabetic';ctx.globalAlpha=1;
+}
+// ===== dalia =====
+const FC={x:500,y:460},FR=[{r:120,len:78},{r:190,len:98},{r:262,len:118},{r:335,len:132}];
+const petals=[],flabels=[];
+{const RSUM=FR.reduce((a,b)=>a+b.r,0);let acc=0;const ringTot=[0,0,0,0];const per=[];
+ G.forEach((g,gi)=>{const s0=-90+360*acc/141,s1=-90+360*(acc+g.count)/141;acc+=g.count;
+  const q=FR.map(f=>g.count*f.r/RSUM);const cnt=q.map(Math.floor);const left=g.count-cnt.reduce((a,b)=>a+b,0);
+  q.map((v,i)=>[v-Math.floor(v),i]).sort((x,y)=>y[0]-x[0]).slice(0,left).forEach(([,i])=>cnt[i]++);
+  cnt.forEach((m,i)=>ringTot[i]+=m);per.push({g,gi,s0,s1,cnt});flabels.push({g:gi,th:(s0+s1)/2,len:g.name.length*9.8});});
+ per.forEach(({g,gi,s0,s1,cnt})=>{const ts=D.tracks.filter(t=>t.g===g.name);let k=0;
+  cnt.forEach((m,ri)=>{for(let i=0;i<m;i++){const t=ts[k++];const th=s0+(s1-s0)*(i+.5)/m+(ri%2?1.2:-1.2);
+    const f=FR[ri],w=Math.min(f.len*.5,2*Math.PI*f.r/ringTot[ri]*.95);
+    petals.push({t,g:gi,th,r:f.r+(rnd()-.5)*8,len:f.len,w,ring:ri,ph:rnd()*6});}});});
+ petals.sort((a,b)=>b.ring-a.ring);}
+const FLOWV=(()=>{let x0=1e9,x1=-1e9,y0=1e9;flabels.forEach(l=>{const d=dir(l.th),e={x:FC.x+d.x*(372+l.len),y:FC.y+d.y*(372+l.len)};x0=Math.min(x0,e.x,FC.x-372);x1=Math.max(x1,e.x,FC.x+372);y0=Math.min(y0,e.y,FC.y-372)});
+ const y1=FC.y+560;const f=W/(x1-x0+40);return{fit:f,offx:-(x0-20)*f,offy:-(y0-20)*f,H:Math.round((y1-y0+20)*f)};})();
+function drawDahlia(T){
+  // tallo y hojas
+  ctx.strokeStyle='#3f7a4a';ctx.lineWidth=14;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(FC.x,FC.y+60);ctx.bezierCurveTo(FC.x+10,FC.y+260,FC.x-30,FC.y+420,FC.x-6,FC.y+550);ctx.stroke();
+  [[-1,FC.y+400,-.5],[1,FC.y+300,.45]].forEach(([s,y,rot])=>{ctx.save();ctx.translate(FC.x+s*6,y);ctx.rotate(rot+(s<0?Math.PI:0));ctx.fillStyle='#2f6a3d';ctx.beginPath();ctx.moveTo(0,0);ctx.bezierCurveTo(40,-40,110,-30,150,0);ctx.bezierCurveTo(110,30,40,40,0,0);ctx.fill();ctx.strokeStyle='#4f9a5d';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(4,0);ctx.lineTo(140,0);ctx.stroke();ctx.restore();});
+  const hg=ctx.createRadialGradient(FC.x,FC.y,40,FC.x,FC.y,420);hg.addColorStop(0,'#d0569a22');hg.addColorStop(1,'#d0569a00');ctx.fillStyle=hg;ctx.beginPath();ctx.arc(FC.x,FC.y,420,0,Math.PI*2);ctx.fill();
+  petals.forEach(p=>{const dim=focus!==null&&focus!==p.g;const hov=hover===p,s=hov?1.18:1;const th=rad(p.th)+Math.sin(T*.6+p.ph)*.012;
+    const base=p.r-p.len;p.hx=FC.x+Math.cos(th)*(p.r-p.len*.42);p.hy=FC.y+Math.sin(th)*(p.r-p.len*.42);
+    ctx.save();ctx.translate(FC.x,FC.y);ctx.rotate(th);ctx.translate(Math.max(10,base),0);ctx.globalAlpha=dim?.14:1;
+    const L=p.len*s,w=p.w*s;
+    ctx.beginPath();ctx.moveTo(0,0);ctx.bezierCurveTo(L*.25,-w*.7,L*.8,-w*.6,L,0);ctx.bezierCurveTo(L*.8,w*.6,L*.25,w*.7,0,0);ctx.closePath();
+    const pg=ctx.createLinearGradient(0,0,L,0);pg.addColorStop(0,'#00000066');pg.addColorStop(.35,p.t.c);pg.addColorStop(1,p.t.c);ctx.fillStyle=pg;ctx.fill();
+    ctx.lineWidth=hov?3:1.6;ctx.strokeStyle=hov?tok('--ink'):G[p.g].color;ctx.stroke();
+    ctx.globalAlpha=dim?.1:.35;ctx.lineWidth=1;ctx.strokeStyle='#ffffff';ctx.beginPath();ctx.moveTo(L*.15,0);ctx.lineTo(L*.85,0);ctx.stroke();
+    ctx.restore();});
+  ctx.globalAlpha=1;
+  const cg=ctx.createRadialGradient(FC.x-8,FC.y-8,4,FC.x,FC.y,52);cg.addColorStop(0,'#f2c14e');cg.addColorStop(1,'#7a4a12');ctx.fillStyle=cg;ctx.beginPath();ctx.arc(FC.x,FC.y,50,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#4a2c08';for(let i=0;i<70;i++){const rr=46*Math.sqrt((i+.5)/70),a=i*2.39996;ctx.beginPath();ctx.arc(FC.x+Math.cos(a)*rr,FC.y+Math.sin(a)*rr,1.8,0,Math.PI*2);ctx.fill();}
+  ctx.font='600 16px Syne, "Arial Black", sans-serif';ctx.textBaseline='middle';
+  flabels.forEach(l=>{const d=dir(l.th);ctx.save();ctx.translate(FC.x+d.x*372,FC.y+d.y*372);const left=Math.cos(rad(l.th))<0;ctx.rotate(rad(l.th)+(left?Math.PI:0));ctx.textAlign=left?'right':'left';
+    ctx.globalAlpha=focus!==null&&focus!==l.g?.25:1;ctx.lineWidth=5;ctx.lineJoin='round';ctx.strokeStyle=tok('--panel');ctx.strokeText(G[l.g].name,0,0);ctx.fillStyle=G[l.g].color;ctx.fillText(G[l.g].name,0,0);ctx.restore();});
+  ctx.textBaseline='alphabetic';ctx.globalAlpha=1;
+}
+// ===== galaxia =====
+const GC={x:500,y:330},TILT=.6;const stars=[],arms=[],dust=[];
+G.forEach((g,gi)=>{const base=-90+gi*40,ts=D.tracks.filter(t=>t.g===g.name),n=ts.length,step=Math.min(32,330/Math.max(n-1,1));
+  const arm={g:gi,base,pts:[]};arms.push(arm);
+  ts.forEach((t,i)=>{const r=78+i*step,th=base+rad(0)+118*Math.log(r/78)/Math.log(5);
+    stars.push({t,g:gi,r:r+(rnd()-.5)*10,th:th+(rnd()-.5)*5,sz:5.5+rnd()*2.5,ph:rnd()*6});});
+  for(let r=70;r<=78+(n-1)*step+30;r+=6)arm.pts.push({r,th:base+118*Math.log(r/78)/Math.log(5)});});
+for(let i=0;i<420;i++){const r=40+Math.pow(rnd(),.7)*470,th=rnd()*360;dust.push({r,th,s:rnd()*1.3+.3,a:.15+rnd()*.5});}
+const GALV=(()=>{const R=700,RY=560,f=W/(2*R);return{fit:f,offx:-(GC.x-R)*f,offy:-(GC.y-RY*TILT-30)*f,H:Math.round((2*RY*TILT+60)*f)};})();
+const gpos=(r,th,rot)=>{const a=rad(th+rot);return{x:GC.x+Math.cos(a)*r,y:GC.y+Math.sin(a)*r*TILT};};
+function drawGalaxy(T){
+  const rot=T*1.2;
+  const bg=ctx.createRadialGradient(GC.x,GC.y,0,GC.x,GC.y,520);bg.addColorStop(0,'#f4e2c455');bg.addColorStop(.12,'#b58bd633');bg.addColorStop(.5,'#3a2e5a22');bg.addColorStop(1,'#3a2e5a00');
+  ctx.save();ctx.translate(GC.x,GC.y);ctx.scale(1,TILT);ctx.translate(-GC.x,-GC.y);ctx.fillStyle=bg;ctx.beginPath();ctx.arc(GC.x,GC.y,520,0,Math.PI*2);ctx.fill();ctx.restore();
+  dust.forEach(d=>{const p=gpos(d.r,d.th,rot*.8);ctx.globalAlpha=d.a*(.7+.3*Math.sin(T*2+d.th));ctx.fillStyle='#e9e2f5';ctx.fillRect(p.x,p.y,d.s,d.s);});
+  arms.forEach(a=>{const dim=focus!==null&&focus!==a.g;ctx.globalAlpha=dim?.05:.22;ctx.strokeStyle=G[a.g].color;ctx.lineCap='round';ctx.lineWidth=18;ctx.beginPath();a.pts.forEach((q,i)=>{const p=gpos(q.r,q.th,rot);i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)});ctx.stroke();ctx.lineWidth=4;ctx.globalAlpha=dim?.05:.35;ctx.stroke();});
+  const core=ctx.createRadialGradient(GC.x,GC.y,0,GC.x,GC.y,70);core.addColorStop(0,'#fff6e6');core.addColorStop(.35,'#f2c98a99');core.addColorStop(1,'#f2c98a00');ctx.globalAlpha=1;ctx.fillStyle=core;ctx.beginPath();ctx.ellipse(GC.x,GC.y,70,70*TILT,0,0,Math.PI*2);ctx.fill();
+  stars.forEach(s=>{const dim=focus!==null&&focus!==s.g;const p=gpos(s.r,s.th,rot);s.hx=p.x;s.hy=p.y;const hov=hover===s,z=(hov?1.8:1)*s.sz*(1+.08*Math.sin(T*3+s.ph));
+    ctx.globalAlpha=dim?.12:1;const hg=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,z*3.2);hg.addColorStop(0,G[s.g].color+'cc');hg.addColorStop(1,G[s.g].color+'00');ctx.fillStyle=hg;ctx.beginPath();ctx.arc(p.x,p.y,z*3.2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=s.t.c;ctx.beginPath();ctx.arc(p.x,p.y,z,0,Math.PI*2);ctx.fill();ctx.lineWidth=hov?2.4:1.2;ctx.strokeStyle=hov?tok('--ink'):G[s.g].color;ctx.stroke();
+    ctx.globalAlpha=dim?.1:.8;ctx.fillStyle='#ffffff';ctx.beginPath();ctx.arc(p.x-z*.3,p.y-z*.3,z*.25,0,Math.PI*2);ctx.fill();});
+  ctx.font='600 16px Syne, "Arial Black", sans-serif';ctx.textBaseline='middle';
+  arms.forEach(a=>{const q=a.pts[a.pts.length-1],p=gpos(q.r+14,q.th,rot);ctx.globalAlpha=focus!==null&&focus!==a.g?.25:1;ctx.textAlign=p.x<GC.x?'right':'left';ctx.lineWidth=5;ctx.lineJoin='round';ctx.strokeStyle=tok('--panel');ctx.strokeText(G[a.g].name,p.x+(p.x<GC.x?-6:6),p.y);ctx.fillStyle=G[a.g].color;ctx.fillText(G[a.g].name,p.x+(p.x<GC.x?-6:6),p.y);});
+  ctx.textBaseline='alphabetic';ctx.globalAlpha=1;
+}
+let mode='peacock';
+const VIEWS={
+  peacock:{v:PEAV,draw:drawPeacock,items:()=>feathers,word:'pluma',note:'Cada pluma es una canción: el ojo lleva el color de su carátula y el borde, el color de su género. Cada abanico de plumas es un género, en el orden de la playlist.'},
+  tree:{v:TREEV,draw:drawTree,items:()=>leaves,word:'hoja',note:'El tronco es la playlist; cada rama gruesa un género, cada ramita un subgénero y cada hoja una canción.'},
+  dahlia:{v:FLOWV,draw:drawDahlia,items:()=>petals,word:'pétalo',note:'Cada pétalo es una canción con el color de su carátula. La flor se reparte en gajos, uno por género, empezando arriba y en el orden de la playlist; los géneros grandes tienen más pétalos en cada capa.'},
+  galaxy:{v:GALV,draw:drawGalaxy,items:()=>stars,word:'estrella',note:'Cada brazo de la galaxia es un género y cada estrella una canción, del centro hacia afuera en el orden de la playlist. El brillo de la estrella es el color de su carátula; el halo, el de su género.'}};
+function draw(time){
+  const T=reduce?0:time/1000;
+  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.setTransform(scale*fit,0,0,scale*fit,scale*offx,scale*offy);
+  VIEWS[mode].draw(T);
+  if(!reduce)requestAnimationFrame(draw);
+}
+function setMode(m){mode=m;const V=VIEWS[m],v=V.v;fit=v.fit;offx=v.offx;offy=v.offy;H=v.H;cv.style.aspectRatio=W+'/'+H;cv.style.width=`min(100%, calc(76vh * ${(W/H).toFixed(3)}))`;cv.style.margin='0 auto';size();hover=null;$('leafcard').hidden=true;
+  document.querySelectorAll('#viewtoggle button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));
+  $('viewnote').textContent=V.note;
+  $('leafout').textContent=`Pasa el cursor o toca una ${V.word} para ver su canción.`;if(reduce)draw(0);}
+
+function drawTree(T){
+  ctx.globalAlpha=1;ctx.fillStyle=tok('--line');ctx.beginPath();ctx.ellipse(tx,base+8,380,18,0,0,Math.PI*2);ctx.fill();
+  [[-1,150],[1,170],[-1,90],[1,80]].forEach(([d,l],i)=>seg({o:{x:tx+d*10,y:base-26},c:{x:tx+d*l*.45,y:base-4},e:{x:tx+d*l,y:base+8+i%2*4},w0:12-i*2,w1:1.5},bark,1));
+  ctx.fillStyle=bark;ctx.beginPath();ctx.moveTo(tx-38,base);ctx.bezierCurveTo(tx-24,base-140,tx-30,top+90,tx-18,top-20);ctx.lineTo(tx+18,top-20);ctx.bezierCurveTo(tx+28,top+100,tx+22,base-130,tx+40,base);ctx.closePath();ctx.fill();
+  ctx.strokeStyle=bark2;ctx.lineWidth=2.2;ctx.globalAlpha=.55;[[-10,0],[8,40],[-2,80]].forEach(([dx,dy])=>{ctx.beginPath();ctx.moveTo(tx+dx,base-24-dy);ctx.bezierCurveTo(tx+dx+6,base-140-dy,tx+dx-4,top+140,tx+dx*.4,top+50);ctx.stroke();});
+  sticks.forEach(s=>seg(s,s.col,focus!==null&&focus!==s.g?.3:1));
+  ctx.globalAlpha=1;
+  leaves.forEach(l=>{if(focus!==null&&focus!==l.g)return;const r=70,gr=ctx.createRadialGradient(l.x,l.y,0,l.x,l.y,r);gr.addColorStop(0,G[l.g].color+'2e');gr.addColorStop(1,G[l.g].color+'00');ctx.fillStyle=gr;ctx.beginPath();ctx.arc(l.x,l.y,r,0,Math.PI*2);ctx.fill();});
+  leaves.forEach(l=>{const dim=focus!==null&&focus!==l.g;const sw=Math.sin(T*1.3+l.ph)*.09;
+    const hov=hover===l,s=(hov?1.35:1)*l.s,ang=l.ang+sw;
+    l.cx=l.bx+Math.cos(ang)*22*s;l.cy=l.by+Math.sin(ang)*22*s;l.hx=(l.bx+l.cx)/2;l.hy=(l.by+l.cy)/2;
+    ctx.save();ctx.translate(l.bx,l.by);ctx.rotate(ang);ctx.globalAlpha=dim?.15:1;
+    ctx.beginPath();ctx.moveTo(0,0);ctx.bezierCurveTo(10*s,-17*s,30*s,-13*s,44*s,0);ctx.bezierCurveTo(30*s,13*s,10*s,17*s,0,0);ctx.closePath();
+    ctx.fillStyle=l.t.c;ctx.fill();ctx.lineWidth=hov?2.6:1.4;ctx.strokeStyle=hov?tok('--ink'):G[l.g].color;ctx.stroke();
+    ctx.beginPath();ctx.moveTo(3*s,0);ctx.lineTo(38*s,0);ctx.lineWidth=.7;ctx.globalAlpha=dim?.15:.55;ctx.stroke();
+    ctx.restore();});
+  ctx.font='600 19px Syne, "Arial Black", sans-serif';ctx.textAlign='center';
+  labels.forEach(l=>{ctx.globalAlpha=focus!==null&&focus!==l.g?.25:1;ctx.lineWidth=5;ctx.strokeStyle=tok('--panel');ctx.lineJoin='round';ctx.strokeText(l.text,l.cx,l.y);ctx.fillStyle=G[l.g].color;ctx.fillText(l.text,l.cx,l.y);});
+  ctx.globalAlpha=1;
+}
+function pick(ev){const r=cv.getBoundingClientRect();const x=((ev.clientX-r.left)/r.width*W-offx)/fit,y=((ev.clientY-r.top)/r.height*H-offy)/fit;let best=null,bd=((r.width<600?34:24)/fit)**2;VIEWS[mode].items().forEach(l=>{const d=(l.hx-x)**2+(l.hy-y)**2;if(d<bd&&(focus===null||focus===l.g)){bd=d;best=l}});return best;}
+function setHover(l,ev){hover=l;const card=$('leafcard');if(!l){card.hidden=true;if(reduce)draw(0);return;}const t=l.t,g=G[l.g];
+  card.innerHTML=`<div class="lc-art">${t.p.map(c=>`<i style="background:${c}"></i>`).join('')}</div><div class="lc-txt"><span class="eyebrow" style="color:${g.color}">${esc(g.name)} · #${t.n}</span><strong>${esc(t.t)}</strong><span class="muted">${esc(t.a)}</span><span class="mono lc-hex">${t.p.slice(0,4).join(' ')}</span><a href="https://open.spotify.com/search/${encodeURIComponent(t.t+' '+t.a.split(', ')[0])}" target="_blank" rel="noopener">Buscar en Spotify ↗</a></div>`;
+  card.hidden=false;const box=cv.parentElement.getBoundingClientRect(),cr=cv.getBoundingClientRect();
+  const px=(l.hx*fit+offx)/W*cr.width+(cr.left-box.left),py=(l.hy*fit+offy)/H*cr.height+(cr.top-box.top);
+  const cw=card.offsetWidth,ch=card.offsetHeight;let x=px+18,y=py-ch/2;if(x+cw>box.width-8)x=px-cw-18;if(x<8)x=Math.max(8,(box.width-cw)/2);y=Math.max(8,Math.min(y,box.height-ch-8));
+  card.style.left=x+'px';card.style.top=y+'px';
+  $('leafout').innerHTML=`<strong>${t.n}. ${esc(t.t)}</strong> · ${esc(t.a)}`;if(reduce)draw(0);}
+cv.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;const l=pick(e);if(l!==hover)setHover(l)});
+cv.parentElement.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')setHover(null)});
+cv.addEventListener('click',e=>setHover(pick(e)));
+$('treechips').innerHTML=`<button type="button" data-g="all" aria-pressed="true">Todas</button>`+G.map((g,i)=>`<button type="button" data-g="${i}" aria-pressed="false"><i class="dot" style="background:${g.color}"></i>${esc(g.name)} <span class="count">${g.count}</span></button>`).join('');
+$('treechips').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;focus=b.dataset.g==='all'?null:+b.dataset.g;$('treechips').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));if(reduce)draw(0);});
+size();window.addEventListener('resize',()=>{size();if(reduce)draw(0)});
+$('viewtoggle').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setMode(b.dataset.m)});
+setMode('peacock');
+(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>requestAnimationFrame(draw));
+})();
+// bars
+const bars=(el,items,max,fmt)=>$(el).innerHTML=items.map(([l,v,c])=>`<div class="bar"><span class="lbl" title="${esc(l)}">${esc(l)}</span><span class="track"><span class="fill" style="display:block;width:${v/max*100}%;background:${c}"></span></span><span class="v">${fmt(v)}</span></div>`).join('');
+const gs=[...D.genres].sort((a,b)=>b.count-a.count);
+bars('gbars',gs.map(g=>[g.name,g.count,g.color]),gs[0].count,v=>`${v} · ${Math.round(v/1.41)}%`);
+const artG={};D.tracks.forEach(t=>t.a.split(', ').forEach(a=>{artG[a]=artG[a]||t.g}));
+bars('abars',D.top.slice(0,10).map(([a,v])=>[a,v,gcol[artG[a]]]),D.top[0][1],v=>`${v}`);
+const lc={"Español":"#e2c044","Inglés / instrumental":"#8a7bd8","Alemán":"#c4473a"};
+$('lang').innerHTML=Object.entries(D.lang).map(([k,v])=>`<div style="flex:${v};background:${lc[k]}" title="${k}">${v>10?v:''}</div>`).join('');
+$('langleg').innerHTML=Object.entries(D.lang).map(([k,v])=>`<span><i class="dot" style="background:${lc[k]}"></i>${k} · ${v}</span>`).join('');
+// luminance chart
+const L=h=>{const [r,g,b]=[1,3,5].map(i=>parseInt(h.substr(i,2),16)/255).map(v=>v<=.03928?v/12.92:((v+.055)/1.055)**2.4);return Math.round(Math.sqrt(.2126*r+.7152*g+.0722*b)*100)};
+const lum=D.genres.map(g=>{const ts=D.tracks.filter(t=>t.g===g.name);return Math.round(ts.reduce((s,t)=>s+L(t.c),0)/ts.length)});
+{const W=420,H=150,l=30,r=8,top=10,bot=24,cw=(W-l-r)/lum.length,y=v=>top+(H-top-bot)*(1-v/100);
+let s='';[0,50,100].forEach(v=>{s+=`<line x1="${l}" x2="${W-r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${l-6}" y="${y(v)+3}" text-anchor="end" font-size="10" fill="var(--muted)" font-family="JetBrains Mono,monospace">${v}</text>`});
+lum.forEach((v,i)=>{const x=l+i*cw+cw*.18,w=cw*.64;s+=`<rect x="${x}" y="${y(v)}" width="${w}" height="${y(0)-y(v)}" rx="2" fill="${D.genres[i].color}"><title>${D.genres[i].name}: ${v}</title></rect><text x="${x+w/2}" y="${y(v)-4}" text-anchor="middle" font-size="10" fill="var(--ink)" font-family="JetBrains Mono,monospace">${v}</text><text x="${x+w/2}" y="${H-8}" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="JetBrains Mono,monospace">${i+1}</text>`});
+$('lum').innerHTML=s;}
+// palettes
+$('pals').innerHTML=D.genres.map((g,i)=>{const ts=D.tracks.filter(t=>t.g===g.name);
+return `<div class="pal"><div class="strip">${g.palette.map(c=>`<div style="background:${c}"><span>${c}</span></div>`).join('')}</div><div class="body"><div class="row"><h3><i class="dot" style="background:${g.color}"></i> ${esc(g.name)}</h3><span class="count">${i+1}</span></div><div class="mosaic">${ts.map(t=>`<i style="background:${t.c}" title="${t.n}. ${esc(t.t)}"></i>`).join('')}</div><div class="avg"><i style="background:${g.avg}"></i>Color promedio de las portadas · <span class="mono">${g.avg}</span></div></div></div>`}).join('');
+</script>
+
+</body>
+</html>

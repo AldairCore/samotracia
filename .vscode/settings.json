@@ -1,0 +1,7 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[java]": { "editor.defaultFormatter": "redhat.java" },
+  "files.eol": "\n",
+  "markdown.preview.breaks": true
+}
