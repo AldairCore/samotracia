@@ -457,7 +457,7 @@ function denseSong(p,s,alpha,hov){const MCX=500,MCY=500,{rg,rot,L,w,mid,inner,n}
   (VIV()?[[1,gcol],[.78,'#050307'],[.72,CC(p.t)],[.42,CI(p.t)]]:[[1,gcol],[.7,CC(p.t)],[.42,CI(p.t)]]).forEach(([k,col],li)=>{ctx.save();ctx.translate(li?L*(1-k)*.2:0,0);ctx.scale(k*s,k*s);dPetal(rg.shape,L,w);fillc(col);ctx.lineWidth=(hov&&!li?3.4:2.2)/(k*s);ctx.strokeStyle=hov&&!li?tok('--ink'):OUT;ctx.stroke();
     if(rg.shape==='leaf'&&li===0){ctx.beginPath();ctx.moveTo(L*.05,0);ctx.lineTo(L*.95,0);for(let v=1;v<5;v++){const x=L*v/5;ctx.moveTo(x,0);ctx.lineTo(x+L*.08,-w*.22);ctx.moveTo(x,0);ctx.lineTo(x+L*.08,w*.22);}ctx.lineWidth=1.3/(k*s);ctx.stroke();}ctx.restore();});
   ctx.restore();ctx.globalAlpha=1;}
-function leafGlow(ang,T,rg,j){const N=drings.length,k=N-1-rg.ri,cyc=N+3,ph=(T*1.6)%cyc,d=ph-k;let b=d>=-.4&&d<1.6?Math.exp(-((d-.3)**2)/.35):0;
+function leafGlow(ang,T,rg,j){const N=drings.length,k=N-1-rg.ri,cyc=N+5,ph=(T*.75)%cyc-1.5,d=ph-k;let b=Math.abs(d)<2.4?.88*(.5+.5*Math.cos(Math.PI*d/2.4))**1.6:0;
   if(hover&&hover._g&&hover._g.rg===rg){const n=rg.n,hj=Math.round(hover.a0*n/360);const d=Math.min(Math.abs(j-hj),n-Math.abs(j-hj));if(d===0||(d===1&&j===(hj-1+n)%n))b=Math.max(b,1);}
   return b;}
 const leafFill=(gi,b,base)=>b<.02?base:mix(base,VIV()?hsl2hex(hex2hsl(G[gi].color)[0],.9,.58):G[gi].color,b);
