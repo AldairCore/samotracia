@@ -36,13 +36,13 @@ Las dos colecciones se enfrentan como reflejo: él de un lado, ella del otro. Se
 
 | Figura | Complementaria | Opuesta |
 |---|---|---|
-| **Pavo real** | Una sola cola: plumas de los dos colores entremezcladas, coincidencias con doble ojo | Cola partida: la mitad izquierda es de él y la derecha de ella; las coincidencias van al centro |
-| **Árbol** | Dos troncos que se entrelazan y comparten copa; lo nuestro son los frutos | Un árbol con raíces de uno y ramas del otro, como reflejo arriba y abajo |
-| **Dalia** | Una flor bicolor: pétalos de él y de ella alternados, el centro es lo nuestro | Dos flores en un mismo tallo que miran a lados opuestos |
-| **Galaxia** | Galaxia binaria: dos núcleos que giran juntos; las coincidencias forman el puente de estrellas entre ellos | Dos galaxias separadas; la distancia entre ellas es qué tan distintos son |
-| **Mandala** | Un mandala: anillos alternados de él y de ella; lo nuestro en el centro | Dos medios mandalas espejo, uno de cada voz, unidos por el eje |
-| **Vinilo** | Un disco grabado en dorado: surcos de él y de ella alternados, la flor de la vida al centro | Lado A y lado B: cada voz en una cara del disco |
-| **Eclipse** (nueva) | Sol y luna superpuestos: el área que se cubre es lo compartido | Sol y luna separados con su espectro de colores a cada lado |
+| **Mandala** | Anillos alternados de él y de ella; lo nuestro en el centro | Dos medios mandalas espejo unidos por el eje |
+| **Piedra del Sol** | Un solo calendario: cartuchos de los dos mezclados, coincidencias con doble marco | Mitad izquierda de él, mitad derecha de ella; el ollin central es lo nuestro |
+| **Rosetón** | Un vitral donde lo compartido forma la rosa central | Dos rosetones enfrentados, como las fachadas norte y sur de una catedral |
+| **Atrapasueños** | Una sola red tejida por los dos; las plumas de cada quien cuelgan juntas | Dos aros que se tocan; los hilos que los cruzan son las coincidencias |
+| **Papel picado** | Un mismo hilo con banderas alternadas de cada quien | Dos hilos frente a frente, uno arriba y otro abajo |
+| **Caleidoscopio** | Los gajos se alternan entre las dos voces y el espejo los une | Un gajo de él reflejado como gajo de ella: mismas formas, otros colores |
+| **Sigilo** | Una estrella de nueve puntas compartida; lo nuestro en el sol central | Dos estrellas superpuestas en rojo y en otro color, girando en sentidos contrarios |
 
 ## 5. Lo que se mide
 
@@ -63,7 +63,7 @@ Además de música, películas, series, comidas y viajes, hay colecciones donde 
 
 ## 7. Reglas de diseño
 
-1. Estilo plano: contornos oscuros, colores sólidos, capas como en un mandala; sin brillos ni degradados.
+1. Estilo plano: contornos oscuros y gruesos, colores saturados y sólidos, capas como en un mandala; sin brillos ni degradados.
 2. Cada voz tiene **su color base** y lo conserva en todas las figuras. Lo nuestro usa un tercer color que mezcla los dos.
 3. Toda figura debe funcionar en las tres lentes.
 4. Ninguna lente es "la principal". El orden en pantalla es siempre Él · Ella · Harmonía, o el que ustedes elijan.

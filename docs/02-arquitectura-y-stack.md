@@ -51,7 +51,7 @@ samotracia/
 │   ├── web/            # Vue 3 + TS (Fase 2)
 │   └── api/            # Spring Boot (Fase 3)
 ├── packages/
-│   └── figures/        # Figuras en TS: peacock, tree, dahlia, galaxy, eclipse (modo simple y dual)
+│   └── figures/        # Figuras en TS: mandala, sun, rose, dream, picado, kal, sigil (modo simple y dual)
 ├── prototipos/
 │   └── core-lore/      # Prototipo HTML actual
 ├── docs/               # Plan, arquitectura, fuentes de datos, configuración
@@ -104,7 +104,7 @@ Tablas (Fase 3, PostgreSQL):
 | `collection` | id, space_id, voz (`A`, `B` o `AB`), tipo (`MUSIC`, `MOVIES`, `SERIES`, `FOOD`, `PLACES`), título, fuente |
 | `group_node` | id, collection_id, parent_id, nombre, color, orden |
 | `item` | id, collection_id, group_node_id, posición, título, subtítulo, fuente, id_externo, image_url, palette `JSONB`, metadata `JSONB` |
-| `figure_view` | id, collection_id, figura (`PEACOCK`, `TREE`, `DAHLIA`, `GALAXY`, `ECLIPSE`), lente, modo, config `JSONB` |
+| `figure_view` | id, collection_id, figura (`MANDALA`, `SUN`, `ROSE`, `DREAM`, `PICADO`, `KAL`, `SIGIL`), lente, modo, config `JSONB` |
 
 Las coincidencias se calculan comparando `item.fuente + id_externo` entre las colecciones de A y B del mismo tipo. Para géneros y artistas se compara por nombre normalizado.
 

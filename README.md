@@ -1,6 +1,6 @@
 # Samotracia
 
-Figuras ilustradas (pavo real, árbol, dalia, galaxia, eclipse…) que retratan nuestros gustos: música, películas, series, comidas y lugares. Cada pluma, hoja, pétalo o estrella es un elemento real de la colección.
+Figuras ilustradas (mandala, Piedra del Sol, rosetón, atrapasueños, papel picado, caleidoscopio, sigilo) que retratan nuestros gustos: música, películas, series, comidas y lugares. Cada motivo, vidrio, cuenta o recorte es un elemento real de la colección.
 
 Todo se ve en tres lentes, **Él · Ella · Harmonía**, alrededor de una idea: la **dualidad**, la que complementa y la que contrasta. Ver [el concepto](docs/05-dualidad.md).
 
@@ -8,7 +8,7 @@ Todo se ve en tres lentes, **Él · Ella · Harmonía**, alrededor de una idea: 
 
 | Fase | Qué | Estado |
 |---|---|---|
-| 0 | Prototipo Core.Lore de una voz (4 figuras) | ✅ Hecho |
+| 0 | Prototipo Core.Lore de una voz (7 figuras) | ✅ Hecho |
 | 1 | Prototipo dual: dos playlists, lente Harmonía | ⏳ Siguiente |
 | 2 | App de música con dos voces y portadas (Vue + Spotify) | Pendiente |
 | 3 | Backend y más colecciones (Spring Boot + PostgreSQL) | Pendiente |

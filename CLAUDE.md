@@ -3,7 +3,7 @@
 Contexto para Claude Code en este repositorio.
 
 ## Qué es
-**Samotracia** es el proyecto de Aldair y su novia: figuras ilustradas (pavo real, árbol, dalia, galaxia, eclipse) que representan colecciones de gustos (música, películas, series, comidas, lugares) en tres lentes: **Él · Ella · Harmonía**. El tema central es la **dualidad**, complementaria u opuesta. Plan en `docs/01-plan-del-proyecto.md`; concepto en `docs/05-dualidad.md`.
+**Samotracia** es el proyecto de Aldair y su novia: figuras ilustradas (mandala, Piedra del Sol, rosetón, atrapasueños, papel picado, caleidoscopio, sigilo) que representan colecciones de gustos (música, películas, series, comidas, lugares) en tres lentes: **Él · Ella · Harmonía**. El tema central es la **dualidad**, complementaria u opuesta. Plan en `docs/01-plan-del-proyecto.md`; concepto en `docs/05-dualidad.md`.
 
 ## Conceptos clave
 - No hay perfiles ni cuentas: un espacio compartido con dos voces (`A`, `B`). Los elementos nacidos juntos son `AB`; los que ambos tienen por separado son `MATCH`.
