@@ -5,6 +5,7 @@ import { MandalaFigure, type ColorMode, type FigureData, type HoverInfo, type Ma
 const props = defineProps<{
   data: FigureData;
   colorMode: ColorMode;
+  theme: 'light' | 'dark';
   focus: string | null;
   options?: Partial<MandalaOptions>;
 }>();
@@ -15,7 +16,7 @@ let figure: MandalaFigure | null = null;
 
 onMounted(() => {
   if (!canvas.value) return;
-  figure = new MandalaFigure(canvas.value, props.data, { ...props.options, colorMode: props.colorMode });
+  figure = new MandalaFigure(canvas.value, props.data, { ...props.options, colorMode: props.colorMode, theme: props.theme });
   figure.onHover = (info) => emit('hover', info);
   figure.setFocus(props.focus);
   figure.start();
@@ -24,6 +25,7 @@ onMounted(() => {
 onBeforeUnmount(() => figure?.destroy());
 
 watch(() => props.colorMode, (m) => figure?.setColorMode(m));
+watch(() => props.theme, (t) => figure?.setTheme(t));
 watch(() => props.focus, (f) => figure?.setFocus(f));
 watch(() => props.data, (d) => figure?.setData(d));
 watch(() => props.options, (o) => o && figure?.setOptions(o), { deep: true });

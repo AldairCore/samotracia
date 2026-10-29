@@ -13,6 +13,8 @@ import type { ColorMode, FigureData, Group, HoverInfo, Item } from './types';
  */
 export interface MandalaOptions {
   colorMode: ColorMode;
+  /** Tema general de la página: solo afecta el vacío detrás de las piezas; los contornos siempre son oscuros. */
+  theme: 'light' | 'dark';
   /** Grados por segundo que gira cada anillo (alternan sentido). */
   ringRotationSpeed: number;
   /** Grados por segundo que giran los rayos del fondo. */
@@ -44,6 +46,7 @@ export interface MandalaOptions {
 
 export const defaultMandalaOptions: MandalaOptions = {
   colorMode: 'vivid',
+  theme: 'dark',
   ringRotationSpeed: 2.2,
   backgroundSpinSpeed: 1.2,
   centerSpinSpeed: 3,
@@ -92,6 +95,17 @@ const INK_ORIGINAL = '#140c18';
 const INK_VIVID = '#050307';
 const HOVER_INK = '#ece7f2';
 const rad = (d: number) => (d * Math.PI) / 180;
+
+/** Vacío detrás de las piezas (rayos de fondo, bandas entre anillos, fondo del centro): sigue el tema. */
+const VOID_RAYS = {
+  dark: { vivid: ['#07050a', '#120c18'], original: ['#1f1628', '#2a1d35'] },
+  light: { vivid: ['#f4eff8', '#e9ddf1'], original: ['#efe8f4', '#e3d9ec'] },
+} as const satisfies Record<'light' | 'dark', Record<ColorMode, readonly [string, string]>>;
+
+const VOID_CORE = {
+  dark: { vivid: INK_VIVID, original: INK_ORIGINAL },
+  light: { vivid: '#f6f1fa', original: '#f0eaf5' },
+} as const satisfies Record<'light' | 'dark', Record<ColorMode, string>>;
 
 export class MandalaFigure {
   private ctx: CanvasRenderingContext2D;
@@ -193,6 +207,11 @@ export class MandalaFigure {
 
   setColorMode(mode: ColorMode) {
     this.opts.colorMode = mode;
+    this.requestDraw();
+  }
+
+  setTheme(theme: 'light' | 'dark') {
+    this.opts.theme = theme;
     this.requestDraw();
   }
 
@@ -308,6 +327,20 @@ export class MandalaFigure {
     return this.opts.colorMode === 'vivid';
   }
 
+  private get voidRays() {
+    return VOID_RAYS[this.opts.theme][this.opts.colorMode];
+  }
+
+  private get voidCore() {
+    return VOID_CORE[this.opts.theme][this.opts.colorMode];
+  }
+
+  /** Fondo de la banda de cada anillo: en tema claro, vivo y original comparten el mismo color. */
+  private get ringBandVoid(): readonly [string, number] {
+    if (this.opts.theme === 'light') return [VOID_CORE.light.original, 0.62];
+    return [this.voidCore, this.vivid ? 0.86 : 0.62];
+  }
+
   private fill(c: string) {
     this.ctx.fillStyle = c;
     this.ctx.fill();
@@ -392,11 +425,25 @@ export class MandalaFigure {
     return b;
   }
 
+  /**
+   * Hoja apagada (sin luz): en tema oscuro se funde con tinta; en tema claro, con blanco,
+   * dejando el contorno como límite de forma. La onda de "encendido" sube hacia el color vivo
+   * del grupo en oscuro; en claro, en cambio, baja hacia una sombra del mismo color, como si
+   * respirara una sombra sobre el papel en vez de una luz.
+   */
   private leafColor(ring: Ring, glow: number) {
     const gc = ring.group.color;
-    const base = this.vivid ? mix(gc, INK_VIVID, 0.55) : mix(gc, INK_ORIGINAL, 0.35);
+    const light = this.opts.theme === 'light';
+    const ink = this.vivid ? INK_VIVID : INK_ORIGINAL;
+    const off = light ? this.voidCore : ink;
+    // Los anillos internos (grupos chicos) son casi puro relleno: se les deja más color de grupo y menos blanco.
+    const ratio = this.vivid
+      ? light ? (ring.inner ? 0.42 : 0.6) : 0.55
+      : light ? (ring.inner ? 0.28 : 0.45) : 0.35;
+    const base = mix(gc, off, ratio);
     if (glow < 0.02) return base;
-    return mix(base, this.vivid ? vividGroup(gc) : gc, glow);
+    const lit = light ? mix(gc, ink, 0.6) : this.vivid ? vividGroup(gc) : gc;
+    return mix(base, lit, glow);
   }
 
   private drawPetal(p: Petal, rot: number, s: number, alpha: number, hovered: boolean) {
@@ -407,7 +454,7 @@ export class MandalaFigure {
     const outer = this.vivid ? p.vivid : p.original;
     const inner = this.vivid ? p.vividInner : p.originalInner;
     const layers: Array<[number, string]> = this.vivid
-      ? [[1, gc], [0.78, INK_VIVID], [0.72, outer], [0.42, inner]]
+      ? [[1, gc], [0.78, this.voidCore], [0.72, outer], [0.42, inner]]
       : [[1, gc], [0.7, outer], [0.42, inner]];
     ctx.save();
     ctx.translate(C, C);
@@ -460,8 +507,9 @@ export class MandalaFigure {
     const R = Math.max(...this.rings.map((r) => r.r1)) + 40;
     const rays = 40;
     const bgRot = -T * o.backgroundSpinSpeed;
+    const [void0, void1] = this.voidRays;
     for (let k = 0; k < rays; k++) {
-      ctx.fillStyle = this.vivid ? (k % 2 ? '#07050a' : '#120c18') : k % 2 ? '#1f1628' : '#2a1d35';
+      ctx.fillStyle = k % 2 ? void0 : void1;
       ctx.beginPath();
       ctx.moveTo(C, C);
       ctx.arc(C, C, R, rad(bgRot + (k * 360) / rays), rad(bgRot + ((k + 1) * 360) / rays));
@@ -481,7 +529,8 @@ export class MandalaFigure {
       ctx.beginPath();
       ctx.arc(C, C, rg.r1, 0, Math.PI * 2);
       ctx.arc(C, C, rg.r0 + 2, 0, Math.PI * 2, true);
-      this.fill(mix(rg.group.color, INK_VIVID, this.vivid ? 0.86 : 0.62));
+      const [bandVoid, bandRatio] = this.ringBandVoid;
+      this.fill(mix(rg.group.color, bandVoid, bandRatio));
       ctx.globalAlpha = 1;
     });
 
@@ -561,7 +610,7 @@ export class MandalaFigure {
     const crot = -T * o.centerSpinSpeed;
     ctx.beginPath();
     ctx.arc(C, C, cr + 3, 0, Math.PI * 2);
-    this.fill(this.vivid ? INK_VIVID : INK_ORIGINAL);
+    this.fill(this.voidCore);
     for (let k = 0; k < 12; k++) {
       ctx.save();
       ctx.translate(C, C);

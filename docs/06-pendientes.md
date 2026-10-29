@@ -16,6 +16,9 @@ Estado al 29 oct 2026. Lo hecho está en el historial de git; aquí solo lo que 
 - [ ] Mandala opuesto: dos medios mandalas en espejo.
 - [ ] Coincidencias por canción y por artista; métricas de afinidad, complemento y contraste.
 
+## Interfaz
+- [x] Modo claro y oscuro general de la app, incluido el mandala (fondo, bandas de anillo y onda de hojas sensibles al tema; contornos siempre oscuros).
+
 ## Datos
 - [ ] Importar desde Spotify con OAuth PKCE (ver `docs/03-fuentes-de-datos.md`): registrar la app, agregar su cuenta en User Management.
 - [ ] Extraer colores de la carátula en la app (canvas) en lugar del JSON fijo.
@@ -23,7 +26,8 @@ Estado al 29 oct 2026. Lo hecho está en el historial de git; aquí solo lo que 
 - [ ] Portadas reales mostradas en vivo desde Spotify en la ficha.
 
 ## Repositorio
-- [ ] Subir a GitHub (privado) y crear issues/milestones por fase.
+- [x] Subir a GitHub: https://github.com/AldairCore/samotracia.
+- [ ] Crear issues/milestones por fase.
 
 ## Decisiones abiertas
 - [ ] Backend para la Fase 3: NestJS + Prisma (recomendado), Spring Boot o Supabase.

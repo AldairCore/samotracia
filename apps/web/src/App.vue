@@ -3,8 +3,10 @@ import { computed, ref } from 'vue';
 import type { ColorMode, FigureData, HoverInfo } from '@samotracia/figures';
 import MandalaCanvas from './components/MandalaCanvas.vue';
 import coreLore from './data/core-lore.json';
+import { useTheme } from './composables/useTheme';
 
 const data = coreLore as FigureData & { sourceUrl: string; capturedAt: string };
+const { theme, setTheme } = useTheme();
 const colorMode = ref<ColorMode>('vivid');
 const focus = ref<string | null>(null);
 const hover = ref<HoverInfo | null>(null);
@@ -26,6 +28,10 @@ const cardStyle = computed(() => {
     </header>
 
     <div class="toolbar">
+      <div class="seg" role="group" aria-label="Tema">
+        <button type="button" :aria-pressed="theme === 'light'" @click="setTheme('light')">Claro</button>
+        <button type="button" :aria-pressed="theme === 'dark'" @click="setTheme('dark')">Oscuro</button>
+      </div>
       <div class="seg" role="group" aria-label="Colores">
         <button type="button" :aria-pressed="colorMode === 'vivid'" @click="colorMode = 'vivid'">Colores vivos</button>
         <button type="button" :aria-pressed="colorMode === 'original'" @click="colorMode = 'original'">Colores originales</button>
@@ -45,7 +51,7 @@ const cardStyle = computed(() => {
     </div>
 
     <section class="stage">
-      <MandalaCanvas :data="data" :color-mode="colorMode" :focus="focus" @hover="hover = $event" />
+      <MandalaCanvas :data="data" :color-mode="colorMode" :theme="theme" :focus="focus" @hover="hover = $event" />
       <div v-if="hover" class="card" :style="cardStyle">
         <div class="swatch">
           <i :style="{ background: hover.color }" />
