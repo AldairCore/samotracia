@@ -436,6 +436,18 @@ function dPetal(shape,L,w){ctx.beginPath();
   else if(shape==='leaf'){ctx.moveTo(0,0);ctx.quadraticCurveTo(L*.5,-w*.75,L,0);ctx.quadraticCurveTo(L*.5,w*.75,0,0);}
   else if(shape==='scallop'){const rr=Math.min(w/2,L*.6);ctx.moveTo(0,-w*.42);ctx.lineTo(L-rr,-w*.5);ctx.arc(L-rr,0,rr,-Math.PI/2,Math.PI/2);ctx.lineTo(0,w*.42);ctx.closePath();}
   else {ctx.moveTo(0,-w*.3);ctx.bezierCurveTo(L*.25,-w*.62,L*.72,-w*.5,L,0);ctx.bezierCurveTo(L*.72,w*.5,L*.25,w*.62,0,w*.3);ctx.closePath();}}
+
+// pétalo de puntillismo: silueta negra dibujada con puntos pequeños
+const leafHW=(t,hw)=>hw*Math.pow(Math.sin(Math.PI*Math.pow(t,.8)),.85);
+function dotLeaf(L,hw,c0,c1,c2,hov,dr){
+  dr=dr||2.6;ctx.beginPath();for(let i=0;i<=24;i++){const t=i/24;ctx.lineTo(L*t,-leafHW(t,hw));}for(let i=24;i>=0;i--){const t=i/24;ctx.lineTo(L*t,leafHW(t,hw));}ctx.closePath();
+  fillc('#050307');if(hov){ctx.lineWidth=2.4;ctx.strokeStyle=tok('--ink');ctx.stroke();}
+  const row=(k,col,r,x0)=>{const N=Math.max(6,Math.round(L*k/(r*2.6)));for(let sgn of [-1,1])for(let i=1;i<N;i++){const t=i/N,x=x0+L*k*t,y=sgn*leafHW(t,hw*k)*.86;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);fillc(col);}};
+  row(1,c0,dr,0);row(.72,c1,dr*.9,L*.14);
+  const M=Math.max(4,Math.round(L*.6/(dr*2.8)));for(let i=0;i<M;i++){const t=.22+.6*i/(M-1),rr=dr*(.7+.9*Math.sin(Math.PI*(i/(M-1))));ctx.beginPath();ctx.arc(L*t,0,rr,0,Math.PI*2);fillc(c2);}
+  ctx.beginPath();ctx.arc(L*.03,0,dr*.9,0,Math.PI*2);fillc(c0);ctx.beginPath();ctx.arc(L*.97,0,dr*.9,0,Math.PI*2);fillc(c0);
+}
+const gViv=gi=>VIV()?hsl2hex(hex2hsl(G[gi].color)[0],.9,.6):G[gi].color;
 function drawDense(T){
   const MCX=500,MCY=500,R=Math.max(...drings.map(r=>r.r1))+40,rays=40,rr=-T*1.2;
   for(let k=0;k<rays;k++){ctx.fillStyle=VIV()?(k%2?'#07050a':'#120c18'):(k%2?'#1f1628':'#2a1d35');ctx.beginPath();ctx.moveTo(MCX,MCY);ctx.arc(MCX,MCY,R,rad(rr+k*360/rays),rad(rr+(k+1)*360/rays));ctx.closePath();ctx.fill();}
@@ -444,18 +456,24 @@ function drawDense(T){
     ctx.beginPath();ctx.arc(MCX,MCY,rg.r1,0,Math.PI*2);ctx.arc(MCX,MCY,rg.r0+2,0,Math.PI*2,true);fillc(mix(G[rg.gi].color,'#050307',VIV()?.86:.62));ctx.globalAlpha=1;});
   [...drings].reverse().forEach(rg=>{const rot=rg.dir*T*2.2,n=rg.n,L=(rg.r1-rg.r0)*1.28,mid=rg.r0+L*.5,w=Math.min(2*Math.PI*mid/n*1.02,L*2.3),dimR=dimOf(rg.gi);
     // hojas de fondo entre pétalos
-    for(let j=0;j<n;j++){const a=rad(360*(j+.5)/n+rot);ctx.save();ctx.translate(MCX,MCY);ctx.rotate(a);ctx.translate(rg.r0+L*.1,0);ctx.globalAlpha=dimR?.12:1;dPetal('leaf',L*.98,w*.72);fillc(VIV()?mix(G[rg.gi].color,'#050307',.55):mix(G[rg.gi].color,'#140c18',.35));stroke(1.8,OUT);
+    const inner=rg.n<30;
+    for(let j=0;j<n;j++){const a=rad(360*(j+.5)/n+rot);ctx.save();ctx.translate(MCX,MCY);ctx.rotate(a);ctx.translate(rg.r0+L*.1,0);ctx.globalAlpha=dimR?.12:1;
+      if(inner){const hw2=Math.min(2*Math.PI*(rg.r0+L*.55)/n*.5-6,L*.32);dotLeaf(L*.9,hw2,mix(gViv(rg.gi),'#050307',.35),mix(gViv(rg.gi),'#050307',.55),mix(gViv(rg.gi),'#050307',.35),false,2);ctx.restore();continue;}
+      dPetal('leaf',L*.98,w*.72);fillc(VIV()?mix(G[rg.gi].color,'#050307',.55):mix(G[rg.gi].color,'#140c18',.35));stroke(1.8,OUT);
       ctx.beginPath();ctx.moveTo(L*.12,0);ctx.lineTo(L*.86,0);stroke(1.2,OUT);ctx.restore();}
     dpetals.forEach(p=>{if(p.ring!==rg)return;const dim=dimOf(p.g),hov=hover===p,s=hov?1.12:1,a=rad(p.a0+rot);p.hx=MCX+Math.cos(a)*mid;p.hy=MCY+Math.sin(a)*mid;
       ctx.save();ctx.translate(MCX,MCY);ctx.rotate(a);ctx.translate(rg.r0,0);ctx.globalAlpha=dim?.15:1;
+      if(inner){const hw=Math.min(w*.5,L*.48)*s;dotLeaf(L*s,hw,gViv(p.g),CC(p.t),CI(p.t),hov,2.7);ctx.restore();
+        const ad=rad(p.a0+180/n+rot);ctx.globalAlpha=dim?.15:1;ctx.beginPath();ctx.arc(MCX+Math.cos(ad)*(rg.r0+5),MCY+Math.sin(ad)*(rg.r0+5),2.6,0,Math.PI*2);fillc('#f4d35e');return;}
       (VIV()?[[1,G[p.g].color],[.78,'#050307'],[.72,CC(p.t)],[.42,CI(p.t)]]:[[1,G[p.g].color],[.7,CC(p.t)],[.42,CI(p.t)]]).forEach(([k,col],li)=>{ctx.save();ctx.translate(li?L*(1-k)*.2:0,0);ctx.scale(k*s,k*s);dPetal(rg.shape,L,w);fillc(col);ctx.lineWidth=(hov&&!li?3.4:2.2)/(k*s);ctx.strokeStyle=hov&&!li?tok('--ink'):OUT;ctx.stroke();
         if(rg.shape==='leaf'&&li===0){ctx.beginPath();ctx.moveTo(L*.05,0);ctx.lineTo(L*.95,0);for(let v=1;v<5;v++){const x=L*v/5;ctx.moveTo(x,0);ctx.lineTo(x+L*.08,-w*.22);ctx.moveTo(x,0);ctx.lineTo(x+L*.08,w*.22);}ctx.lineWidth=1.3/(k*s);ctx.stroke();}ctx.restore();});
       ctx.restore();
       const ad=rad(p.a0+180/n+rot);ctx.globalAlpha=dim?.15:1;ctx.beginPath();ctx.arc(MCX+Math.cos(ad)*(rg.r0+7),MCY+Math.sin(ad)*(rg.r0+7),3.6,0,Math.PI*2);fillc('#f4d35e');stroke(1.2,OUT);});});
   ctx.globalAlpha=1;
   const cr=drings[0].r0-2,crot=-T*3;ctx.beginPath();ctx.arc(MCX,MCY,cr+3,0,Math.PI*2);fillc(OUT);
-  for(let k=0;k<12;k++){ctx.save();ctx.translate(MCX,MCY);ctx.rotate(rad(crot+k*30));dPetal('drop',cr*.98,cr*.55);fillc(k%2?'#d0569a':'#8a7bd8');stroke(1.8,OUT);ctx.restore();}
-  [[cr*.42,'#f4d35e'],[cr*.24,'#f7a8c4'],[cr*.1,'#d0569a']].forEach(([r,c])=>{ctx.beginPath();ctx.arc(MCX,MCY,r,0,Math.PI*2);fillc(c);stroke(1.8,OUT);});
+  for(let k=0;k<12;k++){ctx.save();ctx.translate(MCX,MCY);ctx.rotate(rad(crot+k*30));ctx.translate(cr*.3,0);dotLeaf(cr*.66,cr*.17,'#2de2e6','#ffffff','#f4d35e',false,2.2);ctx.restore();}
+  [[cr*.9,22,'#2de2e6',2.4],[cr*.26,10,'#f4d35e',2.2]].forEach(([r,nn,c,dr])=>{for(let k=0;k<nn;k++){const a=rad(k*360/nn-crot);ctx.beginPath();ctx.arc(MCX+Math.cos(a)*r,MCY+Math.sin(a)*r,dr,0,Math.PI*2);fillc(c);}});
+  ctx.beginPath();ctx.arc(MCX,MCY,cr*.16,0,Math.PI*2);fillc('#ffffff');stroke(2,OUT);ctx.beginPath();ctx.arc(MCX,MCY,cr*.07,0,Math.PI*2);fillc('#2de2e6');
 }
 
 // ===== Piedra del Sol =====
