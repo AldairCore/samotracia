@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import type { ColorMode, HoverInfo } from '@samotracia/figures';
+import { contrastColor, vividColors, type ColorMode, type Group, type HoverInfo, type Item } from '@samotracia/figures';
 import MandalaCanvas from './components/MandalaCanvas.vue';
 import { useTheme } from './composables/useTheme';
 import { useSpotifyLibrary } from './composables/useSpotifyLibrary';
@@ -82,6 +82,34 @@ const statusLabel = computed(() => {
 
 const unclassifiedItems = computed(() => data.value.groups.find((g) => g.id === 'unclassified')?.items ?? []);
 const assignableGroups = computed(() => groups.value.filter((g) => g.id !== 'unclassified'));
+
+const songFilter = ref('');
+/** Orden descendente por posición: lo último agregado a la playlist queda arriba, sin tener que buscarlo. */
+const allSongsSorted = computed(() =>
+  data.value.groups
+    .flatMap((g) => g.items.map((item) => ({ item, group: g })))
+    .sort((a, b) => b.item.position - a.item.position),
+);
+const filteredSongs = computed(() => {
+  const q = songFilter.value.trim().toLowerCase();
+  if (!q) return allSongsSorted.value;
+  return allSongsSorted.value.filter(
+    ({ item }) => item.title.toLowerCase().includes(q) || (item.subtitle ?? '').toLowerCase().includes(q),
+  );
+});
+
+function openSong(item: Item, group: Group) {
+  const [vivid, vividInner] = vividColors(item, group.color, item.position);
+  const vividMode = colorMode.value === 'vivid';
+  selected.value = {
+    item,
+    group,
+    color: vividMode ? vivid : item.palette[0],
+    innerColor: vividMode ? vividInner : contrastColor(item),
+    x: 0,
+    y: 0,
+  };
+}
 
 function onAddPlaylist() {
   playlistError.value = null;
@@ -172,6 +200,26 @@ function onImport() {
       <button type="button" @click="onAddPlaylist">Agregar</button>
       <span v-if="playlistError" class="error">{{ playlistError }}</span>
     </div>
+
+    <details class="songlist">
+      <summary>Lista de canciones ({{ total }})</summary>
+      <input v-model="songFilter" type="text" placeholder="Buscar canción o artista…" class="songlist-search" />
+      <div class="songlist-rows">
+        <button
+          v-for="{ item, group } in filteredSongs"
+          :key="item.id"
+          type="button"
+          class="songlist-row"
+          @click="openSong(item, group)"
+        >
+          <i class="dot" :style="{ background: group.color }" />
+          <strong>{{ item.title }}</strong>
+          <span class="muted">{{ item.subtitle }}</span>
+          <span class="songlist-group muted">{{ group.name }}</span>
+        </button>
+        <p v-if="!filteredSongs.length" class="muted">Sin resultados.</p>
+      </div>
+    </details>
 
     <details class="transfer">
       <summary>Transferir datos a otro dispositivo</summary>
@@ -313,6 +361,15 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .unclassified { display: flex; flex-direction: column; gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
 .unclassified-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; }
 .unclassified-row select { background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; color: var(--ink); font-size: 13px; }
+.songlist { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; font-size: 13px; }
+.songlist summary { cursor: pointer; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.songlist-search { width: 100%; margin-top: 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; color: var(--ink); font-size: 13px; }
+.songlist-rows { margin-top: 10px; max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+.songlist-row { display: flex; align-items: center; gap: 8px; width: 100%; border: 0; border-radius: 6px; padding: 6px 8px; font-size: 13px; text-align: left; background: transparent; }
+.songlist-row:hover { background: var(--bg); }
+.songlist-row strong { font-weight: 600; flex: none; }
+.songlist-row .muted { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.songlist-group { margin-left: auto; flex: none; font-family: var(--mono); font-size: 11px; }
 .transfer { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; font-size: 13px; }
 .transfer summary { cursor: pointer; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
 .transfer-row { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }

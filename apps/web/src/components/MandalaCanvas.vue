@@ -11,12 +11,12 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{ hover: [info: HoverInfo | null]; select: [info: HoverInfo] }>();
 
-const canvas = ref<HTMLCanvasElement>();
+const root = ref<HTMLDivElement>();
 let figure: MandalaFigure | null = null;
 
 onMounted(() => {
-  if (!canvas.value) return;
-  figure = new MandalaFigure(canvas.value, props.data, { ...props.options, colorMode: props.colorMode, theme: props.theme });
+  if (!root.value) return;
+  figure = new MandalaFigure(root.value, props.data, { ...props.options, colorMode: props.colorMode, theme: props.theme });
   figure.onHover = (info) => emit('hover', info);
   figure.onSelect = (info) => emit('select', info);
   figure.setFocus(props.focus);
@@ -33,7 +33,7 @@ watch(() => props.options, (o) => o && figure?.setOptions(o), { deep: true });
 </script>
 
 <template>
-  <canvas ref="canvas" class="figure" aria-label="Mandala: cada pétalo es un elemento de la colección" />
+  <div ref="root" class="figure" />
 </template>
 
 <style scoped>

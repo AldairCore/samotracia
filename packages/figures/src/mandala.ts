@@ -2,12 +2,18 @@ import { contrastColor, mix, vividColors, vividGroup } from './color';
 import type { ColorMode, FigureData, Group, HoverInfo, Item } from './types';
 
 /**
- * Mandala de Samotracia.
+ * Mandala de Samotracia — SVG (vectorial, nítido a cualquier zoom; antes era Canvas 2D, ver
+ * docs/01-plan-del-proyecto.md).
  *
  * Cada anillo es un grupo (del más pequeño al centro al más grande afuera) y cada pétalo un elemento.
  * El pétalo tiene capas: color del grupo, anillo negro (modo vivo), color del elemento y su complementario.
  * Entre pétalos hay hojas apagadas (ornamento, no datos) que se encienden con una onda de luz
  * que viaja de afuera hacia el centro.
+ *
+ * La rotación continua y la onda de luz se hacen con CSS (@keyframes / @property), no con un
+ * requestAnimationFrame que redibuje todo cada cuadro — eso es lo que permite que el SVG se quede
+ * nítido en cualquier zoom. La geometría (anillos, pétalos, formas) es la misma matemática que el
+ * canvas original, solo que genera nodos SVG en vez de llamadas de dibujo.
  *
  * Todos los números que se fueron afinando en el prototipo viven en MandalaOptions.
  */
@@ -60,7 +66,7 @@ export const defaultMandalaOptions: MandalaOptions = {
 
 type Shape = 'lotus' | 'drop' | 'leaf' | 'scallop';
 
-interface Ring {
+interface RingLayout {
   group: Group;
   index: number;
   r0: number;
@@ -69,26 +75,39 @@ interface Ring {
   shape: Shape;
   dir: 1 | -1;
   inner: boolean;
-  // derivados
   L: number;
   mid: number;
   w: number;
+  /** Fase de la onda de luz (0 = anillo más externo, crece hacia el centro). */
+  k: number;
 }
 
-interface Petal {
+interface PetalLayout {
   item: Item;
-  ring: Ring;
+  ring: RingLayout;
   slot: number;
   a0: number;
   vivid: string;
   vividInner: string;
   original: string;
   originalInner: string;
-  // posición actual (lógica) para detectar el cursor
-  hx: number;
-  hy: number;
 }
 
+interface PetalLayerRef {
+  group: SVGGElement;
+  path: SVGPathElement;
+  tx: number;
+  k: number;
+}
+
+interface PetalEntry {
+  pos: SVGGElement;
+  inner: SVGGElement;
+  layers: PetalLayerRef[];
+  ring: RingLayout;
+}
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
 const W = 1000;
 const C = 500;
 const INK_ORIGINAL = '#140c18';
@@ -107,25 +126,133 @@ const VOID_CORE = {
   light: { vivid: '#f6f1fa', original: '#f0eaf5' },
 } as const satisfies Record<'light' | 'dark', Record<ColorMode, string>>;
 
+// ---------- helpers de DOM/SVG ----------
+
+function svgEl<K extends keyof SVGElementTagNameMap>(
+  tag: K,
+  attrs?: Record<string, string | number>,
+): SVGElementTagNameMap[K] {
+  const e = document.createElementNS(SVG_NS, tag) as SVGElementTagNameMap[K];
+  if (attrs) for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v));
+  return e;
+}
+
+function circlePathD(cx: number, cy: number, r: number): string {
+  return `M${cx - r},${cy} A${r},${r} 0 1 0 ${cx + r},${cy} A${r},${r} 0 1 0 ${cx - r},${cy} Z`;
+}
+
+/** Dona (círculo con un hueco) vía fill-rule evenodd: dos círculos como subtrazos independientes. */
+function annulusPathD(cx: number, cy: number, rInner: number, rOuter: number): string {
+  return `${circlePathD(cx, cy, rOuter)} ${circlePathD(cx, cy, rInner)}`;
+}
+
+function petalPathD(shape: Shape, L: number, w: number): string {
+  if (shape === 'drop') {
+    return `M0,0 C${L * 0.3},${-w * 0.62} ${L * 1.04},${-w * 0.66} ${L},0 C${L * 1.04},${w * 0.66} ${L * 0.3},${w * 0.62} 0,0 Z`;
+  }
+  if (shape === 'leaf') {
+    return `M0,0 Q${L * 0.5},${-w * 0.75} ${L},0 Q${L * 0.5},${w * 0.75} 0,0 Z`;
+  }
+  if (shape === 'scallop') {
+    const rr = Math.min(w / 2, L * 0.6);
+    return `M0,${-w * 0.42} L${L - rr},${-w * 0.5} L${L - rr},${-rr} A${rr},${rr} 0 0 1 ${L - rr},${rr} L0,${w * 0.42} Z`;
+  }
+  // lotus
+  return `M0,${-w * 0.3} C${L * 0.25},${-w * 0.62} ${L * 0.72},${-w * 0.5} ${L},0 C${L * 0.72},${w * 0.5} ${L * 0.25},${w * 0.62} 0,${w * 0.3} Z`;
+}
+
+function veinsPathD(L: number, w: number): string {
+  let d = `M${L * 0.05},0 L${L * 0.95},0`;
+  for (let v = 1; v < 5; v++) {
+    const x = (L * v) / 5;
+    d += ` M${x},0 L${x + L * 0.08},${-w * 0.22} M${x},0 L${x + L * 0.08},${w * 0.22}`;
+  }
+  return d;
+}
+
+/** Hoja de puntos (centro del mandala): un contorno de puntillismo + filas de puntos. */
+function appendDotLeaf(parent: SVGGElement, L: number, hw: number, c0: string, c1: string, c2: string, dr: number) {
+  const halfW = (t: number, h: number) => h * Math.pow(Math.sin(Math.PI * Math.pow(t, 0.8)), 0.85);
+  let d = '';
+  for (let i = 0; i <= 24; i++) d += `${i === 0 ? 'M' : 'L'}${L * (i / 24)},${-halfW(i / 24, hw)} `;
+  for (let i = 24; i >= 0; i--) d += `L${L * (i / 24)},${halfW(i / 24, hw)} `;
+  d += 'Z';
+  parent.appendChild(svgEl('path', { d, fill: INK_VIVID }));
+
+  const dot = (x: number, y: number, r: number, c: string) => {
+    parent.appendChild(svgEl('circle', { cx: x, cy: y, r, fill: c }));
+  };
+  const row = (k: number, col: string, r: number, x0: number) => {
+    const N = Math.max(6, Math.round((L * k) / (r * 2.6)));
+    for (const sgn of [-1, 1]) for (let i = 1; i < N; i++) dot(x0 + L * k * (i / N), sgn * halfW(i / N, hw * k) * 0.86, r, col);
+  };
+  row(1, c0, dr, 0);
+  row(0.72, c1, dr * 0.9, L * 0.14);
+  const M = Math.max(4, Math.round((L * 0.6) / (dr * 2.8)));
+  for (let i = 0; i < M; i++) dot(L * (0.22 + (0.6 * i) / (M - 1)), 0, dr * (0.7 + 0.9 * Math.sin(Math.PI * (i / (M - 1)))), c2);
+  dot(L * 0.03, 0, dr * 0.9, c0);
+  dot(L * 0.97, 0, dr * 0.9, c0);
+}
+
+/** Color "apagado" de una hoja: igual lógica que antes, ahora precomputado (no por cuadro). */
+function leafBaseColor(ring: RingLayout, vivid: boolean, theme: 'light' | 'dark', voidCore: string): string {
+  const gc = ring.group.color;
+  const light = theme === 'light';
+  const ink = vivid ? INK_VIVID : INK_ORIGINAL;
+  const off = light ? voidCore : ink;
+  const ratio = vivid ? (light ? (ring.inner ? 0.42 : 0.6) : 0.55) : light ? (ring.inner ? 0.28 : 0.45) : 0.35;
+  return mix(gc, off, ratio);
+}
+
+/** Color "encendido" de una hoja (pico de la onda de luz). */
+function leafLitColor(ring: RingLayout, vivid: boolean, theme: 'light' | 'dark'): string {
+  const gc = ring.group.color;
+  const light = theme === 'light';
+  const ink = vivid ? INK_VIVID : INK_ORIGINAL;
+  return light ? mix(gc, ink, 0.6) : vivid ? vividGroup(gc) : gc;
+}
+
+/** Genera los `@keyframes` de la onda de luz muestreando la misma curva cos^1.6 que usaba el canvas. */
+function buildGlowKeyframes(glow: MandalaOptions['glow'], ringCount: number): { css: string; period: number } {
+  const period = (ringCount + glow.pause) / Math.max(glow.speed, 1e-6);
+  if (!glow.enabled || !Number.isFinite(period) || period <= 0) {
+    return { css: '@keyframes sam-glow { 0%, 100% { --sam-glow: 0; } }', period: 1 };
+  }
+  const halfPct = Math.min(49, (glow.width / (ringCount + glow.pause)) * 100);
+  const SAMPLES = 8;
+  const stops: string[] = [`0% { --sam-glow: 0; }`, `${(50 - halfPct).toFixed(3)}% { --sam-glow: 0; }`];
+  for (let i = -SAMPLES; i <= SAMPLES; i++) {
+    const d = (i / SAMPLES) * glow.width;
+    const pct = 50 + (d / glow.width) * halfPct;
+    const b = glow.max * Math.pow(0.5 + 0.5 * Math.cos((Math.PI * d) / glow.width), 1.6);
+    stops.push(`${pct.toFixed(3)}% { --sam-glow: ${b.toFixed(4)}; }`);
+  }
+  stops.push(`${(50 + halfPct).toFixed(3)}% { --sam-glow: 0; }`, `100% { --sam-glow: 0; }`);
+  return { css: `@keyframes sam-glow { ${stops.join(' ')} }`, period };
+}
+
+/** Periodo de la "respiración" propia del anillo seleccionado (independiente de la onda general). */
+const BREATHE_PERIOD_SEC = 2.4;
+
+function spinStyle(durationSec: number, direction: 'normal' | 'reverse'): string {
+  return `transform-box:view-box;transform-origin:${C}px ${C}px;animation-name:sam-spin;animation-duration:${durationSec.toFixed(3)}s;animation-timing-function:linear;animation-iteration-count:infinite;animation-direction:${direction};`;
+}
+
 export class MandalaFigure {
-  private ctx: CanvasRenderingContext2D;
+  private svg: SVGSVGElement;
+  private styleEl: SVGStyleElement;
   private opts: MandalaOptions;
-  private rings: Ring[] = [];
-  private petals: Petal[] = [];
-  private viewR = 500;
-  private fit = 1;
-  private off = 0;
-  private scale = 1;
-  private hover: Petal | null = null;
+  private data: FigureData;
   private focus: string | null = null;
-  private raf = 0;
+  private hoverId: string | null = null;
   private running = false;
-  private visible = true;
-  private startTime = performance.now();
   private reduceMotion = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  private io?: IntersectionObserver;
-  private ro?: ResizeObserver;
   private cleanup: Array<() => void> = [];
+
+  private ringEls = new Map<string, { band: SVGGElement }>();
+  private petalEls = new Map<string, PetalEntry>();
+  private leafSlotEls = new Map<string, SVGGElement>();
+  private glowPeriod = 1;
 
   /** Se llama cuando cambia el elemento bajo el cursor (null al salir). Solo resalta, no es confiable en touch. */
   onHover: (info: HoverInfo | null) => void = () => {};
@@ -133,26 +260,219 @@ export class MandalaFigure {
   onSelect: (info: HoverInfo) => void = () => {};
 
   constructor(
-    private canvas: HTMLCanvasElement,
+    private container: HTMLElement,
     data: FigureData,
     options: Partial<MandalaOptions> = {},
   ) {
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('Canvas 2D no disponible');
-    this.ctx = ctx;
     this.opts = { ...defaultMandalaOptions, ...options, glow: { ...defaultMandalaOptions.glow, ...options.glow } };
-    this.setData(data);
+    this.data = data;
+
+    this.svg = svgEl('svg', { viewBox: `0 0 ${W} ${W}`, width: '100%', height: '100%' });
+    this.svg.classList.add('sam-mandala', 'sam-paused');
+    this.svg.setAttribute('role', 'img');
+    this.svg.setAttribute(
+      'aria-label',
+      'Mandala: cada pétalo es un elemento de la colección',
+    );
+    this.styleEl = svgEl('style');
+    this.svg.appendChild(this.styleEl);
+    this.container.appendChild(this.svg);
+
     this.bindEvents();
-    this.resize();
+    this.render();
   }
 
   // ---------- API pública ----------
 
   setData(data: FigureData) {
-    const order = data.groups.map((g, i) => ({ g, i })).sort((a, b) => a.g.items.length - b.g.items.length || a.i - b.i);
+    this.data = data;
+    this.render();
+  }
+
+  setOptions(options: Partial<MandalaOptions>) {
+    this.opts = { ...this.opts, ...options, glow: { ...this.opts.glow, ...options.glow } };
+    this.render();
+  }
+
+  setColorMode(mode: ColorMode) {
+    this.opts.colorMode = mode;
+    this.render();
+  }
+
+  setTheme(theme: 'light' | 'dark') {
+    this.opts.theme = theme;
+    this.render();
+  }
+
+  /**
+   * Resalta un grupo (id) o todos (null). No reconstruye nada: solo clases/estilos puntuales.
+   * El anillo seleccionado cambia su onda de luz por una "respiración" propia (pulso parejo, sin
+   * esperar el turno de la onda general); el resto se pausa en vez de seguir viajando por detrás.
+   */
+  setFocus(groupId: string | null) {
+    this.focus = groupId;
+    for (const [gid, els] of this.ringEls) els.band.classList.toggle('sam-dim-band', this.focus !== null && this.focus !== gid);
+    for (const el of this.leafSlotEls.values()) {
+      const gid = el.dataset.ring ?? null;
+      const isFocused = this.focus !== null && this.focus === gid;
+      el.classList.toggle('sam-dim-leaf', this.focus !== null && !isFocused);
+      if (isFocused) {
+        el.style.setProperty('animation-name', 'sam-breathe');
+        el.style.setProperty('animation-duration', `${BREATHE_PERIOD_SEC}s`);
+        el.style.setProperty('animation-delay', '0s');
+      } else {
+        el.style.setProperty('animation-name', 'sam-glow');
+        el.style.setProperty('animation-duration', `${this.glowPeriod.toFixed(3)}s`);
+        el.style.setProperty('animation-delay', `${el.dataset.delay}s`);
+      }
+    }
+    this.updatePetalDim();
+  }
+
+  start() {
+    this.running = true;
+    this.svg.classList.remove('sam-paused');
+  }
+
+  stop() {
+    this.running = false;
+    this.svg.classList.add('sam-paused');
+  }
+
+  destroy() {
+    this.cleanup.forEach((f) => f());
+    this.svg.remove();
+  }
+
+  // ---------- eventos ----------
+
+  private bindEvents() {
+    const onMove = (e: PointerEvent) => {
+      const id = this.itemIdAt(e.target);
+      if (id !== this.hoverId) this.setHover(id);
+    };
+    const onLeave = () => this.setHover(null);
+    // El navegador sintetiza "click" también al tapear en touch: una sola vía para ambos.
+    const onClick = (e: MouseEvent) => {
+      const id = this.itemIdAt(e.target);
+      if (!id) return;
+      const entry = this.petalEls.get(id);
+      if (entry) this.onSelect(this.infoFor(id, entry));
+    };
+    this.svg.addEventListener('pointermove', onMove);
+    this.svg.addEventListener('pointerdown', onMove);
+    this.svg.addEventListener('pointerleave', onLeave);
+    this.svg.addEventListener('click', onClick);
+    this.cleanup.push(() => {
+      this.svg.removeEventListener('pointermove', onMove);
+      this.svg.removeEventListener('pointerdown', onMove);
+      this.svg.removeEventListener('pointerleave', onLeave);
+      this.svg.removeEventListener('click', onClick);
+    });
+  }
+
+  private itemIdAt(target: EventTarget | null): string | null {
+    if (!(target instanceof Element)) return null;
+    const el = target.closest<SVGElement>('[data-item-id]');
+    return el?.dataset.itemId ?? null;
+  }
+
+  private infoFor(id: string, entry: PetalEntry): HoverInfo {
+    const r = this.svg.getBoundingClientRect();
+    const petal = this.findPetalLayout(id);
+    const vivid = this.opts.colorMode === 'vivid';
+    const color = petal ? (vivid ? petal.vivid : petal.original) : '#888888';
+    const innerColor = petal ? (vivid ? petal.vividInner : petal.originalInner) : '#888888';
+    // posición aproximada del pétalo en px CSS, para quien quiera anclar algo cerca del cursor
+    const box = entry.pos.getBoundingClientRect();
+    return {
+      item: petal?.item ?? ({} as Item),
+      group: entry.ring.group,
+      color,
+      innerColor,
+      x: box.left + box.width / 2 - r.left,
+      y: box.top + box.height / 2 - r.top,
+    };
+  }
+
+  private findPetalLayout(id: string): PetalLayout | undefined {
+    return this.lastPetals.find((p) => p.item.id === id);
+  }
+
+  private lastPetals: PetalLayout[] = [];
+
+  private setHover(id: string | null) {
+    if (id === this.hoverId) return;
+    if (this.hoverId) this.applyHoverVisual(this.hoverId, false);
+    this.hoverId = id;
+    if (id) this.applyHoverVisual(id, true);
+    this.updatePetalDim();
+    this.emitHover();
+  }
+
+  private applyHoverVisual(id: string, hovered: boolean) {
+    const entry = this.petalEls.get(id);
+    if (!entry) return;
+    entry.inner.classList.toggle('sam-hovered', hovered);
+    const scale = hovered ? this.opts.hoverScale : 1;
+    for (const layer of entry.layers) {
+      layer.group.setAttribute('transform', `translate(${layer.tx},0) scale(${layer.k * scale})`);
+    }
+    const layer0 = entry.layers[0]?.path;
+    if (layer0) {
+      if (hovered) {
+        layer0.dataset.origStroke = layer0.getAttribute('stroke') ?? '';
+        layer0.setAttribute('stroke', HOVER_INK);
+      } else if (layer0.dataset.origStroke !== undefined) {
+        layer0.setAttribute('stroke', layer0.dataset.origStroke);
+      }
+    }
+    if (hovered) {
+      // traer al frente dentro de su propio anillo (no por encima de anillos externos: ver plan).
+      entry.pos.parentElement?.appendChild(entry.pos);
+    }
+  }
+
+  private updatePetalDim() {
+    for (const [id, entry] of this.petalEls) {
+      const isFocusDimmed = this.focus !== null && this.focus !== entry.ring.group.id;
+      const isHoverDimmed = !isFocusDimmed && id !== this.hoverId && this.hoverId !== null;
+      entry.pos.classList.toggle('sam-dim-petal', isFocusDimmed);
+      entry.pos.classList.toggle('sam-dim-hover', isHoverDimmed);
+      entry.pos.style.setProperty('--sam-focus-dim', String(this.opts.focusDim));
+      entry.pos.style.setProperty('--sam-hover-dim', String(this.opts.hoverDim));
+    }
+  }
+
+  private emitHover() {
+    if (!this.hoverId) return this.onHover(null);
+    const entry = this.petalEls.get(this.hoverId);
+    if (entry) this.onHover(this.infoFor(this.hoverId, entry));
+  }
+
+  // ---------- construcción (reemplaza todo el árbol SVG) ----------
+
+  private render() {
+    this.svg.replaceChildren(this.styleEl);
+    this.ringEls.clear();
+    this.petalEls.clear();
+    this.leafSlotEls.clear();
+
+    const o = this.opts;
+    const vivid = o.colorMode === 'vivid';
+    const theme = o.theme;
+    const voidCore = VOID_CORE[theme][o.colorMode];
+    const voidRays = VOID_RAYS[theme][o.colorMode];
+    const ringBandVoid: readonly [string, number] =
+      theme === 'light' ? [VOID_CORE.light.original, 0.62] : [voidCore, vivid ? 0.86 : 0.62];
+    const inkColor = vivid ? INK_VIVID : INK_ORIGINAL;
+    const inkW = (w: number) => (vivid ? w * 1.75 : w);
+
+    // --- layout de anillos y pétalos: misma matemática que la versión en canvas ---
+    const order = this.data.groups.map((g, i) => ({ g, i })).sort((a, b) => a.g.items.length - b.g.items.length || a.i - b.i);
     const DSH: Shape[] = ['lotus', 'drop', 'leaf', 'scallop'];
-    this.rings = [];
-    this.petals = [];
+    const rings: RingLayout[] = [];
+    const petals: PetalLayout[] = [];
     let r0 = 70;
     let idx = 0;
     order.forEach(({ g }, ri) => {
@@ -160,11 +480,11 @@ export class MandalaFigure {
       if (!n) return;
       const th = n < 6 ? 58 : n < 15 ? 50 : 56;
       const r1 = r0 + th;
-      const inner = n < this.opts.innerRingMaxItems;
+      const inner = n < o.innerRingMaxItems;
       const L = (r1 - r0) * 1.28;
       const mid = r0 + L * 0.5;
       const slotLen = (2 * Math.PI * mid) / n;
-      const ring: Ring = {
+      const ring: RingLayout = {
         group: g,
         index: ri,
         r0,
@@ -175,486 +495,230 @@ export class MandalaFigure {
         inner,
         L,
         mid,
-        w: inner ? Math.min(slotLen * this.opts.innerPetalWidth, L * 0.95) : Math.min(slotLen * 1.02, L * 2.3),
+        w: inner ? Math.min(slotLen * o.innerPetalWidth, L * 0.95) : Math.min(slotLen * 1.02, L * 2.3),
+        k: 0,
       };
-      this.rings.push(ring);
+      rings.push(ring);
       g.items.forEach((item, j) => {
-        const [vivid, vividInner] = vividColors(item, g.color, idx++);
-        this.petals.push({
-          item,
-          ring,
-          slot: j,
-          a0: (360 * j) / n,
-          vivid,
-          vividInner,
-          original: item.palette[0],
-          originalInner: contrastColor(item),
-          hx: 0,
-          hy: 0,
-        });
+        const [v, vi] = vividColors(item, g.color, idx++);
+        petals.push({ item, ring, slot: j, a0: (360 * j) / n, vivid: v, vividInner: vi, original: item.palette[0], originalInner: contrastColor(item) });
       });
       r0 = r1 - 8;
     });
-    this.viewR = Math.max(...this.rings.map((r) => r.r1)) + 60;
-    this.fit = W / (2 * this.viewR);
-    this.off = -(C - this.viewR) * this.fit;
-    this.hover = null;
-    this.requestDraw();
-  }
 
-  setOptions(options: Partial<MandalaOptions>) {
-    this.opts = { ...this.opts, ...options, glow: { ...this.opts.glow, ...options.glow } };
-    this.setData({ title: '', groups: this.rings.map((r) => r.group) });
-  }
+    this.lastPetals = petals;
+    // Sin anillos (datos vacíos, p. ej. mientras se sincroniza Spotify) no hay nada que montar.
+    if (!rings.length) return;
 
-  setColorMode(mode: ColorMode) {
-    this.opts.colorMode = mode;
-    this.requestDraw();
-  }
+    rings.forEach((r, i) => (r.k = rings.length - 1 - i));
 
-  setTheme(theme: 'light' | 'dark') {
-    this.opts.theme = theme;
-    this.requestDraw();
-  }
+    const viewR = Math.max(...rings.map((r) => r.r1)) + 60;
+    const fit = W / (2 * viewR);
+    const off = -(C - viewR) * fit;
 
-  /** Resalta un grupo (id) o todos (null). */
-  setFocus(groupId: string | null) {
-    this.focus = groupId;
-    this.requestDraw();
-  }
+    const { css: glowCss, period: glowPeriod } = buildGlowKeyframes(o.glow, rings.length);
+    this.glowPeriod = glowPeriod;
+    this.styleEl.textContent = buildStyleSheet(glowCss, o.glow.max);
 
-  start() {
-    if (this.running) return;
-    this.running = true;
-    this.loop();
-  }
+    const root = svgEl('g', { transform: `translate(${off} ${off}) scale(${fit})` });
+    this.svg.appendChild(root);
 
-  stop() {
-    this.running = false;
-    cancelAnimationFrame(this.raf);
-  }
-
-  destroy() {
-    this.stop();
-    this.io?.disconnect();
-    this.ro?.disconnect();
-    this.cleanup.forEach((f) => f());
-  }
-
-  // ---------- ciclo de dibujo ----------
-
-  private loop = () => {
-    if (!this.running) return;
-    if (this.visible && !document.hidden) this.draw();
-    if (!this.reduceMotion) this.raf = requestAnimationFrame(this.loop);
-  };
-
-  private requestDraw() {
-    if (this.reduceMotion || !this.running) requestAnimationFrame(() => this.draw());
-  }
-
-  private resize() {
-    const cssW = this.canvas.clientWidth || 600;
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    this.canvas.width = Math.round(cssW * dpr);
-    this.canvas.height = Math.round(cssW * dpr);
-    this.scale = this.canvas.width / W;
-    this.requestDraw();
-  }
-
-  private bindEvents() {
-    const onMove = (e: PointerEvent) => {
-      const p = this.pick(e);
-      if (p !== this.hover) {
-        this.hover = p;
-        this.emitHover();
-        this.requestDraw();
-      }
-    };
-    const onLeave = () => {
-      this.hover = null;
-      this.emitHover();
-      this.requestDraw();
-    };
-    // El navegador sintetiza "click" también al tapear en touch: una sola vía para ambos.
-    const onClick = (e: MouseEvent) => {
-      const p = this.pick(e);
-      if (p) this.onSelect(this.infoFor(p));
-    };
-    this.canvas.addEventListener('pointermove', onMove);
-    this.canvas.addEventListener('pointerdown', onMove);
-    this.canvas.addEventListener('pointerleave', onLeave);
-    this.canvas.addEventListener('click', onClick);
-    this.cleanup.push(() => {
-      this.canvas.removeEventListener('pointermove', onMove);
-      this.canvas.removeEventListener('pointerdown', onMove);
-      this.canvas.removeEventListener('pointerleave', onLeave);
-      this.canvas.removeEventListener('click', onClick);
-    });
-    // pausa cuando no se ve
-    this.io = new IntersectionObserver(([e]) => (this.visible = e.isIntersecting));
-    this.io.observe(this.canvas);
-    this.ro = new ResizeObserver(() => this.resize());
-    this.ro.observe(this.canvas);
-  }
-
-  private pick(e: PointerEvent | MouseEvent): Petal | null {
-    const r = this.canvas.getBoundingClientRect();
-    const x = (((e.clientX - r.left) / r.width) * W - this.off) / this.fit;
-    const y = (((e.clientY - r.top) / r.height) * W - this.off) / this.fit;
-    let best: Petal | null = null;
-    let bd = ((r.width < 600 ? 34 : 24) / this.fit) ** 2;
-    for (const p of this.petals) {
-      if (this.focus && p.ring.group.id !== this.focus) continue;
-      const d = (p.hx - x) ** 2 + (p.hy - y) ** 2;
-      if (d < bd) {
-        bd = d;
-        best = p;
-      }
-    }
-    return best;
-  }
-
-  private infoFor(p: Petal): HoverInfo {
-    const r = this.canvas.getBoundingClientRect();
-    const vivid = this.opts.colorMode === 'vivid';
-    return {
-      item: p.item,
-      group: p.ring.group,
-      color: vivid ? p.vivid : p.original,
-      innerColor: vivid ? p.vividInner : p.originalInner,
-      x: ((p.hx * this.fit + this.off) / W) * r.width,
-      y: ((p.hy * this.fit + this.off) / W) * r.height,
-    };
-  }
-
-  private emitHover() {
-    const p = this.hover;
-    this.onHover(p ? this.infoFor(p) : null);
-  }
-
-  // ---------- primitivas ----------
-
-  private get vivid() {
-    return this.opts.colorMode === 'vivid';
-  }
-
-  private get voidRays() {
-    return VOID_RAYS[this.opts.theme][this.opts.colorMode];
-  }
-
-  private get voidCore() {
-    return VOID_CORE[this.opts.theme][this.opts.colorMode];
-  }
-
-  /** Fondo de la banda de cada anillo: en tema claro, vivo y original comparten el mismo color. */
-  private get ringBandVoid(): readonly [string, number] {
-    if (this.opts.theme === 'light') return [VOID_CORE.light.original, 0.62];
-    return [this.voidCore, this.vivid ? 0.86 : 0.62];
-  }
-
-  private fill(c: string) {
-    this.ctx.fillStyle = c;
-    this.ctx.fill();
-  }
-
-  /** Contorno de tinta: en modo vivo es más grueso y casi negro. */
-  private ink(width: number) {
-    const ctx = this.ctx;
-    ctx.lineWidth = this.vivid ? width * 1.75 : width;
-    ctx.strokeStyle = this.vivid ? INK_VIVID : INK_ORIGINAL;
-    ctx.stroke();
-  }
-
-  private petalPath(shape: Shape, L: number, w: number) {
-    const ctx = this.ctx;
-    ctx.beginPath();
-    if (shape === 'drop') {
-      ctx.moveTo(0, 0);
-      ctx.bezierCurveTo(L * 0.3, -w * 0.62, L * 1.04, -w * 0.66, L, 0);
-      ctx.bezierCurveTo(L * 1.04, w * 0.66, L * 0.3, w * 0.62, 0, 0);
-    } else if (shape === 'leaf') {
-      ctx.moveTo(0, 0);
-      ctx.quadraticCurveTo(L * 0.5, -w * 0.75, L, 0);
-      ctx.quadraticCurveTo(L * 0.5, w * 0.75, 0, 0);
-    } else if (shape === 'scallop') {
-      const rr = Math.min(w / 2, L * 0.6);
-      ctx.moveTo(0, -w * 0.42);
-      ctx.lineTo(L - rr, -w * 0.5);
-      ctx.arc(L - rr, 0, rr, -Math.PI / 2, Math.PI / 2);
-      ctx.lineTo(0, w * 0.42);
-      ctx.closePath();
-    } else {
-      ctx.moveTo(0, -w * 0.3);
-      ctx.bezierCurveTo(L * 0.25, -w * 0.62, L * 0.72, -w * 0.5, L, 0);
-      ctx.bezierCurveTo(L * 0.72, w * 0.5, L * 0.25, w * 0.62, 0, w * 0.3);
-      ctx.closePath();
-    }
-  }
-
-  /** Hoja de puntos (centro del mandala). */
-  private dotLeaf(L: number, hw: number, c0: string, c1: string, c2: string, dr: number) {
-    const ctx = this.ctx;
-    const halfW = (t: number, h: number) => h * Math.pow(Math.sin(Math.PI * Math.pow(t, 0.8)), 0.85);
-    ctx.beginPath();
-    for (let i = 0; i <= 24; i++) ctx.lineTo(L * (i / 24), -halfW(i / 24, hw));
-    for (let i = 24; i >= 0; i--) ctx.lineTo(L * (i / 24), halfW(i / 24, hw));
-    ctx.closePath();
-    this.fill(INK_VIVID);
-    const dot = (x: number, y: number, r: number, c: string) => {
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      this.fill(c);
-    };
-    const row = (k: number, col: string, r: number, x0: number) => {
-      const N = Math.max(6, Math.round((L * k) / (r * 2.6)));
-      for (const sgn of [-1, 1]) for (let i = 1; i < N; i++) dot(x0 + L * k * (i / N), sgn * halfW(i / N, hw * k) * 0.86, r, col);
-    };
-    row(1, c0, dr, 0);
-    row(0.72, c1, dr * 0.9, L * 0.14);
-    const M = Math.max(4, Math.round((L * 0.6) / (dr * 2.8)));
-    for (let i = 0; i < M; i++) dot(L * (0.22 + (0.6 * i) / (M - 1)), 0, dr * (0.7 + 0.9 * Math.sin(Math.PI * (i / (M - 1)))), c2);
-    dot(L * 0.03, 0, dr * 0.9, c0);
-    dot(L * 0.97, 0, dr * 0.9, c0);
-  }
-
-  /** Brillo (0–1) de una hoja: onda por anillos de afuera hacia adentro + hojas junto al elemento bajo el cursor. */
-  private leafGlow(T: number, ring: Ring, slot: number) {
-    const g = this.opts.glow;
-    let b = 0;
-    if (g.enabled) {
-      const N = this.rings.length;
-      const k = N - 1 - ring.index;
-      const ph = ((T * g.speed) % (N + g.pause)) - 1.5;
-      const d = ph - k;
-      if (Math.abs(d) < g.width) b = g.max * (0.5 + 0.5 * Math.cos((Math.PI * d) / g.width)) ** 1.6;
-    }
-    const h = this.hover;
-    if (h && h.ring === ring) {
-      const n = ring.n;
-      if (slot === h.slot || slot === (h.slot - 1 + n) % n) b = 1;
-    }
-    return b;
-  }
-
-  /**
-   * Hoja apagada (sin luz): en tema oscuro se funde con tinta; en tema claro, con blanco,
-   * dejando el contorno como límite de forma. La onda de "encendido" sube hacia el color vivo
-   * del grupo en oscuro; en claro, en cambio, baja hacia una sombra del mismo color, como si
-   * respirara una sombra sobre el papel en vez de una luz.
-   */
-  private leafColor(ring: Ring, glow: number) {
-    const gc = ring.group.color;
-    const light = this.opts.theme === 'light';
-    const ink = this.vivid ? INK_VIVID : INK_ORIGINAL;
-    const off = light ? this.voidCore : ink;
-    // Los anillos internos (grupos chicos) son casi puro relleno: se les deja más color de grupo y menos blanco.
-    const ratio = this.vivid
-      ? light ? (ring.inner ? 0.42 : 0.6) : 0.55
-      : light ? (ring.inner ? 0.28 : 0.45) : 0.35;
-    const base = mix(gc, off, ratio);
-    if (glow < 0.02) return base;
-    const lit = light ? mix(gc, ink, 0.6) : this.vivid ? vividGroup(gc) : gc;
-    return mix(base, lit, glow);
-  }
-
-  private drawPetal(p: Petal, rot: number, s: number, alpha: number, hovered: boolean) {
-    const ctx = this.ctx;
-    const { ring } = p;
-    const { L, w, shape } = ring;
-    const gc = ring.group.color;
-    const outer = this.vivid ? p.vivid : p.original;
-    const inner = this.vivid ? p.vividInner : p.originalInner;
-    const layers: Array<[number, string]> = this.vivid
-      ? [[1, gc], [0.78, this.voidCore], [0.72, outer], [0.42, inner]]
-      : [[1, gc], [0.7, outer], [0.42, inner]];
-    ctx.save();
-    ctx.translate(C, C);
-    ctx.rotate(rad(p.a0 + rot));
-    ctx.translate(ring.r0, 0);
-    ctx.globalAlpha = alpha;
-    layers.forEach(([k, col], li) => {
-      ctx.save();
-      ctx.translate(li ? L * (1 - k) * 0.2 : 0, 0);
-      ctx.scale(k * s, k * s);
-      this.petalPath(shape, L, w);
-      this.fill(col);
-      if (hovered && !li) {
-        ctx.lineWidth = 3.4 / (k * s);
-        ctx.strokeStyle = HOVER_INK;
-        ctx.stroke();
-      } else this.ink(2.2 / (k * s));
-      if (shape === 'leaf' && li === 0) {
-        ctx.beginPath();
-        ctx.moveTo(L * 0.05, 0);
-        ctx.lineTo(L * 0.95, 0);
-        for (let v = 1; v < 5; v++) {
-          const x = (L * v) / 5;
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x + L * 0.08, -w * 0.22);
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x + L * 0.08, w * 0.22);
-        }
-        this.ink(1.3 / (k * s));
-      }
-      ctx.restore();
-    });
-    ctx.restore();
-    ctx.globalAlpha = 1;
-  }
-
-  // ---------- dibujo principal ----------
-
-  private draw() {
-    // Sin anillos (datos vacíos, p. ej. mientras se sincroniza Spotify) no hay nada que dibujar.
-    // Sin este corte, el resto del método truena y mata el ciclo de animación para siempre:
-    // nadie vuelve a pedir el siguiente cuadro ni cuando después llegan datos buenos.
-    if (!this.rings.length) return;
-
-    const ctx = this.ctx;
-    const o = this.opts;
-    const T = this.reduceMotion ? 0 : (performance.now() - this.startTime) / 1000;
-    const dimGroup = (g: Group) => this.focus !== null && this.focus !== g.id;
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    ctx.setTransform(this.scale * this.fit, 0, 0, this.scale * this.fit, this.scale * this.off, this.scale * this.off);
-
-    // fondo de rayos
-    const R = Math.max(...this.rings.map((r) => r.r1)) + 40;
+    // --- fondo de rayos ---
+    const R = Math.max(...rings.map((r) => r.r1)) + 40;
     const rays = 40;
-    const bgRot = -T * o.backgroundSpinSpeed;
-    const [void0, void1] = this.voidRays;
+    const bgDur = 360 / Math.max(o.backgroundSpinSpeed, 1e-6);
+    const bg = svgEl('g', { style: spinStyle(bgDur, 'reverse') });
     for (let k = 0; k < rays; k++) {
-      ctx.fillStyle = k % 2 ? void0 : void1;
-      ctx.beginPath();
-      ctx.moveTo(C, C);
-      ctx.arc(C, C, R, rad(bgRot + (k * 360) / rays), rad(bgRot + ((k + 1) * 360) / rays));
-      ctx.closePath();
-      ctx.fill();
+      const a0 = (k * 360) / rays;
+      const a1 = ((k + 1) * 360) / rays;
+      const x0 = C + R * Math.cos(rad(a0));
+      const y0 = C + R * Math.sin(rad(a0));
+      const x1 = C + R * Math.cos(rad(a1));
+      const y1 = C + R * Math.sin(rad(a1));
+      bg.appendChild(svgEl('path', { d: `M${C},${C} L${x0},${y0} A${R},${R} 0 0 1 ${x1},${y1} Z`, fill: k % 2 ? voidRays[0] : voidRays[1] }));
     }
-    ctx.beginPath();
-    ctx.arc(C, C, R, 0, Math.PI * 2);
-    this.ink(4);
+    root.appendChild(bg);
+    root.appendChild(svgEl('circle', { cx: C, cy: C, r: R, fill: 'none', stroke: inkColor, 'stroke-width': inkW(4) }));
 
-    // bandas de cada anillo
-    [...this.rings].reverse().forEach((rg) => {
-      ctx.globalAlpha = dimGroup(rg.group) ? 0.25 : 1;
-      ctx.beginPath();
-      ctx.arc(C, C, rg.r1 + 4, 0, Math.PI * 2);
-      this.fill(this.vivid ? INK_VIVID : INK_ORIGINAL);
-      ctx.beginPath();
-      ctx.arc(C, C, rg.r1, 0, Math.PI * 2);
-      ctx.arc(C, C, rg.r0 + 2, 0, Math.PI * 2, true);
-      const [bandVoid, bandRatio] = this.ringBandVoid;
-      this.fill(mix(rg.group.color, bandVoid, bandRatio));
-      ctx.globalAlpha = 1;
+    // --- bandas de cada anillo (de afuera hacia adentro) ---
+    const [bandVoidC, bandRatio] = ringBandVoid;
+    [...rings].reverse().forEach((rg) => {
+      const band = svgEl('g', { class: 'sam-ring-band' });
+      band.appendChild(svgEl('path', { d: annulusPathD(C, C, rg.r0 + 2, rg.r1 + 4), 'fill-rule': 'evenodd', fill: inkColor }));
+      band.appendChild(svgEl('path', { d: annulusPathD(C, C, rg.r0 + 2, rg.r1), 'fill-rule': 'evenodd', fill: mix(rg.group.color, bandVoidC, bandRatio) }));
+      root.appendChild(band);
+      this.ringEls.set(rg.group.id, { band });
     });
 
-    const hovering = this.hover !== null;
-    // hojas y pétalos, de afuera hacia adentro
-    [...this.rings].reverse().forEach((rg) => {
-      const rot = rg.dir * T * o.ringRotationSpeed;
+    // --- hojas y pétalos, de afuera hacia adentro ---
+    const ringDur = 360 / Math.max(o.ringRotationSpeed, 1e-6);
+    [...rings].reverse().forEach((rg) => {
+      const spin = svgEl('g', { style: spinStyle(ringDur, rg.dir === 1 ? 'normal' : 'reverse') });
+      const baseColor = leafBaseColor(rg, vivid, theme, voidCore);
+      const litColor = leafLitColor(rg, vivid, theme);
       const { n, L, mid, w } = rg;
-      const dimR = dimGroup(rg.group);
 
       for (let j = 0; j < n; j++) {
+        const delay = rg.k / Math.max(o.glow.speed, 1e-6);
+        const slotWrap = svgEl('g', {
+          class: 'sam-leaf-slot',
+          style: `--sam-base:${baseColor};--sam-lit:${litColor};animation-name:sam-glow;animation-duration:${glowPeriod.toFixed(3)}s;animation-timing-function:linear;animation-iteration-count:infinite;animation-delay:${delay.toFixed(3)}s;`,
+        });
+        slotWrap.dataset.ring = rg.group.id;
+        slotWrap.dataset.slot = String(j);
+        slotWrap.dataset.delay = delay.toFixed(3);
+        this.leafSlotEls.set(`${rg.group.id}:${j}`, slotWrap);
+
         if (rg.inner) {
           const slot = 360 / n;
           const gap = (2 * Math.PI * mid) / n - w * 1.25;
           const m = Math.max(1, Math.round(gap / (L * 0.55)));
           for (let i = 0; i < m; i++) {
-            ctx.save();
-            ctx.translate(C, C);
-            ctx.rotate(rad((360 * j) / n + rot) + (rad(slot) * (i + 1)) / (m + 1));
-            ctx.translate(rg.r0 + L * 0.06, 0);
-            ctx.globalAlpha = dimR ? 0.12 : 1;
+            const ang = (360 * j) / n + (slot * (i + 1)) / (m + 1);
             const lw = Math.min((gap / m) * 0.72, L * 0.6);
             const ll = L * (i % 2 ? 0.82 : 0.98);
-            this.petalPath('leaf', ll, lw);
-            this.fill(this.leafColor(rg, this.leafGlow(T, rg, j)));
-            this.ink(1.8);
-            ctx.beginPath();
-            ctx.moveTo(ll * 0.12, 0);
-            ctx.lineTo(ll * 0.86, 0);
-            this.ink(1.2);
-            ctx.restore();
+            const g = svgEl('g', { transform: `translate(${C} ${C}) rotate(${ang}) translate(${rg.r0 + L * 0.06},0)` });
+            g.appendChild(svgEl('path', { d: petalPathD('leaf', ll, lw), class: 'sam-leaf-fill', stroke: inkColor, 'stroke-width': inkW(1.8) }));
+            g.appendChild(svgEl('path', { d: `M${ll * 0.12},0 L${ll * 0.86},0`, fill: 'none', stroke: inkColor, 'stroke-width': inkW(1.2) }));
+            slotWrap.appendChild(g);
           }
         } else {
-          ctx.save();
-          ctx.translate(C, C);
-          ctx.rotate(rad((360 * (j + 0.5)) / n + rot));
-          ctx.translate(rg.r0 + L * 0.1, 0);
-          ctx.globalAlpha = dimR ? 0.12 : 1;
-          this.petalPath('leaf', L * 1.2, w * 0.62);
-          this.fill(this.leafColor(rg, this.leafGlow(T, rg, j)));
-          this.ink(1.8);
-          ctx.beginPath();
-          ctx.moveTo(L * 0.12, 0);
-          ctx.lineTo(L * 1.08, 0);
-          this.ink(1.2);
-          ctx.restore();
+          const ang = (360 * (j + 0.5)) / n;
+          const g = svgEl('g', { transform: `translate(${C} ${C}) rotate(${ang}) translate(${rg.r0 + L * 0.1},0)` });
+          g.appendChild(svgEl('path', { d: petalPathD('leaf', L * 1.2, w * 0.62), class: 'sam-leaf-fill', stroke: inkColor, 'stroke-width': inkW(1.8) }));
+          g.appendChild(svgEl('path', { d: `M${L * 0.12},0 L${L * 1.08},0`, fill: 'none', stroke: inkColor, 'stroke-width': inkW(1.2) }));
+          slotWrap.appendChild(g);
         }
+        spin.appendChild(slotWrap);
       }
 
-      for (const p of this.petals) {
+      for (const p of petals) {
         if (p.ring !== rg) continue;
-        const a = rad(p.a0 + rot);
-        p.hx = C + Math.cos(a) * mid;
-        p.hy = C + Math.sin(a) * mid;
-        const alpha = dimGroup(rg.group) ? o.focusDim : hovering && this.hover !== p ? o.hoverDim : 1;
-        this.drawPetal(p, rot, 1, alpha, false);
-        // punto dorado entre elementos
-        const ad = rad(p.a0 + 180 / n + rot);
-        const rr = rg.r0 + (rg.inner ? 5 : 7);
-        ctx.globalAlpha = alpha;
-        ctx.beginPath();
-        ctx.arc(C + Math.cos(ad) * rr, C + Math.sin(ad) * rr, rg.inner ? 2.6 : 3.6, 0, Math.PI * 2);
-        this.fill('#f4d35e');
-        if (!rg.inner) this.ink(1.2);
-        ctx.globalAlpha = 1;
+        this.appendPetal(spin, p, vivid, voidCore, inkColor, inkW);
       }
+
+      root.appendChild(spin);
     });
 
-    // elemento bajo el cursor, encima de todo
-    if (this.hover) {
-      const rot = this.hover.ring.dir * T * o.ringRotationSpeed;
-      this.drawPetal(this.hover, rot, o.hoverScale, 1, true);
-    }
+    // --- centro de puntos ---
+    const cr = rings[0].r0 - 2;
+    root.appendChild(svgEl('circle', { cx: C, cy: C, r: cr + 3, fill: voidCore }));
 
-    // centro de puntos
-    const cr = this.rings[0].r0 - 2;
-    const crot = -T * o.centerSpinSpeed;
-    ctx.beginPath();
-    ctx.arc(C, C, cr + 3, 0, Math.PI * 2);
-    this.fill(this.voidCore);
+    const leavesDur = 360 / Math.max(o.centerSpinSpeed, 1e-6);
+    const leavesSpin = svgEl('g', { style: spinStyle(leavesDur, 'reverse') });
     for (let k = 0; k < 12; k++) {
-      ctx.save();
-      ctx.translate(C, C);
-      ctx.rotate(rad(crot + k * 30));
-      ctx.translate(cr * 0.3, 0);
-      this.dotLeaf(cr * 0.66, cr * 0.17, '#2de2e6', '#ffffff', '#f4d35e', 2.2);
-      ctx.restore();
+      const g = svgEl('g', { transform: `translate(${C} ${C}) rotate(${k * 30}) translate(${cr * 0.3} 0)` });
+      appendDotLeaf(g, cr * 0.66, cr * 0.17, '#2de2e6', '#ffffff', '#f4d35e', 2.2);
+      leavesSpin.appendChild(g);
     }
-    const dots: Array<[number, number, string, number]> = [
+    root.appendChild(leavesSpin);
+
+    const dotsSpin = svgEl('g', { style: spinStyle(leavesDur, 'normal') });
+    const dotsCfg: Array<[number, number, string, number]> = [
       [cr * 0.9, 22, '#2de2e6', 2.4],
       [cr * 0.26, 10, '#f4d35e', 2.2],
     ];
-    for (const [r, nn, c, dr] of dots) {
+    for (const [r, nn, c, dr] of dotsCfg) {
       for (let k = 0; k < nn; k++) {
-        const a = rad((k * 360) / nn - crot);
-        ctx.beginPath();
-        ctx.arc(C + Math.cos(a) * r, C + Math.sin(a) * r, dr, 0, Math.PI * 2);
-        this.fill(c);
+        const a = (k * 360) / nn;
+        const g = svgEl('g', { transform: `rotate(${a} ${C} ${C})` });
+        g.appendChild(svgEl('circle', { cx: C + r, cy: C, r: dr, fill: c }));
+        dotsSpin.appendChild(g);
       }
     }
-    ctx.beginPath();
-    ctx.arc(C, C, cr * 0.16, 0, Math.PI * 2);
-    this.fill('#ffffff');
-    this.ink(2);
-    ctx.beginPath();
-    ctx.arc(C, C, cr * 0.07, 0, Math.PI * 2);
-    this.fill('#2de2e6');
+    root.appendChild(dotsSpin);
 
+    root.appendChild(svgEl('circle', { cx: C, cy: C, r: cr * 0.16, fill: '#ffffff', stroke: inkColor, 'stroke-width': inkW(2) }));
+    root.appendChild(svgEl('circle', { cx: C, cy: C, r: cr * 0.07, fill: '#2de2e6' }));
+
+    // reaplicar foco/hover (p. ej. tras un setOptions) ya que render() reconstruye todo el árbol.
+    this.setFocus(this.focus);
+    if (this.hoverId && this.petalEls.has(this.hoverId)) this.applyHoverVisual(this.hoverId, true);
+    else this.hoverId = null;
   }
+
+  private appendPetal(
+    spin: SVGGElement,
+    p: PetalLayout,
+    vivid: boolean,
+    voidCore: string,
+    inkColor: string,
+    inkW: (w: number) => number,
+  ) {
+    const rg = p.ring;
+    const outerColor = vivid ? p.vivid : p.original;
+    const innerColor = vivid ? p.vividInner : p.originalInner;
+    const layersSpec: Array<[number, string]> = vivid
+      ? [
+          [1, rg.group.color],
+          [0.78, voidCore],
+          [0.72, outerColor],
+          [0.42, innerColor],
+        ]
+      : [
+          [1, rg.group.color],
+          [0.7, outerColor],
+          [0.42, innerColor],
+        ];
+
+    const pos = svgEl('g', { transform: `translate(${C} ${C}) rotate(${p.a0}) translate(${rg.r0},0)` });
+    const inner = svgEl('g', { class: 'sam-petal' });
+    inner.dataset.itemId = p.item.id;
+
+    const layers: PetalLayerRef[] = [];
+    layersSpec.forEach(([k, col], li) => {
+      const tx = li ? rg.L * (1 - k) * 0.2 : 0;
+      const group = svgEl('g', { transform: `translate(${tx},0) scale(${k})` });
+      const path = svgEl('path', {
+        d: petalPathD(rg.shape, rg.L, rg.w),
+        fill: col,
+        stroke: inkColor,
+        'stroke-width': (inkW(2.2) / k).toFixed(3),
+      });
+      group.appendChild(path);
+      if (rg.shape === 'leaf' && li === 0) {
+        group.appendChild(svgEl('path', { d: veinsPathD(rg.L, rg.w), fill: 'none', stroke: inkColor, 'stroke-width': (inkW(1.3) / k).toFixed(3) }));
+      }
+      inner.appendChild(group);
+      layers.push({ group, path, tx, k });
+    });
+
+    pos.appendChild(inner);
+    spin.appendChild(pos);
+    this.petalEls.set(p.item.id, { pos, inner, layers, ring: rg });
+
+    // punto dorado entre elementos
+    const ad = p.a0 + 180 / rg.n;
+    const rr = rg.r0 + (rg.inner ? 5 : 7);
+    const dotG = svgEl('g', { transform: `translate(${C} ${C}) rotate(${ad}) translate(${rr},0)` });
+    dotG.appendChild(
+      svgEl('circle', {
+        cx: 0,
+        cy: 0,
+        r: rg.inner ? 2.6 : 3.6,
+        fill: '#f4d35e',
+        ...(rg.inner ? {} : { stroke: inkColor, 'stroke-width': inkW(1.2) }),
+      }),
+    );
+    spin.appendChild(dotG);
+  }
+}
+
+function buildStyleSheet(glowKeyframesCss: string, glowMax: number): string {
+  return `
+@property --sam-glow { syntax: '<number>'; inherits: true; initial-value: 0; }
+${glowKeyframesCss}
+@keyframes sam-breathe { 0%, 100% { --sam-glow: 0; } 50% { --sam-glow: ${glowMax}; } }
+@keyframes sam-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.sam-mandala.sam-paused * { animation-play-state: paused !important; }
+.sam-leaf-fill { fill: color-mix(in srgb, var(--sam-base) calc((1 - var(--sam-glow)) * 100%), var(--sam-lit) calc(var(--sam-glow) * 100%)); }
+.sam-ring-band.sam-dim-band { opacity: 0.25; }
+.sam-leaf-slot.sam-dim-leaf { opacity: 0.12; animation-play-state: paused; }
+.sam-dim-petal { opacity: var(--sam-focus-dim, 0.15); pointer-events: none; }
+.sam-dim-hover { opacity: var(--sam-hover-dim, 0.62); }
+.sam-petal { cursor: pointer; }
+@media (prefers-reduced-motion: reduce) {
+  .sam-mandala [style*='animation-name'] { animation: none !important; }
+}
+`;
 }
