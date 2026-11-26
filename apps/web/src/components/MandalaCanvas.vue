@@ -9,7 +9,7 @@ const props = defineProps<{
   focus: string | null;
   options?: Partial<MandalaOptions>;
 }>();
-const emit = defineEmits<{ hover: [info: HoverInfo | null] }>();
+const emit = defineEmits<{ hover: [info: HoverInfo | null]; select: [info: HoverInfo] }>();
 
 const canvas = ref<HTMLCanvasElement>();
 let figure: MandalaFigure | null = null;
@@ -18,6 +18,7 @@ onMounted(() => {
   if (!canvas.value) return;
   figure = new MandalaFigure(canvas.value, props.data, { ...props.options, colorMode: props.colorMode, theme: props.theme });
   figure.onHover = (info) => emit('hover', info);
+  figure.onSelect = (info) => emit('select', info);
   figure.setFocus(props.focus);
   figure.start();
 });
@@ -38,9 +39,8 @@ watch(() => props.options, (o) => o && figure?.setOptions(o), { deep: true });
 <style scoped>
 .figure {
   display: block;
-  width: min(100%, 78vh);
-  aspect-ratio: 1;
-  margin: 0 auto;
+  width: 100%;
+  height: 100%;
   touch-action: manipulation;
   cursor: crosshair;
 }
