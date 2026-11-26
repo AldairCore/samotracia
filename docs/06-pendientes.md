@@ -8,6 +8,7 @@ Estado al 29 oct 2026. Lo hecho está en el historial de git; aquí solo lo que 
 - [ ] Extraer lo común a una clase base `Figure` (canvas, resize, pausa fuera de pantalla, hover, foco, modo de color) cuando haya una segunda figura.
 - [ ] Selector de figura en la app.
 - [ ] Exportar la figura como PNG.
+- [ ] El mandala pierde nitidez con zoom de pellizco en el celular (limitación de `<canvas>`, mapa de bits a resolución fija). Pasar a SVG lo arreglaría pero es reescritura grande de `mandala.ts` (~650 líneas); ver decisión abierta en `docs/01-plan-del-proyecto.md`.
 
 ## Dualidad (Harmonía)
 - [ ] Conseguir una playlist de ella y clasificarla igual que Core.Lore.
@@ -24,7 +25,9 @@ Estado al 29 oct 2026. Lo hecho está en el historial de git; aquí solo lo que 
 - [x] Extraer colores de la carátula en la app (canvas, `packages/figures/src/palette.ts`) en lugar del JSON fijo, con caché por URL de imagen.
 - [x] Portadas reales mostradas en vivo desde Spotify en la ficha.
 - [x] Transferir datos ya sincronizados a un dispositivo sin acceso a Spotify (copiar/pegar texto, ver "Transferir datos" en la app) — útil si una red bloquea Spotify (p. ej. filtros tipo Sophos categorizan `*.spotify.com` como "Streaming Media").
-- [ ] Clasificación de géneros editable en la app: hoy solo existe lo mínimo (reasignar una canción "Sin clasificar" a un grupo existente); falta mover canciones ya clasificadas, crear/renombrar grupos y editar su color desde la UI.
+- [x] Canciones nuevas (que no calzan con `core-lore.json`) se sugieren con Last.fm (`apps/web/src/lastfm/`): tags del artista contra palabras clave de los 9 grupos fijos de hoy; si no calza ninguno, cae en "Sin clasificar" para reasignar a mano. No toca las 141 canciones ya clasificadas. Ver `docs/03-fuentes-de-datos.md`.
+- [ ] Decidido no construir por ahora: crear/renombrar/recolorear grupos a mano desde la UI — se prefiere mantener los 9 grupos fijos (así no se mueven los anillos del mandala) y dejar que Last.fm ayude a ubicar canciones nuevas en esos mismos grupos.
+- [ ] "Mandala gemela": una segunda figura con clasificación completamente dinámica por Last.fm (sin los 9 grupos fijos, puede crear grupos nuevos tipo Jazz si aparecen) — experimento aparte, no reemplaza la actual.
 - [ ] Playlist de ella: falta que exista; cuando la tenga se agrega con el mismo mecanismo de "agregar playlist" (hoy pensado para varias playlists de una sola voz, falta decidir cómo distinguir voz A de voz B).
 
 ## Repositorio

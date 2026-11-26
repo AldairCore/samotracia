@@ -4,6 +4,8 @@ import { extractPalette } from '@samotracia/figures';
 import coreLoreJson from '../data/core-lore.json';
 import { getValidAccessToken, isAuthenticated, login, logout } from '../spotify/auth';
 import { fetchPlaylistTracks, parsePlaylistIdFromInput, type RawTrack } from '../spotify/api';
+import { fetchArtistTags } from '../lastfm/api';
+import { guessGroupFromTags } from '../lastfm/classify';
 
 interface PlaylistConfig {
   id: string;
@@ -21,6 +23,7 @@ const GROUPS_KEY = 'samotracia-groups';
 const CLASSIFICATION_KEY = 'samotracia-classification';
 const CACHE_KEY = 'samotracia-library-cache';
 const PALETTE_CACHE_KEY = 'samotracia-palette-cache';
+const LASTFM_CACHE_KEY = 'samotracia-lastfm-cache';
 const UNCLASSIFIED_ID = 'unclassified';
 const UNCLASSIFIED_COLOR = '#8a8a8a';
 /** No volver a pedirle a Spotify los tracks si la última sincronización fue hace menos de esto. */
@@ -91,6 +94,8 @@ const playlists = ref<PlaylistConfig[]>(readJson(PLAYLISTS_KEY, defaultPlaylists
 const groups = ref<GroupConfig[]>(readJson(GROUPS_KEY, defaultGroups()));
 const classification = ref<Record<string, string>>(readJson(CLASSIFICATION_KEY, {}));
 const paletteCache = ref<Record<string, string[]>>(readJson(PALETTE_CACHE_KEY, {}));
+/** Tags de Last.fm por artista (clave normalizada), para no volver a pedirlos en cada sync. */
+const lastfmTagsCache = ref<Record<string, string[]>>(readJson(LASTFM_CACHE_KEY, {}));
 
 const initialCache = readJson<{ data: FigureData; syncedAt: string } | null>(CACHE_KEY, null);
 const library = ref<FigureData>(initialCache?.data ?? legacyData);
@@ -108,19 +113,38 @@ function persistClassification() {
 function persistPalette() {
   writeJson(PALETTE_CACHE_KEY, paletteCache.value);
 }
+function persistLastfmCache() {
+  writeJson(LASTFM_CACHE_KEY, lastfmTagsCache.value);
+}
 function persistCache() {
   writeJson(CACHE_KEY, { data: library.value, syncedAt: lastSyncedAt.value });
 }
 
-function groupIdFor(track: RawTrack): string {
+/** Tags de Last.fm del artista, con caché; `[]` si ya se sabía que no hay o falló. */
+async function tagsFor(artist: string): Promise<string[]> {
+  const key = normalize(artist);
+  const cached = lastfmTagsCache.value[key];
+  if (cached) return cached;
+  const tags = await fetchArtistTags(artist);
+  lastfmTagsCache.value[key] = tags;
+  return tags;
+}
+
+/**
+ * Clasificación manual > emparejar con core-lore.json (canciones ya conocidas) > Last.fm
+ * (canciones nuevas, por tags del artista) > "Sin clasificar" para que la asignes a mano.
+ */
+async function groupIdFor(track: RawTrack): Promise<string> {
   const existing = classification.value[track.spotifyId];
   if (existing) return existing;
 
   const title = normalize(track.title);
-  const guess =
+  const legacyGuess =
     legacyIndex.exact.get(`${title}|${normalize(track.artists)}`) ??
-    legacyIndex.byFirstArtist.get(`${title}|${normalize(firstArtist(track.artists))}`) ??
-    UNCLASSIFIED_ID;
+    legacyIndex.byFirstArtist.get(`${title}|${normalize(firstArtist(track.artists))}`);
+
+  const tags = legacyGuess ? null : await tagsFor(firstArtist(track.artists));
+  const guess = legacyGuess ?? (tags && guessGroupFromTags(tags)) ?? UNCLASSIFIED_ID;
 
   classification.value[track.spotifyId] = guess;
   return guess;
@@ -186,7 +210,7 @@ export async function refresh(force = false): Promise<void> {
     let position = 0;
     for (const track of rawTracks) {
       position++;
-      const groupId = groupIdFor(track);
+      const groupId = await groupIdFor(track);
       const palette = await paletteFor(track);
       const item: Item = {
         id: track.spotifyId,
@@ -208,6 +232,7 @@ export async function refresh(force = false): Promise<void> {
 
     persistClassification();
     persistPalette();
+    persistLastfmCache();
     persistCache();
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'No se pudo sincronizar con Spotify.';
