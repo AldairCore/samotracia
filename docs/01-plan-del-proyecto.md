@@ -74,7 +74,7 @@ Cada fase deja algo usable y tiene un criterio claro de salida.
 - [ ] Color base de cada voz y color de lo nuestro.
 - [x] Estilo visual: ilustración plana con contornos oscuros y colores sólidos, sin brillos ni degradados (inspirado en mandalas).
 - [ ] Backend para la Fase 3: NestJS (recomendado), Spring Boot o Supabase (ver `02-arquitectura-y-stack.md`).
-- [ ] Canvas 2D, o pasar a SVG/PixiJS para exportar mejor.
+- [x] Se pasó de Canvas 2D a SVG (nitidez a cualquier zoom); ver `packages/figures/src/mandala.ts`.
 - [ ] Qué colección sigue después de música.
 
 ## 6. Riesgos

@@ -469,14 +469,37 @@ export class MandalaFigure {
     const inkW = (w: number) => (vivid ? w * 1.75 : w);
 
     // --- layout de anillos y pétalos: misma matemática que la versión en canvas ---
-    const order = this.data.groups.map((g, i) => ({ g, i })).sort((a, b) => a.g.items.length - b.g.items.length || a.i - b.i);
+    // Un grupo mucho más grande que el resto (p. ej. 1 playlist nueva con 97 de 100 canciones en
+    // un solo género) se partía en un único anillo carguísimo, casi ilegible. Si pasa de
+    // MAX_ITEMS_PER_RING, se reparte en anillos concéntricos del mismo grupo (mismo color/foco),
+    // cada uno con tantas canciones como cabrían cómodas en un anillo normal.
+    const MAX_ITEMS_PER_RING = 48;
+    const specs: Array<{ g: Group; items: Item[]; i: number }> = [];
+    this.data.groups.forEach((g, i) => {
+      const total = g.items.length;
+      if (!total) return;
+      const splitCount = Math.ceil(total / MAX_ITEMS_PER_RING);
+      if (splitCount <= 1) {
+        specs.push({ g, items: g.items, i });
+        return;
+      }
+      const base = Math.floor(total / splitCount);
+      const extra = total % splitCount;
+      let offset = 0;
+      for (let s = 0; s < splitCount; s++) {
+        const size = base + (s < extra ? 1 : 0);
+        specs.push({ g, items: g.items.slice(offset, offset + size), i });
+        offset += size;
+      }
+    });
+    const order = specs.sort((a, b) => a.items.length - b.items.length || a.i - b.i);
     const DSH: Shape[] = ['lotus', 'drop', 'leaf', 'scallop'];
     const rings: RingLayout[] = [];
     const petals: PetalLayout[] = [];
     let r0 = 70;
     let idx = 0;
-    order.forEach(({ g }, ri) => {
-      const n = g.items.length;
+    order.forEach(({ g, items }, ri) => {
+      const n = items.length;
       if (!n) return;
       const th = n < 6 ? 58 : n < 15 ? 50 : 56;
       const r1 = r0 + th;
@@ -499,7 +522,7 @@ export class MandalaFigure {
         k: 0,
       };
       rings.push(ring);
-      g.items.forEach((item, j) => {
+      items.forEach((item, j) => {
         const [v, vi] = vividColors(item, g.color, idx++);
         petals.push({ item, ring, slot: j, a0: (360 * j) / n, vivid: v, vividInner: vi, original: item.palette[0], originalInner: contrastColor(item) });
       });
@@ -567,7 +590,9 @@ export class MandalaFigure {
         slotWrap.dataset.ring = rg.group.id;
         slotWrap.dataset.slot = String(j);
         slotWrap.dataset.delay = delay.toFixed(3);
-        this.leafSlotEls.set(`${rg.group.id}:${j}`, slotWrap);
+        // Clave por instancia de anillo (rg.index), no solo por grupo: un grupo partido en varios
+        // anillos (ver MAX_ITEMS_PER_RING) reusa índices de hoja 0..n en cada uno, y colisionarían.
+        this.leafSlotEls.set(`${rg.index}:${j}`, slotWrap);
 
         if (rg.inner) {
           const slot = 360 / n;

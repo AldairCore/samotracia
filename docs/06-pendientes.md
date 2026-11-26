@@ -8,7 +8,8 @@ Estado al 29 oct 2026. Lo hecho está en el historial de git; aquí solo lo que 
 - [ ] Extraer lo común a una clase base `Figure` (canvas, resize, pausa fuera de pantalla, hover, foco, modo de color) cuando haya una segunda figura.
 - [ ] Selector de figura en la app.
 - [ ] Exportar la figura como PNG.
-- [ ] El mandala pierde nitidez con zoom de pellizco en el celular (limitación de `<canvas>`, mapa de bits a resolución fija). Pasar a SVG lo arreglaría pero es reescritura grande de `mandala.ts` (~650 líneas); ver decisión abierta en `docs/01-plan-del-proyecto.md`.
+- [x] Mandala pasado de `<canvas>` a SVG (vectorial): ya no pierde nitidez con zoom de pellizco en el celular. Rotación y onda de luz vía CSS (`@keyframes`/`@property`), hit-testing por DOM nativo. Al seleccionar un género ese anillo respira con pulso propio y los demás se pausan y dejan de ser clicables.
+- [x] Un grupo mucho más grande que el resto (p. ej. una playlist nueva muy desbalanceada) ya no se aprieta en un solo anillo ilegible: si pasa de `MAX_ITEMS_PER_RING` (48) se reparte en varios anillos concéntricos del mismo color/grupo, repartidos lo más parejo posible.
 
 ## Dualidad (Harmonía)
 - [ ] Conseguir una playlist de ella y clasificarla igual que Core.Lore.
