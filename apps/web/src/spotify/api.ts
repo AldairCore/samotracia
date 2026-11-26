@@ -24,6 +24,53 @@ interface PlaylistItemsResponse {
   next: string | null;
 }
 
+export interface MyPlaylist {
+  id: string;
+  name: string;
+  trackCount: number;
+}
+
+interface MyPlaylistsResponse {
+  /** Desde la migración de feb-2026 el conteo de canciones viene en `items.total`, no `tracks.total`. */
+  items?: ({ id: string; name: string; items?: { total?: number }; owner?: { id?: string }; collaborative?: boolean } | null)[];
+  next: string | null;
+}
+
+/** Id de Spotify del usuario autenticado, para distinguir sus playlists de las que solo sigue. */
+async function fetchMyUserId(accessToken: string): Promise<string | null> {
+  const res = await fetch('https://api.spotify.com/v1/me', { headers: { Authorization: `Bearer ${accessToken}` } });
+  if (!res.ok) return null;
+  const json: { id?: string } = await res.json();
+  return json.id ?? null;
+}
+
+/**
+ * Playlists del usuario autenticado que de verdad se pueden leer: en modo desarrollo, Spotify solo
+ * devuelve canciones de playlists donde el usuario es dueño o colaborador (ver docs/03). Las que
+ * solo sigue (de otra cuenta, no colaborativas) se descartan aquí para no ofrecer algo que al
+ * agregarlo va a fallar con 403.
+ */
+export async function fetchMyPlaylists(accessToken: string): Promise<MyPlaylist[]> {
+  const myId = await fetchMyUserId(accessToken);
+  const playlists: MyPlaylist[] = [];
+  let url: string | null = 'https://api.spotify.com/v1/me/playlists?limit=50';
+
+  while (url) {
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
+    if (!res.ok) throw new Error(`Spotify respondió ${res.status} al leer tus playlists`);
+    const json: MyPlaylistsResponse = await res.json();
+    for (const p of json.items ?? []) {
+      if (!p) continue;
+      const isMine = p.collaborative || (myId !== null && p.owner?.id === myId);
+      if (!isMine) continue;
+      playlists.push({ id: p.id, name: p.name, trackCount: p.items?.total ?? 0 });
+    }
+    url = json.next ?? null;
+  }
+
+  return playlists;
+}
+
 /** Acepta una URL completa de playlist de Spotify o el ID a secas. */
 export function parsePlaylistIdFromInput(value: string): string | null {
   const trimmed = value.trim();

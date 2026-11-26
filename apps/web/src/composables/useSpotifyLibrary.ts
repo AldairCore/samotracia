@@ -3,7 +3,7 @@ import type { FigureData, Group, Item } from '@samotracia/figures';
 import { extractPalette } from '@samotracia/figures';
 import coreLoreJson from '../data/core-lore.json';
 import { getValidAccessToken, isAuthenticated, login, logout } from '../spotify/auth';
-import { fetchPlaylistTracks, parsePlaylistIdFromInput, type RawTrack } from '../spotify/api';
+import { fetchMyPlaylists, fetchPlaylistTracks, parsePlaylistIdFromInput, type MyPlaylist, type RawTrack } from '../spotify/api';
 import { fetchArtistTags } from '../lastfm/api';
 import { guessGroupFromTags } from '../lastfm/classify';
 
@@ -241,6 +241,13 @@ export async function refresh(force = false): Promise<void> {
   }
 }
 
+/** Playlists de Spotify del usuario (públicas y privadas), para elegir cuáles alimentan el mandala. */
+export async function listMyPlaylists(): Promise<MyPlaylist[]> {
+  const token = await getValidAccessToken();
+  if (!token) throw new Error('La sesión de Spotify expiró. Conéctate de nuevo.');
+  return fetchMyPlaylists(token);
+}
+
 export function addPlaylist(input: string, label?: string): boolean {
   const id = parsePlaylistIdFromInput(input);
   if (!id || playlists.value.some((p) => p.id === id)) return false;
@@ -321,6 +328,7 @@ export function useSpotifyLibrary() {
     login,
     logout,
     refresh,
+    listMyPlaylists,
     addPlaylist,
     removePlaylist,
     assignGroup,

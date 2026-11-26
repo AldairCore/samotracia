@@ -23,7 +23,9 @@ Desde febrero de 2026 Spotify cambió el modo desarrollo de su API:
 - Las canciones de una playlist solo se devuelven para playlists **que el usuario es dueño o colaborador**. Por eso cada quien importa sus propias playlists con su cuenta.
 - Se quitaron las consultas por lotes (`GET /tracks`, `/artists`, etc.): hay que pedir cada elemento por ID.
 - `GET /playlists/{id}/tracks` se renombró a `/items`, y dentro de cada entrada el campo `track` también se renombró a `item` (trae además `track`/`episode` como booleanos, no solo `type`).
+- En el objeto de playlist (p. ej. `GET /me/playlists`), el conteo de canciones también se movió: antes era `tracks.total`, ahora es `items.total`.
 - Se quitaron campos como `popularity` y `followers`.
+- Los **Blends** (playlist colaborativa generada por Spotify entre varias cuentas) no se pueden leer por la API: no aparecen en `GET /me/playlists` y pegar su ID directo en `/playlists/{id}/items` da 403 Forbidden, aunque el usuario la vea y la comparta desde la app. Es una restricción de Spotify sobre ese tipo de playlist, no algo que se pueda rodear desde aquí.
 
 Fuentes: [Guía de migración de feb 2026](https://developer.spotify.com/documentation/web-api/tutorials/february-2026-migration-guide) · [Anuncio de Spotify](https://developer.spotify.com/blog/2026-02-06-update-on-developer-access-and-platform-security)
 

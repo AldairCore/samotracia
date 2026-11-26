@@ -4,6 +4,7 @@ import { contrastColor, vividColors, type ColorMode, type Group, type HoverInfo,
 import MandalaCanvas from './components/MandalaCanvas.vue';
 import { useTheme } from './composables/useTheme';
 import { useSpotifyLibrary } from './composables/useSpotifyLibrary';
+import type { MyPlaylist } from './spotify/api';
 
 const {
   library: data,
@@ -17,6 +18,7 @@ const {
   login,
   logout,
   refresh,
+  listMyPlaylists,
   addPlaylist,
   removePlaylist,
   assignGroup,
@@ -34,6 +36,12 @@ const hover = ref<HoverInfo | null>(null);
 const supportsHover = typeof matchMedia !== 'undefined' && matchMedia('(hover: hover)').matches;
 const newPlaylistInput = ref('');
 const playlistError = ref<string | null>(null);
+const myPlaylists = ref<MyPlaylist[] | null>(null);
+const myPlaylistsLoading = ref(false);
+const myPlaylistsError = ref<string | null>(null);
+/** Las que ya están agregadas no se vuelven a ofrecer: evita re-agregarlas y limpia la lista. */
+const availablePlaylists = computed(() => (myPlaylists.value ?? []).filter((p) => !playlists.value.some((pl) => pl.id === p.id)));
+const selectedPlaylistIds = ref<Record<string, boolean>>({});
 const exportText = ref('');
 const importText = ref('');
 const transferMessage = ref<string | null>(null);
@@ -126,6 +134,25 @@ function onRemovePlaylist(id: string) {
   refresh(true);
 }
 
+async function onBrowsePlaylists() {
+  myPlaylistsError.value = null;
+  myPlaylistsLoading.value = true;
+  try {
+    myPlaylists.value = await listMyPlaylists();
+  } catch (e) {
+    myPlaylistsError.value = e instanceof Error ? e.message : 'No se pudo traer tus playlists.';
+  } finally {
+    myPlaylistsLoading.value = false;
+  }
+}
+
+function onAddSelectedPlaylists() {
+  const toAdd = (myPlaylists.value ?? []).filter((p) => selectedPlaylistIds.value[p.id]);
+  for (const p of toAdd) addPlaylist(p.id, p.name);
+  selectedPlaylistIds.value = {};
+  if (toAdd.length) refresh(true);
+}
+
 function onReassign(event: Event, itemId: string) {
   const select = event.target as HTMLSelectElement;
   if (!select.value) return;
@@ -177,18 +204,6 @@ function onImport() {
       </div>
       <span v-if="isAuthenticated || status === 'imported'" class="muted sync-status">{{ statusLabel }}</span>
       <span v-if="error" class="error">{{ error }}</span>
-      <div class="chips">
-        <button type="button" :aria-pressed="focus === null" @click="focus = null">Todos</button>
-        <button
-          v-for="g in data.groups"
-          :key="g.id"
-          type="button"
-          :aria-pressed="focus === g.id"
-          @click="focus = focus === g.id ? null : g.id"
-        >
-          <i class="dot" :style="{ background: g.color }" />{{ g.name }} <span class="count">{{ g.items.length }}</span>
-        </button>
-      </div>
     </div>
 
     <div v-if="isAuthenticated" class="playlists">
@@ -199,6 +214,88 @@ function onImport() {
       <input v-model="newPlaylistInput" type="text" placeholder="URL o ID de otra playlist tuya" @keyup.enter="onAddPlaylist" />
       <button type="button" @click="onAddPlaylist">Agregar</button>
       <span v-if="playlistError" class="error">{{ playlistError }}</span>
+    </div>
+
+    <div v-if="isAuthenticated" class="playlist-browser">
+      <button type="button" :disabled="myPlaylistsLoading" @click="onBrowsePlaylists">
+        {{ myPlaylistsLoading ? 'Cargando…' : 'Ver mis playlists de Spotify' }}
+      </button>
+      <span v-if="myPlaylistsError" class="error">{{ myPlaylistsError }}</span>
+      <div v-if="myPlaylists" class="playlist-browser-rows">
+        <p v-if="!myPlaylists.length" class="muted">
+          No se encontró ninguna playlist tuya o colaborativa. Las que solo sigues de otras cuentas
+          no se muestran: Spotify no deja leer sus canciones en este modo de la app.
+        </p>
+        <p v-else-if="!availablePlaylists.length" class="muted">Ya agregaste todas tus playlists disponibles.</p>
+        <label v-for="p in availablePlaylists" :key="p.id" class="playlist-browser-row">
+          <input
+            type="checkbox"
+            :checked="selectedPlaylistIds[p.id] ?? false"
+            @change="selectedPlaylistIds[p.id] = ($event.target as HTMLInputElement).checked"
+          />
+          <span>{{ p.name }}</span>
+          <span class="muted">{{ p.trackCount }} canciones</span>
+        </label>
+        <button
+          v-if="availablePlaylists.length"
+          type="button"
+          :disabled="!Object.values(selectedPlaylistIds).some(Boolean)"
+          @click="onAddSelectedPlaylists"
+        >
+          Agregar seleccionadas
+        </button>
+      </div>
+    </div>
+
+    <div class="chips">
+      <button type="button" :aria-pressed="focus === null" @click="focus = null">Todos</button>
+      <button
+        v-for="g in data.groups"
+        :key="g.id"
+        type="button"
+        :aria-pressed="focus === g.id"
+        @click="focus = focus === g.id ? null : g.id"
+      >
+        <i class="dot" :style="{ background: g.color }" />{{ g.name }} <span class="count">{{ g.items.length }}</span>
+      </button>
+    </div>
+
+    <section class="stage">
+      <div class="canvas-wrap">
+        <MandalaCanvas
+          :data="data"
+          :color-mode="colorMode"
+          :theme="theme"
+          :focus="focus"
+          @select="selected = $event"
+          @hover="hover = $event"
+        />
+        <span v-if="supportsHover && hover" class="hover-label" :style="hoverLabelStyle">{{ hoverLabel }}</span>
+      </div>
+    </section>
+
+    <div v-if="selected" class="modal-backdrop" @click.self="selected = null">
+      <div class="modal" role="dialog" aria-modal="true" :aria-label="selected.item.title">
+        <button type="button" class="modal-close" aria-label="Cerrar" @click="selected = null">✕</button>
+        <div class="modal-cover">
+          <img
+            v-if="selected.item.imageUrl && !coverFailed"
+            :src="selected.item.imageUrl"
+            :alt="selected.item.title"
+            @error="coverFailed = true"
+          />
+          <div v-else class="modal-cover-fallback" :style="{ background: selected.color }" />
+        </div>
+        <div class="modal-palette">
+          <i v-for="c in selected.item.palette" :key="c" :style="{ background: c }" />
+        </div>
+        <div class="modal-body">
+          <span class="eyebrow" :style="{ color: selected.group.color }">{{ selected.group.name }} · #{{ selected.item.position }}</span>
+          <strong>{{ selected.item.title }}</strong>
+          <span class="muted">{{ selected.item.subtitle }}</span>
+          <a v-if="selected.item.sourceUrl" :href="selected.item.sourceUrl" target="_blank" rel="noopener">Abrir en Spotify ↗</a>
+        </div>
+      </div>
     </div>
 
     <details class="songlist">
@@ -239,44 +336,6 @@ function onImport() {
       </div>
       <p v-if="transferMessage" class="muted">{{ transferMessage }}</p>
     </details>
-
-    <section class="stage">
-      <div class="canvas-wrap">
-        <MandalaCanvas
-          :data="data"
-          :color-mode="colorMode"
-          :theme="theme"
-          :focus="focus"
-          @select="selected = $event"
-          @hover="hover = $event"
-        />
-        <span v-if="supportsHover && hover" class="hover-label" :style="hoverLabelStyle">{{ hoverLabel }}</span>
-      </div>
-    </section>
-
-    <div v-if="selected" class="modal-backdrop" @click.self="selected = null">
-      <div class="modal" role="dialog" aria-modal="true" :aria-label="selected.item.title">
-        <button type="button" class="modal-close" aria-label="Cerrar" @click="selected = null">✕</button>
-        <div class="modal-cover">
-          <img
-            v-if="selected.item.imageUrl && !coverFailed"
-            :src="selected.item.imageUrl"
-            :alt="selected.item.title"
-            @error="coverFailed = true"
-          />
-          <div v-else class="modal-cover-fallback" :style="{ background: selected.color }" />
-        </div>
-        <div class="modal-palette">
-          <i v-for="c in selected.item.palette" :key="c" :style="{ background: c }" />
-        </div>
-        <div class="modal-body">
-          <span class="eyebrow" :style="{ color: selected.group.color }">{{ selected.group.name }} · #{{ selected.item.position }}</span>
-          <strong>{{ selected.item.title }}</strong>
-          <span class="muted">{{ selected.item.subtitle }}</span>
-          <a v-if="selected.item.sourceUrl" :href="selected.item.sourceUrl" target="_blank" rel="noopener">Abrir en Spotify ↗</a>
-        </div>
-      </div>
-    </div>
 
     <section v-if="unclassifiedItems.length" class="unclassified">
       <h2 class="eyebrow">Sin clasificar ({{ unclassifiedItems.length }})</h2>
@@ -331,6 +390,10 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .chip-remove { border: 0; background: transparent; padding: 2px 4px; border-radius: 50%; font-size: 11px; color: var(--muted); }
 .chip-remove:hover { color: var(--ink); }
 .playlists input { background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; color: var(--ink); font-size: 13px; min-width: 220px; }
+.playlist-browser { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.playlist-browser-rows { display: flex; flex-direction: column; gap: 2px; max-height: 240px; overflow-y: auto; width: 100%; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
+.playlist-browser-row { display: flex; align-items: center; gap: 8px; padding: 4px 6px; font-size: 13px; }
+.playlist-browser-row span:first-of-type { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .stage { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
 .canvas-wrap { position: relative; width: min(100%, 78vh); aspect-ratio: 1; margin: 0 auto; }
 .hover-label {
