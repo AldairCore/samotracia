@@ -127,8 +127,10 @@ export class MandalaFigure {
   private ro?: ResizeObserver;
   private cleanup: Array<() => void> = [];
 
-  /** Se llama cuando cambia el elemento bajo el cursor (null al salir). */
+  /** Se llama cuando cambia el elemento bajo el cursor (null al salir). Solo resalta, no es confiable en touch. */
   onHover: (info: HoverInfo | null) => void = () => {};
+  /** Se llama al tocar/clicar un elemento: dispara el detalle persistente (funciona igual en mouse y touch). */
+  onSelect: (info: HoverInfo) => void = () => {};
 
   constructor(
     private canvas: HTMLCanvasElement,
@@ -274,13 +276,20 @@ export class MandalaFigure {
       this.emitHover();
       this.requestDraw();
     };
+    // El navegador sintetiza "click" también al tapear en touch: una sola vía para ambos.
+    const onClick = (e: MouseEvent) => {
+      const p = this.pick(e);
+      if (p) this.onSelect(this.infoFor(p));
+    };
     this.canvas.addEventListener('pointermove', onMove);
     this.canvas.addEventListener('pointerdown', onMove);
     this.canvas.addEventListener('pointerleave', onLeave);
+    this.canvas.addEventListener('click', onClick);
     this.cleanup.push(() => {
       this.canvas.removeEventListener('pointermove', onMove);
       this.canvas.removeEventListener('pointerdown', onMove);
       this.canvas.removeEventListener('pointerleave', onLeave);
+      this.canvas.removeEventListener('click', onClick);
     });
     // pausa cuando no se ve
     this.io = new IntersectionObserver(([e]) => (this.visible = e.isIntersecting));
@@ -289,7 +298,7 @@ export class MandalaFigure {
     this.ro.observe(this.canvas);
   }
 
-  private pick(e: PointerEvent): Petal | null {
+  private pick(e: PointerEvent | MouseEvent): Petal | null {
     const r = this.canvas.getBoundingClientRect();
     const x = (((e.clientX - r.left) / r.width) * W - this.off) / this.fit;
     const y = (((e.clientY - r.top) / r.height) * W - this.off) / this.fit;
@@ -306,19 +315,22 @@ export class MandalaFigure {
     return best;
   }
 
-  private emitHover() {
-    const p = this.hover;
-    if (!p) return this.onHover(null);
+  private infoFor(p: Petal): HoverInfo {
     const r = this.canvas.getBoundingClientRect();
     const vivid = this.opts.colorMode === 'vivid';
-    this.onHover({
+    return {
       item: p.item,
       group: p.ring.group,
       color: vivid ? p.vivid : p.original,
       innerColor: vivid ? p.vividInner : p.originalInner,
       x: ((p.hx * this.fit + this.off) / W) * r.width,
       y: ((p.hy * this.fit + this.off) / W) * r.height,
-    });
+    };
+  }
+
+  private emitHover() {
+    const p = this.hover;
+    this.onHover(p ? this.infoFor(p) : null);
   }
 
   // ---------- primitivas ----------
@@ -494,6 +506,11 @@ export class MandalaFigure {
   // ---------- dibujo principal ----------
 
   private draw() {
+    // Sin anillos (datos vacíos, p. ej. mientras se sincroniza Spotify) no hay nada que dibujar.
+    // Sin este corte, el resto del método truena y mata el ciclo de animación para siempre:
+    // nadie vuelve a pedir el siguiente cuadro ni cuando después llegan datos buenos.
+    if (!this.rings.length) return;
+
     const ctx = this.ctx;
     const o = this.opts;
     const T = this.reduceMotion ? 0 : (performance.now() - this.startTime) / 1000;
